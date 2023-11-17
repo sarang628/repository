@@ -10,6 +10,7 @@ import com.sryang.torang_repository.repository.LoginRepository
 import com.sryang.torang_repository.session.SessionService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
 import java.net.ConnectException
 import java.net.UnknownHostException
@@ -56,7 +57,7 @@ class LoginRepositoryImpl @Inject constructor(
         return false;
     }
 
-    override val isLogin: StateFlow<Boolean> get() = sessionService.isLogin
+    override val isLogin: Flow<Boolean> get() = loggedInUserDao.getLoggedInUser().map { it != null }
     override fun getUserName(): Flow<String> {
         return loggedInUserDao.getUserName()
     }
