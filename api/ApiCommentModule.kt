@@ -15,8 +15,8 @@ class ApiCommentModule {
     @Singleton
     @Provides
     fun provideRemoteFeedService(
-//        apiComment: ProductApiComment,
-        apiComment: LocalApiComment
+        apiComment: ProductApiComment,
+//        apiComment: LocalApiComment
     ): ApiComment {
         return apiComment.create()
     }
