@@ -26,7 +26,10 @@ class ProfileRepositoryImpl @Inject constructor(
 ) : ProfileRepository {
 
     override suspend fun loadProfile(userId: Int): RemoteUser {
-        return apiProfile.getProfile(userId.toString())
+        sessionClientService.getToken()?.let {
+            return apiProfile.getProfileWithFollow(it, userId)
+        }
+        throw Exception("로그인 상태가 아닙니다.")
     }
 
     override suspend fun loadProfileByToken(): RemoteUser {
