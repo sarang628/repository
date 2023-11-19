@@ -26,23 +26,12 @@ class ProfileRepositoryImpl @Inject constructor(
 ) : ProfileRepository {
 
     override suspend fun loadProfile(userId: Int): RemoteUser {
-
-        val remoteUser = apiProfile.getProfile(userId.toString())
-
-        if (remoteUser.body() == null)
-            throw Exception("")
-
-        return remoteUser.body()!!
+        return apiProfile.getProfile(userId.toString())
     }
 
     override suspend fun loadProfileByToken(): RemoteUser {
         sessionClientService.getToken()?.let {
-            val remoteUser = apiProfile.getProfileByToken(it)
-
-            if (remoteUser.body() == null)
-                throw Exception("")
-
-            return remoteUser.body()!!
+            return apiProfile.getProfileByToken(it)
         }
         throw Exception("로그인 상태가 아닙니다.")
     }

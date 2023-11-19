@@ -46,11 +46,8 @@ class EditProfileRepositoryImpl @Inject constructor(
         }
 
         // 레트로핏으로 사용자 프로필 업데이트 Rest API 처리
-        apiProfile.updateProfile(token, params, pictureList).let {
-            it.data?.let {
-                response = EditProfileResponse.SUCCESS
-            }
-        }
+        apiProfile.updateProfile(token, params, pictureList)
+        response = EditProfileResponse.SUCCESS
 
         return response
     }

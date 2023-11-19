@@ -2,6 +2,7 @@ package com.sryang.torang_repository.di.repository.repository
 
 import com.sryang.torang_repository.di.repository.repository.impl.EditProfileRepositoryImpl
 import com.sryang.torang_repository.di.repository.repository.impl.FeedRepositoryImpl
+import com.sryang.torang_repository.di.repository.repository.impl.FollowRepositoryImpl
 import com.sryang.torang_repository.di.repository.repository.impl.InfoRepositoryImpl
 import com.sryang.torang_repository.di.repository.repository.impl.LoginRepositoryImpl
 import com.sryang.torang_repository.di.repository.repository.impl.MapRepositoryImpl
@@ -10,6 +11,7 @@ import com.sryang.torang_repository.di.repository.repository.impl.ProfileReposit
 import com.sryang.torang_repository.di.repository.repository.impl.ReviewRepositoryImpl
 import com.sryang.torang_repository.repository.EditProfileRepository
 import com.sryang.torang_repository.repository.FeedRepository
+import com.sryang.torang_repository.repository.FollowRepository
 import com.sryang.torang_repository.repository.LoginRepository
 import com.sryang.torang_repository.repository.MapRepository
 import com.sryang.torang_repository.repository.MenuRepository
@@ -47,4 +49,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun provideFeedRepository(feedRepositoryImpl: FeedRepositoryImpl): FeedRepository
+
+    @Binds
+    abstract fun provideFollowRepository(followRepository: FollowRepositoryImpl): FollowRepository
 }
