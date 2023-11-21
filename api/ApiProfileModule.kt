@@ -15,8 +15,8 @@ class ApiProfileModule {
     @Singleton
     @Provides
     fun provideRemoteFeedService(
-//        apiProfile: ProductApiProfile
-        apiProfile: LocalApiProfile
+        apiProfile: ProductApiProfile
+//        apiProfile: LocalApiProfile
     ): ApiProfile {
         return apiProfile.create()
     }
