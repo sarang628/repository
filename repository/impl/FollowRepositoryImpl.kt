@@ -67,4 +67,17 @@ class FollowRepositoryImpl @Inject constructor(
         }
         throw Exception("알 수 없는 오류가 발생했습니다.")
     }
+
+    override suspend fun delete(userId: Int): Boolean {
+        try {
+            sessionService.getToken()?.let {
+                return apiProfile.delete(it, userId)
+            }
+        } catch (e: HttpException) {
+            throw Exception(e.handle())
+        } catch (e: JsonSyntaxException) {
+            throw Exception(e.toString())
+        }
+        throw Exception("알 수 없는 오류가 발생했습니다.")
+    }
 }
