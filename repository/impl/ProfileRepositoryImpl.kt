@@ -1,6 +1,7 @@
 package com.sryang.torang_repository.di.repository.repository.impl
 
 import com.sryang.torang_repository.api.ApiProfile
+import com.sryang.torang_repository.api.handle
 import com.sryang.torang_repository.data.dao.FavoriteDao
 import com.sryang.torang_repository.data.dao.FeedDao
 import com.sryang.torang_repository.data.dao.LikeDao
@@ -12,6 +13,7 @@ import com.sryang.torang_repository.data.remote.response.RemoteUser
 import com.sryang.torang_repository.repository.ProfileRepository
 import com.sryang.torang_repository.session.SessionClientService
 import kotlinx.coroutines.flow.Flow
+import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,14 +29,22 @@ class ProfileRepositoryImpl @Inject constructor(
 
     override suspend fun loadProfile(userId: Int): RemoteUser {
         sessionClientService.getToken()?.let {
-            return apiProfile.getProfileWithFollow(it, userId)
+            try {
+                return apiProfile.getProfileWithFollow(it, userId)
+            } catch (e: HttpException) {
+                throw Exception(e.handle())
+            }
         }
         throw Exception("로그인 상태가 아닙니다.")
     }
 
     override suspend fun loadProfileByToken(): RemoteUser {
         sessionClientService.getToken()?.let {
-            return apiProfile.getProfileByToken(it)
+            try {
+                return apiProfile.getProfileByToken(it)
+            } catch (e: HttpException) {
+                throw Exception(e.handle())
+            }
         }
         throw Exception("로그인 상태가 아닙니다.")
     }
