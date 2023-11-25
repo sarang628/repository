@@ -41,7 +41,7 @@ class LocalApiProfile @Inject constructor(
     private val torangOkHttpClientImpl: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule
 ) {
-    private var url = "http://172.20.10.2:8081/"
+    private var url = "http://192.168.1.216:8081/"
     fun create(): ApiProfile {
         return retrofitModule
 //            .getRetrofit(torangOkHttpClientImpl.getUnsafeOkHttpClient(), url)
