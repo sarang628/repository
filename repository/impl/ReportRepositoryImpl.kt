@@ -24,7 +24,7 @@ class ReportRepositoryImpl @Inject constructor(
             put("reviewId", reviewId.toString())
         }
 
-        if (reportService.reportReason(map)) {
+        if (reportService.reportReason(reviewId = reviewId, reason = reportReason.name)) {
             //신고 성공 후 해당 피드 로컬 데이터에서 삭제하기
             feedDao.deleteFeed(reviewId)
             return true
@@ -41,9 +41,7 @@ class ReportRepositoryImpl @Inject constructor(
 
     override suspend fun hasFeed(reviewId: Int): Boolean {
         return try {
-            reportService.hasFeed(HashMap<String, String>().apply {
-                put("review_id", reviewId.toString())
-            })
+            reportService.hasFeed(reviewId = reviewId)
         } catch (e: Exception) {
             false
         }
