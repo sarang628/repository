@@ -15,9 +15,12 @@ class ApiReviewModule
 {
     @Singleton
     @Provides
-    fun provideRemoveFeedService(product: ReviewServiceProductImpl, local: ReviewServiceLocalImpl): ApiReview
+    fun provideRemoveFeedService(
+        product: ReviewServiceProductImpl,
+        //local: ReviewServiceLocalImpl
+    ): ApiReview
     {
-        return local.create()
+        return product.create()
     }
 }
 
@@ -26,7 +29,10 @@ class ApiReviewModule
  * 리뷰 서비스 Product
  */
 @Singleton
-class ReviewServiceLocalImpl @Inject constructor(private val torangOkHttpClientImpl: TorangOkhttpClient, private val retrofitModule: RetrofitModule)
+class ReviewServiceLocalImpl @Inject constructor(
+    private val torangOkHttpClientImpl: TorangOkhttpClient,
+    private val retrofitModule: RetrofitModule
+)
 {
     private var url = ApiUrl.local
     fun create(): ApiReview
@@ -37,7 +43,10 @@ class ReviewServiceLocalImpl @Inject constructor(private val torangOkHttpClientI
 }
 
 @Singleton
-class ReviewServiceProductImpl @Inject constructor(private val torangOkHttpClientImpl: TorangOkhttpClient, private val retrofitModule: RetrofitModule)
+class ReviewServiceProductImpl @Inject constructor(
+    private val torangOkHttpClientImpl: TorangOkhttpClient,
+    private val retrofitModule: RetrofitModule
+)
 {
     private var url = ApiUrl.prod
     fun create(): ApiReview
