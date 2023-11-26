@@ -15,18 +15,15 @@ import javax.inject.Singleton
 class ApiReportModule {
     @Singleton
     @Provides
-    fun provideRemoveFeedService(
+    fun provideApiReport(
         reportService: ReportServiceProductImpl
-        //reportService: ReportServiceLocalImpl
+//        reportService: ReportServiceLocalImpl
     ): ApiReport {
         return reportService.create()
     }
 }
 
 
-/**
- * 리뷰 서비스 Product
- */
 @Singleton
 class ReportServiceLocalImpl @Inject constructor(
     private val torangOkHttpClientImpl: TorangOkhttpClient,
