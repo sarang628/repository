@@ -2,6 +2,7 @@ package com.sryang.torang_repository.di.repository.api
 
 import android.util.Log
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
@@ -13,6 +14,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.sryang.torang_repository.api.ApiRestaurant
 import com.sryang.torang_repository.data.Filter
 import dagger.Module
@@ -70,7 +74,7 @@ class LocalApiRestaurant @Inject constructor(
 fun ApiRestaurantTest(apiRestaurant: ApiRestaurant) {
     val coroutine = rememberCoroutineScope()
     var text by remember { mutableStateOf("") }
-    Column {
+    Column(Modifier.height(500.dp)) {
         Button(onClick = {
             coroutine.launch {
                 try {
@@ -86,19 +90,20 @@ fun ApiRestaurantTest(apiRestaurant: ApiRestaurant) {
                 }
             }
         }) {
-
+            Text(text = "getRestaurantDetail")
         }
         Button(onClick = {
             coroutine.launch {
                 val result = apiRestaurant.getFilterRestaurant(
-                    Filter()
+                    Filter(keyword = "Pho")
                 )
-                text = result.toString()
+                text = GsonBuilder().setPrettyPrinting().create().toJson(result)
             }
         }) {
-
+            Text(text = "getFilterRestaurant")
         }
-        Text(text = text, Modifier.verticalScroll(rememberScrollState()))
+        Text(text = text
+            , Modifier.verticalScroll(rememberScrollState()))
     }
 
 }

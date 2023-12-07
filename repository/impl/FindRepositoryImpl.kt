@@ -57,7 +57,7 @@ class FindRepositoryImpl @Inject constructor(
 
         override suspend fun searchIfRestaurantEmpty() {
             if (restaurants.value.isEmpty()) {
-                restaurants.emit(restaurantService.getAllRestaurant(HashMap()))
+                restaurants.emit(restaurantService.getAllRestaurant())
             }
         }
 
