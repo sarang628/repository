@@ -39,7 +39,7 @@ class MyReviewRepositoryImpl @Inject constructor(
 ) :
     MyReviewRepository {
     override fun getMyReview(reviewId: Int): Flow<FeedEntity?> {
-        return reviewDao.getFeedbyReviewId(reviewId)
+        return reviewDao.getFeedFlowbyReviewId(reviewId)
     }
 
     override fun getUploadedPicture(reviewId: Int): Flow<List<ReviewImageEntity>> {
