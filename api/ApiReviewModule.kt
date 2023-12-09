@@ -11,15 +11,14 @@ import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
 @Module
-class ApiReviewModule
-{
+class ApiReviewModule {
     @Singleton
     @Provides
     fun provideApiReview(
-        product: ReviewServiceProductImpl, //local: ReviewServiceLocalImpl
-    ): ApiReview
-    {
-        return product.create()
+//        service: ReviewServiceProductImpl,
+        service: ReviewServiceLocalImpl
+    ): ApiReview {
+        return service.create()
     }
 }
 
@@ -31,11 +30,9 @@ class ApiReviewModule
 class ReviewServiceLocalImpl @Inject constructor(
     private val torangOkHttpClientImpl: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule
-)
-{
+) {
     private var url = ApiUrl.local
-    fun create(): ApiReview
-    {
+    fun create(): ApiReview {
         return retrofitModule //            .getRetrofit(torangOkHttpClientImpl.getUnsafeOkHttpClient(), url)
             .getRetrofit(torangOkHttpClientImpl.getHttpClient(), url).create(ApiReview::class.java)
     }
@@ -45,11 +42,9 @@ class ReviewServiceLocalImpl @Inject constructor(
 class ReviewServiceProductImpl @Inject constructor(
     private val torangOkHttpClientImpl: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule
-)
-{
+) {
     private var url = ApiUrl.prod
-    fun create(): ApiReview
-    {
+    fun create(): ApiReview {
         return retrofitModule //            .getRetrofit(torangOkHttpClientImpl.getUnsafeOkHttpClient(), url)
             .getRetrofit(torangOkHttpClientImpl.getHttpClient(), url).create(ApiReview::class.java)
     }
