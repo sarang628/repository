@@ -16,10 +16,11 @@ class ApiReviewModule
     @Singleton
     @Provides
     fun provideApiReview(
-        product: ReviewServiceProductImpl, //local: ReviewServiceLocalImpl
+//        product: ReviewServiceProductImpl,
+        local: ReviewServiceLocalImpl
     ): ApiReview
     {
-        return product.create()
+        return local.create()
     }
 }
 
