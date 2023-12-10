@@ -6,6 +6,7 @@ import com.sryang.torang_repository.data.dao.FeedDao
 import com.sryang.torang_repository.data.dao.LikeDao
 import com.sryang.torang_repository.data.dao.LoggedInUserDao
 import com.sryang.torang_repository.data.dao.PictureDao
+import com.sryang.torang_repository.data.dao.RestaurantDao
 import com.sryang.torang_repository.data.dao.ReviewDao
 import com.sryang.torang_repository.data.dao.UserDao
 import dagger.Module
@@ -49,5 +50,10 @@ class DaoModules {
     @Provides
     fun provideReviewDao(appDatabase: AppDatabase): ReviewDao {
         return appDatabase.reviewDao()
+    }
+
+    @Provides
+    fun provideRestaurantDao(appDatabase: AppDatabase): RestaurantDao {
+        return appDatabase.restaurantDao()
     }
 }
