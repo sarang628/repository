@@ -84,6 +84,7 @@ class ReviewRepositoryImpl @Inject constructor(
             uploadedImage = uploadedImage
         )
 
+        pictureDao.removePicture(reviewId)
         pictureDao.insertPictures(
             review.pictures.map {
                 it.toReviewImage()
