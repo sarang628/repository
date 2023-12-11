@@ -44,7 +44,7 @@ class FeedRepositoryImpl @Inject constructor(
 
     override suspend fun deleteFeed(reviewId: Int) {
         //원격 저장소 요청
-        //remoteDataSource.deleteFeed(reviewId)
+        apiFeed.deleteReview(reviewId)
         //로컬 저장소에서 삭제
         feedDao.deleteFeed(reviewId)
     }
