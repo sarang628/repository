@@ -54,6 +54,7 @@ class FeedRepositoryImpl @Inject constructor(
         feedDao.deleteAll()
         likeDao.deleteAll()
         favoriteDao.deleteAll()
+        pictureDao.deleteAll()
     }
 
     override suspend fun loadFeed() {
