@@ -15,8 +15,8 @@ class ApiReviewModule {
     @Singleton
     @Provides
     fun provideApiReview(
-        service: ReviewServiceProductImpl,
-//        service: ReviewServiceLocalImpl
+//        service: ReviewServiceProductImpl,
+        service: ReviewServiceLocalImpl
     ): ApiReview {
         return service.create()
     }
