@@ -47,7 +47,7 @@ class ProductApiRestaurant @Inject constructor(
     private val torangOkHttpClientImpl: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule
 ) {
-    private var url = "http://sarang628.iptime.org:8081/"
+    private var url = ApiUrl.prod
     fun create(): ApiRestaurant {
         return retrofitModule
 //            .getRetrofit(torangOkHttpClientImpl.getUnsafeOkHttpClient(), url)
@@ -61,7 +61,7 @@ class LocalApiRestaurant @Inject constructor(
     private val torangOkHttpClientImpl: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule
 ) {
-    private var url = "http://169.254.145.170:8081/"
+    private var url = ApiUrl.local
     fun create(): ApiRestaurant {
         return retrofitModule
 //            .getRetrofit(torangOkHttpClientImpl.getUnsafeOkHttpClient(), url)
