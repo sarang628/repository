@@ -39,7 +39,7 @@ class LoginRepositoryImpl @Inject constructor(
         } catch (e: ConnectException) {
             throw Exception("네트워크를 확인해 주세요")
         } catch (e: UnknownHostException) {
-            throw Exception("서버 접속 경로에 문제가 발생했습니다.")
+            throw Exception("서버 접속할 수 없습니다.")
         } catch (e: Exception) {
             throw Exception("알 수 없는 오류가 발생했습니다.")
         }
