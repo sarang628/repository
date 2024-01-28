@@ -1,10 +1,10 @@
-package com.sryang.torang_repository.di.repository.repository.impl
+package com.sarang.torang.di.repository.repository.impl
 
-import com.sryang.torang_repository.data.dao.FeedDao
-import com.sryang.torang_repository.api.ApiReport
-import com.sryang.torang_repository.repository.ReportAfterSupport
-import com.sryang.torang_repository.repository.ReportReason
-import com.sryang.torang_repository.repository.ReportRepository
+import com.sarang.torang.data.dao.FeedDao
+import com.sarang.torang.api.ApiReport
+import com.sarang.torang.repository.ReportAfterSupport
+import com.sarang.torang.repository.ReportReason
+import com.sarang.torang.repository.ReportRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

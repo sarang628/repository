@@ -1,14 +1,14 @@
-package com.sryang.torang_repository.di.repository.room
+package com.sarang.torang.di.repository.room
 
-import com.sryang.torang_repository.data.AppDatabase
-import com.sryang.torang_repository.data.dao.FavoriteDao
-import com.sryang.torang_repository.data.dao.FeedDao
-import com.sryang.torang_repository.data.dao.LikeDao
-import com.sryang.torang_repository.data.dao.LoggedInUserDao
-import com.sryang.torang_repository.data.dao.PictureDao
-import com.sryang.torang_repository.data.dao.RestaurantDao
-import com.sryang.torang_repository.data.dao.ReviewDao
-import com.sryang.torang_repository.data.dao.UserDao
+import com.sarang.torang.data.AppDatabase
+import com.sarang.torang.data.dao.FavoriteDao
+import com.sarang.torang.data.dao.FeedDao
+import com.sarang.torang.data.dao.LikeDao
+import com.sarang.torang.data.dao.LoggedInUserDao
+import com.sarang.torang.data.dao.PictureDao
+import com.sarang.torang.data.dao.RestaurantDao
+import com.sarang.torang.data.dao.ReviewDao
+import com.sarang.torang.data.dao.UserDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

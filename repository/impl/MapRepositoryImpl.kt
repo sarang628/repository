@@ -1,7 +1,7 @@
-package com.sryang.torang_repository.di.repository.repository.impl
+package com.sarang.torang.di.repository.repository.impl
 
-import com.sryang.torang_repository.preference.TorangPreference
-import com.sryang.torang_repository.repository.MapRepository
+import com.sarang.torang.preference.TorangPreference
+import com.sarang.torang.repository.MapRepository
 import javax.inject.Inject
 import javax.inject.Singleton
 

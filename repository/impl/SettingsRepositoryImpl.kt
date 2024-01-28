@@ -1,7 +1,7 @@
-package com.sryang.torang_repository.di.repository.repository.impl
+package com.sarang.torang.di.repository.repository.impl
 
-import com.sryang.torang_repository.repository.SettingsRepository
-import com.sryang.torang_repository.repository.LoginRepository
+import com.sarang.torang.repository.SettingsRepository
+import com.sarang.torang.repository.LoginRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

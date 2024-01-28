@@ -1,11 +1,11 @@
-package com.sryang.torang_repository.di.repository.repository.impl
+package com.sarang.torang.di.repository.repository.impl
 
 import com.google.gson.JsonSyntaxException
-import com.sryang.torang_repository.api.ApiProfile
-import com.sryang.torang_repository.api.handle
-import com.sryang.torang_repository.data.remote.response.RemoteFollower
-import com.sryang.torang_repository.repository.FollowRepository
-import com.sryang.torang_repository.session.SessionService
+import com.sarang.torang.api.ApiProfile
+import com.sarang.torang.api.handle
+import com.sarang.torang.data.remote.response.RemoteFollower
+import com.sarang.torang.repository.FollowRepository
+import com.sarang.torang.session.SessionService
 import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton

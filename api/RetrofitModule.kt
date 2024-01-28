@@ -1,4 +1,4 @@
-package com.sryang.torang_repository.di.repository.api
+package com.sarang.torang.di.repository.api
 
 import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient

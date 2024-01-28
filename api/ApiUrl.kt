@@ -1,4 +1,4 @@
-package com.sryang.torang_repository.di.repository.api
+package com.sarang.torang.di.repository.api
 
 object ApiUrl
 {

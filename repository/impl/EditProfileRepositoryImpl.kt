@@ -1,11 +1,11 @@
-package com.sryang.torang_repository.di.repository.repository.impl
+package com.sarang.torang.di.repository.repository.impl
 
 import android.content.Context
-import com.sryang.torang_repository.api.ApiProfile
-import com.sryang.torang_repository.repository.EditProfileRepository
-import com.sryang.torang_repository.repository.EditProfileResponse
-import com.sryang.torang_repository.session.SessionClientService
-import com.sryang.torang_repository.util.CountingFileRequestBody
+import com.sarang.torang.api.ApiProfile
+import com.sarang.torang.repository.EditProfileRepository
+import com.sarang.torang.repository.EditProfileResponse
+import com.sarang.torang.session.SessionClientService
+import com.sarang.torang.util.CountingFileRequestBody
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody

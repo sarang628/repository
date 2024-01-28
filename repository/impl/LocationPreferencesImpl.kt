@@ -1,4 +1,4 @@
-package com.sryang.torang_repository.di.repository.repository.impl
+package com.sarang.torang.di.repository.repository.impl
 
 import android.content.Context
 import android.content.SharedPreferences
