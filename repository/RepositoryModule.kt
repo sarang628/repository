@@ -1,5 +1,6 @@
 package com.sarang.torang.di.repository.repository
 
+import com.sarang.torang.di.repository.repository.impl.CommentRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.EditProfileRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.FeedRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.FollowRepositoryImpl
@@ -8,6 +9,7 @@ import com.sarang.torang.di.repository.repository.impl.LoginRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.MapRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.ProfileRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.ReviewRepositoryImpl
+import com.sarang.torang.repository.CommentRepository
 import com.sarang.torang.repository.EditProfileRepository
 import com.sarang.torang.repository.FeedRepository
 import com.sarang.torang.repository.FollowRepository
@@ -47,4 +49,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun provideFollowRepository(followRepository: FollowRepositoryImpl): FollowRepository
+
+    @Binds
+    abstract fun provideCommentRepository(commentRepository: CommentRepositoryImpl): CommentRepository
 }
