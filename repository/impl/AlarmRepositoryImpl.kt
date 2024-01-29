@@ -11,7 +11,7 @@ import javax.inject.Singleton
 @Singleton
 class AlarmRepositoryImpl @Inject constructor(
     private val apiAlarm: ApiAlarm,
-    override val isLogin: Flow<Boolean>,
+    val isLogin: Flow<Boolean>,
     private val sessionService: SessionService
 ) : AlarmRepository {
 
