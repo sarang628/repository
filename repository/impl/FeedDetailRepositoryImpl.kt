@@ -30,7 +30,8 @@ class FeedDetailRepositoryImpl @Inject constructor(
     private val commentDao: CommentDao,
     private val restaurantDao: RestaurantDao,
     private val reviewDao: ReviewDao,
-    private val loggedInUserDao: LoggedInUserDao, override val isLogin: Flow<Boolean>,
+    private val loggedInUserDao: LoggedInUserDao,
+    val isLogin: Flow<Boolean>,
     private val sessionService: SessionService
 ) :
     FeedDetailRepository {
@@ -84,7 +85,8 @@ class TimeLineDetailRepositoryTestImpl @Inject constructor(
     private val restaurantService: ApiRestaurant,
     private val apiComment: ApiComment,
     private val reviewDao: ReviewDao,
-    private val loggedInUserDao: LoggedInUserDao, override val isLogin: Flow<Boolean>,
+    private val loggedInUserDao: LoggedInUserDao,
+    val isLogin: Flow<Boolean>,
     private val torangPreference: TorangPreference
 ) :
     FeedDetailRepository {
