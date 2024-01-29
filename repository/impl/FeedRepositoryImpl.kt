@@ -37,7 +37,6 @@ class FeedRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
     private val likeDao: LikeDao,
     private val favoriteDao: FavoriteDao,
-    private val apiComment: ApiComment,
     private val sessionClientService: SessionClientService
 ) : FeedRepository {
     override val feeds: Flow<List<ReviewAndImageEntity>> = feedDao.getAllFeedWithUser()
@@ -131,22 +130,6 @@ class FeedRepositoryImpl @Inject constructor(
             throw Exception("로그인을 해주세요.")
         }
     }
-
-    override suspend fun getComment(reviewId: Int): RemoteCommentList {
-        return apiComment.getComments(sessionClientService.getToken()!!, reviewId)
-    }
-
-    override suspend fun deleteComment(commentId: Int) {
-        apiComment.deleteComment(commentId = commentId)
-    }
-
-    override suspend fun addComment(reviewId: Int, comment: String): RemoteComment {
-        sessionClientService.getToken()?.let {
-            return apiComment.addComment(it, reviewId, comment)
-        }
-        throw Exception("token is empty")
-    }
-
 }
 
 fun RemoteFeed.toUserEntity(): UserEntity {
