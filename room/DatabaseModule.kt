@@ -1,7 +1,7 @@
-package com.sryang.torang_repository.di.repository.room
+package com.sarang.torang.di.repository.room
 
 import android.content.Context
-import com.sryang.torang_repository.data.AppDatabase
+import com.sarang.torang.data.AppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

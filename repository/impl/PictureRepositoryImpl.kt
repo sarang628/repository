@@ -1,10 +1,10 @@
-package com.sryang.torang_repository.di.repository.repository.impl
+package com.sarang.torang.di.repository.repository.impl
 
 import android.graphics.Picture
-import com.sryang.torang_repository.data.dao.PictureDao
-import com.sryang.torang_repository.data.entity.ReviewImageEntity
-import com.sryang.torang_repository.api.ApiRestaurant
-import com.sryang.torang_repository.repository.PicturesRepository
+import com.sarang.torang.data.dao.PictureDao
+import com.sarang.torang.data.entity.ReviewImageEntity
+import com.sarang.torang.api.ApiRestaurant
+import com.sarang.torang.repository.PicturesRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

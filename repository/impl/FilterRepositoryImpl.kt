@@ -1,10 +1,10 @@
-package com.sryang.torang_repository.di.repository.repository.impl
+package com.sarang.torang.di.repository.repository.impl
 
-import com.sryang.torang_repository.data.Distances
-import com.sryang.torang_repository.data.Filter
-import com.sryang.torang_repository.data.Prices
-import com.sryang.torang_repository.data.SearchType
-import com.sryang.torang_repository.repository.FilterRepository
+import com.sarang.torang.data.Distances
+import com.sarang.torang.data.Filter
+import com.sarang.torang.data.Prices
+import com.sarang.torang.data.SearchType
+import com.sarang.torang.repository.FilterRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject

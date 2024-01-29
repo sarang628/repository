@@ -1,7 +1,7 @@
-package com.sryang.torang_repository.di.repository.datasource
+package com.sarang.torang.di.repository.datasource
 
-import com.sryang.torang_repository.datasource.FeedRemoteDataSource
-import com.sryang.torang_repository.datasource.impl.FeedRemoteDataSourceImpl
+import com.sarang.torang.datasource.FeedRemoteDataSource
+import com.sarang.torang.datasource.impl.FeedRemoteDataSourceImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

@@ -1,10 +1,10 @@
-package com.sryang.torang_repository.di.repository.repository.impl
+package com.sarang.torang.di.repository.repository.impl
 
 import android.content.Context
 import android.view.Menu
-import com.sryang.torang_repository.api.ApiRestaurant
-import com.sryang.torang_repository.data.dao.RestaurantDao
-import com.sryang.torang_repository.repository.MenuRepository
+import com.sarang.torang.api.ApiRestaurant
+import com.sarang.torang.data.dao.RestaurantDao
+import com.sarang.torang.repository.MenuRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject

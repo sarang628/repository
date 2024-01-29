@@ -1,7 +1,7 @@
-package com.sryang.torang_repository.di.repository.service
+package com.sarang.torang.di.repository.service
 
-import com.sryang.torang_repository.session.SessionClientService
-import com.sryang.torang_repository.session.SessionService
+import com.sarang.torang.session.SessionClientService
+import com.sarang.torang.session.SessionService
 import dagger.Binds
 import dagger.Module
 import dagger.Provides

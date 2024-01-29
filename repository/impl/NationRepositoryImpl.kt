@@ -1,10 +1,10 @@
-package com.sryang.torang_repository.di.repository.repository.impl
+package com.sarang.torang.di.repository.repository.impl
 
-import com.sryang.torang_repository.data.Restaurant
-import com.sryang.torang_repository.data.NationItem
-import com.sryang.torang_repository.data.dao.RestaurantDao
-import com.sryang.torang_repository.api.ApiRestaurant
-import com.sryang.torang_repository.repository.NationRepository
+import com.sarang.torang.data.Restaurant
+import com.sarang.torang.data.NationItem
+import com.sarang.torang.data.dao.RestaurantDao
+import com.sarang.torang.api.ApiRestaurant
+import com.sarang.torang.repository.NationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

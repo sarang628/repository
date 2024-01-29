@@ -1,6 +1,6 @@
-package com.sryang.torang_repository.di.repository.api
+package com.sarang.torang.di.repository.api
 
-import com.sryang.torang_repository.api.ApiAlarm
+import com.sarang.torang.api.ApiAlarm
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -15,7 +15,7 @@ class ApiAlarmModule {
     @Singleton
     @Provides
     fun provideRemoteFeedService(
-        apiAlarm: com.sryang.torang_repository.di.repository.api.ProductApiAlarm,
+        apiAlarm: com.sarang.torang.di.repository.api.ProductApiAlarm,
         //apiFeed: LocalApiAlarm
     ): ApiAlarm {
         return apiAlarm.create()
@@ -24,8 +24,8 @@ class ApiAlarmModule {
 
 @Singleton
 class ProductApiAlarm @Inject constructor(
-    private val torangOkHttpClientImpl: com.sryang.torang_repository.di.repository.api.TorangOkhttpClient,
-    private val retrofitModule: com.sryang.torang_repository.di.repository.api.RetrofitModule
+    private val torangOkHttpClientImpl: com.sarang.torang.di.repository.api.TorangOkhttpClient,
+    private val retrofitModule: com.sarang.torang.di.repository.api.RetrofitModule
 ) {
     private var url = "http://sarang628.iptime.org:8081/"
     fun create(): ApiAlarm {
@@ -37,8 +37,8 @@ class ProductApiAlarm @Inject constructor(
 
 @Singleton
 class LocalApiAlarm @Inject constructor(
-    private val torangOkHttpClientImpl: com.sryang.torang_repository.di.repository.api.TorangOkhttpClient,
-    private val retrofitModule: com.sryang.torang_repository.di.repository.api.RetrofitModule
+    private val torangOkHttpClientImpl: com.sarang.torang.di.repository.api.TorangOkhttpClient,
+    private val retrofitModule: com.sarang.torang.di.repository.api.RetrofitModule
 ) {
     private var url = "http://192.168.0.14:8081/"
     fun create(): ApiAlarm {

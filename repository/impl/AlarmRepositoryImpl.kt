@@ -1,9 +1,9 @@
-package com.sryang.torang_repository.di.repository.repository.impl
+package com.sarang.torang.di.repository.repository.impl
 
-import com.sryang.torang_repository.api.ApiAlarm
-import com.sryang.torang_repository.data.RemoteAlarm
-import com.sryang.torang_repository.repository.AlarmRepository
-import com.sryang.torang_repository.session.SessionService
+import com.sarang.torang.api.ApiAlarm
+import com.sarang.torang.data.RemoteAlarm
+import com.sarang.torang.repository.AlarmRepository
+import com.sarang.torang.session.SessionService
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton

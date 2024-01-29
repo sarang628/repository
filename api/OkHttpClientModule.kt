@@ -1,7 +1,7 @@
-package com.sryang.torang_repository.di.repository.api
+package com.sarang.torang.di.repository.api
 
 import android.content.Context
-import com.sryang.torang_repository.preference.TorangPreference
+import com.sarang.torang.preference.TorangPreference
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
