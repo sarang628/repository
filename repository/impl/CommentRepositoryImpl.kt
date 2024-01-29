@@ -12,7 +12,12 @@ class CommentRepositoryImpl @Inject constructor(
     val sessionClientService: SessionClientService
 ) : CommentRepository {
     override suspend fun getComment(reviewId: Int): RemoteCommentList {
-        return apiComment.getComments(sessionClientService.getToken()!!, reviewId)
+        val token = sessionClientService.getToken()
+        if (token != null) {
+            return apiComment.getComments(token, reviewId)
+        } else {
+            throw Exception("로그인을 해주세요")
+        }
     }
 
     override suspend fun deleteComment(commentId: Int) {
