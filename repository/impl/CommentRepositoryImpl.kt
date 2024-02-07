@@ -20,6 +20,15 @@ class CommentRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getSubComment(parentCommentId: Int): List<RemoteComment> {
+        val token = sessionClientService.getToken()
+        if (token != null) {
+            return apiComment.getSubComments(token, parentCommentId)
+        } else {
+            throw Exception("로그인을 해주세요")
+        }
+    }
+
     override suspend fun deleteComment(commentId: Int) {
         apiComment.deleteComment(commentId = commentId)
     }
