@@ -37,6 +37,24 @@ class CommentRepositoryImpl @Inject constructor(
         sessionClientService.getToken()?.let {
             return apiComment.addComment(it, reviewId, comment)
         }
-        throw Exception("token is empty")
+        throw Exception("로그인을 해주세요")
+    }
+
+    override suspend fun getCommentsWithOneReply(reviewId: Int): RemoteCommentList {
+        val token = sessionClientService.getToken()
+        if (token != null) {
+            return apiComment.getCommentsWithOneReply(token, reviewId)
+        } else {
+            throw Exception("로그인을 해주세요")
+        }
+    }
+
+    override suspend fun getSubComments(commentId: Int): List<RemoteComment> {
+        val token = sessionClientService.getToken()
+        if (token != null) {
+            return apiComment.getSubComments(token, commentId)
+        } else {
+            throw Exception("로그인을 해주세요")
+        }
     }
 }
