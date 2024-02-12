@@ -45,10 +45,28 @@ class CommentRepositoryImpl @Inject constructor(
         throw Exception("로그인을 해주세요")
     }
 
+    override suspend fun addReply(
+        reviewId: Int,
+        comment: String,
+        parentCommentId: Int
+    ): RemoteComment {
+        sessionClientService.getToken()?.let {
+            return apiComment.addComment(
+                auth = it,
+                review_id = reviewId,
+                comment = comment,
+                parentCommentId = parentCommentId
+            )
+        }
+        throw Exception("로그인을 해주세요")
+    }
+
     override suspend fun getCommentsWithOneReply(reviewId: Int): RemoteCommentList {
         val token = sessionClientService.getToken()
         if (token != null) {
-            return apiComment.getCommentsWithOneReply(token, reviewId)
+            val result = apiComment.getCommentsWithOneReply(token, reviewId)
+            commentDao.insertComments(result.list.toCommentEntityList())
+            return result
         } else {
             throw Exception("로그인을 해주세요")
         }
