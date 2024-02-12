@@ -3,18 +3,23 @@ package com.sarang.torang.di.repository.repository.impl
 import com.sarang.torang.api.ApiComment
 import com.sarang.torang.data.RemoteComment
 import com.sarang.torang.data.RemoteCommentList
+import com.sarang.torang.data.dao.CommentDao
+import com.sarang.torang.data.entity.toCommentEntityList
 import com.sarang.torang.repository.CommentRepository
 import com.sarang.torang.session.SessionClientService
 import javax.inject.Inject
 
 class CommentRepositoryImpl @Inject constructor(
     val apiComment: ApiComment,
+    val commentDao: CommentDao,
     val sessionClientService: SessionClientService
 ) : CommentRepository {
     override suspend fun getComment(reviewId: Int): RemoteCommentList {
         val token = sessionClientService.getToken()
         if (token != null) {
-            return apiComment.getComments(token, reviewId)
+            val result = apiComment.getComments(token, reviewId)
+            commentDao.insertComments(result.list.toCommentEntityList())
+            return result
         } else {
             throw Exception("로그인을 해주세요")
         }

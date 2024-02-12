@@ -1,6 +1,7 @@
 package com.sarang.torang.di.repository.room
 
 import com.sarang.torang.data.AppDatabase
+import com.sarang.torang.data.dao.CommentDao
 import com.sarang.torang.data.dao.FavoriteDao
 import com.sarang.torang.data.dao.FeedDao
 import com.sarang.torang.data.dao.LikeDao
@@ -55,5 +56,10 @@ class DaoModules {
     @Provides
     fun provideRestaurantDao(appDatabase: AppDatabase): RestaurantDao {
         return appDatabase.restaurantDao()
+    }
+
+    @Provides
+    fun provideCommentDao(appDatabase: AppDatabase): CommentDao {
+        return appDatabase.commentDao()
     }
 }
