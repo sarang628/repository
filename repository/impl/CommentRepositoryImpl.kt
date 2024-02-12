@@ -4,9 +4,11 @@ import com.sarang.torang.api.ApiComment
 import com.sarang.torang.data.RemoteComment
 import com.sarang.torang.data.RemoteCommentList
 import com.sarang.torang.data.dao.CommentDao
+import com.sarang.torang.data.entity.CommentEntity
 import com.sarang.torang.data.entity.toCommentEntityList
 import com.sarang.torang.repository.CommentRepository
 import com.sarang.torang.session.SessionClientService
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class CommentRepositoryImpl @Inject constructor(
@@ -14,6 +16,15 @@ class CommentRepositoryImpl @Inject constructor(
     val commentDao: CommentDao,
     val sessionClientService: SessionClientService
 ) : CommentRepository {
+
+    override fun getCommentsFlow(reviewId: Int): Flow<List<CommentEntity>> {
+        return commentDao.getComments(reviewId)
+    }
+
+    override suspend fun clear() {
+        commentDao.clear()
+    }
+
     override suspend fun getComment(reviewId: Int): RemoteCommentList {
         val token = sessionClientService.getToken()
         if (token != null) {
