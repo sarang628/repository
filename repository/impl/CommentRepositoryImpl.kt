@@ -14,6 +14,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
+import java.text.SimpleDateFormat
 import javax.inject.Inject
 
 class CommentRepositoryImpl @Inject constructor(
@@ -80,11 +81,17 @@ class CommentRepositoryImpl @Inject constructor(
     override suspend fun addComment(reviewId: Int, comment: String) {
         sessionClientService.getToken()?.let {
             val commentEntity = CommentEntity(
-                commentId = Integer.MAX_VALUE, userName = "", comment = comment,
-                reviewId = reviewId, userId = 0, createDate = "", profilePicUrl = ""
+                commentId = Integer.MAX_VALUE,
+                userName = "",
+                comment = comment,
+                reviewId = reviewId,
+                userId = 0,
+                createDate = SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(System.currentTimeMillis()),
+                profilePicUrl = "",
+                parentCommentId = 0
             )
             commentDao.insertComment(commentEntity)
-            delay(1000)
+            /*delay(1000)
             val result = apiComment.addComment(it, reviewId, comment).toCommentEntity()
             commentDao.update(
                 commentId = result.commentId,
@@ -99,9 +106,9 @@ class CommentRepositoryImpl @Inject constructor(
                 tagUserId = result.tagUserId,
                 subCommentCount = result.subCommentCount,
                 parentCommentId = result.parentCommentId,
-            )
+            )*/
         }
-        throw Exception("로그인을 해주세요")
+        //throw Exception("로그인을 해주세요")
     }
 
     override suspend fun addReply(
