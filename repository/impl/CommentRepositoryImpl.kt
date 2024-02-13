@@ -5,10 +5,12 @@ import com.sarang.torang.data.RemoteComment
 import com.sarang.torang.data.RemoteCommentList
 import com.sarang.torang.data.dao.CommentDao
 import com.sarang.torang.data.entity.CommentEntity
+import com.sarang.torang.data.entity.toCommentEntity
 import com.sarang.torang.data.entity.toCommentEntityList
 import com.sarang.torang.repository.CommentRepository
 import com.sarang.torang.session.SessionClientService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
@@ -75,20 +77,38 @@ class CommentRepositoryImpl @Inject constructor(
         apiComment.deleteComment(commentId = commentId)
     }
 
-    override suspend fun addComment(reviewId: Int, comment: String): RemoteComment {
+    override suspend fun addComment(reviewId: Int, comment: String) {
         sessionClientService.getToken()?.let {
-            return apiComment.addComment(it, reviewId, comment)
+            val commentEntity = CommentEntity(
+                commentId = Integer.MAX_VALUE, userName = "", comment = comment,
+                reviewId = reviewId, userId = 0, createDate = "", profilePicUrl = ""
+            )
+            commentDao.insertComment(commentEntity)
+            delay(1000)
+            val result = apiComment.addComment(it, reviewId, comment).toCommentEntity()
+            commentDao.update(
+                commentId = result.commentId,
+                userId = result.userId,
+                profilePicUrl = result.profilePicUrl,
+                userName = result.userName,
+                comment = result.comment,
+                reviewId = result.reviewId,
+                createDate = result.createDate,
+                commentLikeId = result.commentLikeId,
+                commentLikeCount = result.commentLikeCount,
+                tagUserId = result.tagUserId,
+                subCommentCount = result.subCommentCount,
+                parentCommentId = result.parentCommentId,
+            )
         }
         throw Exception("로그인을 해주세요")
     }
 
     override suspend fun addReply(
-        reviewId: Int,
-        comment: String,
-        parentCommentId: Int
-    ): RemoteComment {
+        reviewId: Int, comment: String, parentCommentId: Int
+    ) {
         sessionClientService.getToken()?.let {
-            return apiComment.addComment(
+            apiComment.addComment(
                 auth = it,
                 review_id = reviewId,
                 comment = comment,
