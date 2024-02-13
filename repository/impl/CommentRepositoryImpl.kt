@@ -8,7 +8,10 @@ import com.sarang.torang.data.entity.CommentEntity
 import com.sarang.torang.data.entity.toCommentEntityList
 import com.sarang.torang.repository.CommentRepository
 import com.sarang.torang.session.SessionClientService
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapMerge
+import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
 class CommentRepositoryImpl @Inject constructor(
@@ -17,12 +20,35 @@ class CommentRepositoryImpl @Inject constructor(
     val sessionClientService: SessionClientService
 ) : CommentRepository {
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     override fun getCommentsFlow(reviewId: Int): Flow<List<CommentEntity>> {
-        return commentDao.getComments(reviewId)
+        return commentDao.getComments(reviewId).flatMapMerge {
+            requestFlow(it)
+        }
+    }
+
+    private fun requestFlow(list: List<CommentEntity>): Flow<List<CommentEntity>> = flow {
+        val temp = mutableListOf<CommentEntity>().apply {
+            for (comment in list) {
+                add(comment)
+                addAll(commentDao.getReply(comment.commentId))
+            }
+        }
+        emit(temp)
     }
 
     override suspend fun clear() {
         commentDao.clear()
+    }
+
+    override suspend fun loadMoreReply(commentId: Int) {
+        val token = sessionClientService.getToken()
+        if (token != null) {
+            val result = apiComment.getSubComments(token, commentId)
+            commentDao.insertComments(result.toCommentEntityList())
+        } else {
+            throw Exception("로그인을 해주세요")
+        }
     }
 
     override suspend fun getComment(reviewId: Int): RemoteCommentList {
