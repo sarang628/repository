@@ -81,7 +81,7 @@ class CommentRepositoryImpl @Inject constructor(
         apiComment.deleteComment(commentId = commentId)
     }
 
-    override suspend fun addComment(reviewId: Int, comment: String) {
+    override suspend fun addComment(reviewId: Int, comment: String, onLocalUpdated: () -> Unit) {
         sessionClientService.getToken().let {
             if(it == null){
                 throw Exception("로그인을 해주세요")
@@ -99,6 +99,7 @@ class CommentRepositoryImpl @Inject constructor(
                 isUploading = true
             )
             commentDao.insertComment(commentEntity)
+            onLocalUpdated.invoke()
             delay(1000)
             val result = apiComment.addComment(it, reviewId, comment).toCommentEntity()
             Log.d("__sryang", result.toString())
