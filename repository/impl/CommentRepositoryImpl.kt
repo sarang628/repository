@@ -1,5 +1,6 @@
 package com.sarang.torang.di.repository.repository.impl
 
+import android.util.Log
 import com.sarang.torang.api.ApiComment
 import com.sarang.torang.data.RemoteComment
 import com.sarang.torang.data.RemoteCommentList
@@ -7,7 +8,7 @@ import com.sarang.torang.data.dao.CommentDao
 import com.sarang.torang.data.entity.CommentEntity
 import com.sarang.torang.data.entity.toCommentEntity
 import com.sarang.torang.data.entity.toCommentEntityList
-import com.sarang.torang.repository.CommentRepository
+import com.sarang.torang.repository.comment.CommentRepository
 import com.sarang.torang.session.SessionClientService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -16,6 +17,7 @@ import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
 import java.text.SimpleDateFormat
 import javax.inject.Inject
+import kotlin.random.Random
 
 class CommentRepositoryImpl @Inject constructor(
     val apiComment: ApiComment,
@@ -57,6 +59,7 @@ class CommentRepositoryImpl @Inject constructor(
     override suspend fun getComment(reviewId: Int): RemoteCommentList {
         val token = sessionClientService.getToken()
         if (token != null) {
+            commentDao.clear()
             val result = apiComment.getComments(token, reviewId)
             commentDao.insertComments(result.list.toCommentEntityList())
             return result
@@ -79,21 +82,28 @@ class CommentRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addComment(reviewId: Int, comment: String) {
-        sessionClientService.getToken()?.let {
+        sessionClientService.getToken().let {
+            if(it == null){
+                throw Exception("로그인을 해주세요")
+            }
+            val tempId = Random(Integer.MAX_VALUE).nextInt()
             val commentEntity = CommentEntity(
-                commentId = Integer.MAX_VALUE,
+                commentId = tempId,
                 userName = "",
                 comment = comment,
                 reviewId = reviewId,
                 userId = 0,
                 createDate = SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(System.currentTimeMillis()),
                 profilePicUrl = "",
-                parentCommentId = 0
+                parentCommentId = 0,
+                isUploading = true
             )
             commentDao.insertComment(commentEntity)
-            /*delay(1000)
+            delay(1000)
             val result = apiComment.addComment(it, reviewId, comment).toCommentEntity()
+            Log.d("__sryang", result.toString())
             commentDao.update(
+                updateId = tempId,
                 commentId = result.commentId,
                 userId = result.userId,
                 profilePicUrl = result.profilePicUrl,
@@ -105,10 +115,9 @@ class CommentRepositoryImpl @Inject constructor(
                 commentLikeCount = result.commentLikeCount,
                 tagUserId = result.tagUserId,
                 subCommentCount = result.subCommentCount,
-                parentCommentId = result.parentCommentId,
-            )*/
+                parentCommentId = result.parentCommentId
+            )
         }
-        //throw Exception("로그인을 해주세요")
     }
 
     override suspend fun addReply(

@@ -9,7 +9,7 @@ import com.sarang.torang.di.repository.repository.impl.LoginRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.MapRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.ProfileRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.ReviewRepositoryImpl
-import com.sarang.torang.repository.CommentRepository
+import com.sarang.torang.repository.comment.CommentRepository
 import com.sarang.torang.repository.EditProfileRepository
 import com.sarang.torang.repository.FeedRepository
 import com.sarang.torang.repository.FollowRepository
