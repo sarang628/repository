@@ -5,6 +5,7 @@ import com.sarang.torang.api.ApiComment
 import com.sarang.torang.data.RemoteComment
 import com.sarang.torang.data.RemoteCommentList
 import com.sarang.torang.data.dao.CommentDao
+import com.sarang.torang.data.dao.LoggedInUserDao
 import com.sarang.torang.data.entity.CommentEntity
 import com.sarang.torang.data.entity.toCommentEntity
 import com.sarang.torang.data.entity.toCommentEntityList
@@ -22,7 +23,8 @@ import kotlin.random.Random
 class CommentRepositoryImpl @Inject constructor(
     val apiComment: ApiComment,
     val commentDao: CommentDao,
-    val sessionClientService: SessionClientService
+    val sessionClientService: SessionClientService,
+    val loggedInUserDao: LoggedInUserDao
 ) : CommentRepository {
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -94,7 +96,7 @@ class CommentRepositoryImpl @Inject constructor(
                 reviewId = reviewId,
                 userId = 0,
                 createDate = SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(System.currentTimeMillis()),
-                profilePicUrl = "",
+                profilePicUrl = loggedInUserDao.getLoggedInUser1()?.profilePicUrl ?: "",
                 parentCommentId = 0,
                 isUploading = true
             )
