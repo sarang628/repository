@@ -84,17 +84,20 @@ class CommentRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addComment(reviewId: Int, comment: String, onLocalUpdated: () -> Unit) {
+        //로그인 토큰 가져오기
         sessionClientService.getToken().let {
-            if(it == null){
-                throw Exception("로그인을 해주세요")
+            val user = loggedInUserDao.getLoggedInUser1()
+            if (it == null || user == null) { // 토큰이 없거나 로그인한 사용자 정보가 없다면
+                throw Exception("로그인 해주세요")
             }
-            val tempId = Random(Integer.MAX_VALUE).nextInt()
+
+            val tempId = Random.nextInt(0,Integer.MAX_VALUE)  // 로컬DB에 등록할 임시 commentId 생성
             val commentEntity = CommentEntity(
                 commentId = tempId,
-                userName = "",
+                userName = user.userName,
                 comment = comment,
                 reviewId = reviewId,
-                userId = 0,
+                userId = user.userId,
                 createDate = SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(System.currentTimeMillis()),
                 profilePicUrl = loggedInUserDao.getLoggedInUser1()?.profilePicUrl ?: "",
                 parentCommentId = 0,
