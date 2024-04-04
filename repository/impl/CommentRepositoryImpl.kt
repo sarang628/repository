@@ -98,16 +98,16 @@ class CommentRepositoryImpl @Inject constructor(
                 comment = comment,
                 reviewId = reviewId,
                 userId = user.userId,
-                createDate = SimpleDateFormat("yyyy-mm-dd hh:mm:ss").format(System.currentTimeMillis()),
+                createDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(System.currentTimeMillis()),
                 profilePicUrl = loggedInUserDao.getLoggedInUser1()?.profilePicUrl ?: "",
                 parentCommentId = 0,
                 isUploading = true
             )
+            Log.d("__sryang", SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(System.currentTimeMillis()))
             commentDao.insertComment(commentEntity)
             onLocalUpdated.invoke()
             delay(1000)
             val result = apiComment.addComment(it, reviewId, comment).toCommentEntity()
-            Log.d("__sryang", result.toString())
             commentDao.update(
                 updateId = tempId,
                 commentId = result.commentId,
