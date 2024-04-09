@@ -10,6 +10,7 @@ import com.sarang.torang.data.entity.CommentEntity
 import com.sarang.torang.data.entity.toCommentEntity
 import com.sarang.torang.data.entity.toCommentEntityList
 import com.sarang.torang.repository.comment.CommentRepository
+import com.sarang.torang.repository.comment.compose.Comment
 import com.sarang.torang.session.SessionClientService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -90,54 +91,62 @@ class CommentRepositoryImpl @Inject constructor(
             if (it == null || user == null) { // 토큰이 없거나 로그인한 사용자 정보가 없다면
                 throw Exception("로그인 해주세요")
             }
-
-            val tempId = Random.nextInt(0,Integer.MAX_VALUE)  // 로컬DB에 등록할 임시 commentId 생성
             val commentEntity = CommentEntity(
-                commentId = tempId,
                 userName = user.userName,
                 comment = comment,
                 reviewId = reviewId,
                 userId = user.userId,
-                createDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(System.currentTimeMillis()),
                 profilePicUrl = loggedInUserDao.getLoggedInUser1()?.profilePicUrl ?: "",
                 parentCommentId = 0,
                 isUploading = true
             )
-            Log.d("__sryang", SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(System.currentTimeMillis()))
+            Log.d(
+                "__sryang",
+                SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(System.currentTimeMillis())
+            )
             commentDao.insertComment(commentEntity)
             onLocalUpdated.invoke()
             delay(1000)
-            val result = apiComment.addComment(it, reviewId, comment).toCommentEntity()
-            commentDao.update(
-                updateId = tempId,
-                commentId = result.commentId,
-                userId = result.userId,
-                profilePicUrl = result.profilePicUrl,
-                userName = result.userName,
-                comment = result.comment,
-                reviewId = result.reviewId,
-                createDate = result.createDate,
-                commentLikeId = result.commentLikeId,
-                commentLikeCount = result.commentLikeCount,
-                tagUserId = result.tagUserId,
-                subCommentCount = result.subCommentCount,
-                parentCommentId = result.parentCommentId
-            )
+            val result = apiComment.addComment(it, reviewId, comment)
+            commentDao.update(updateId = commentEntity.commentId, result.toCommentEntity())
         }
     }
 
     override suspend fun addReply(
-        reviewId: Int, comment: String, parentCommentId: Int
+        reviewId: Int, comment: String, parentCommentId: Int, onLocalUpdated: () -> Unit
     ) {
         sessionClientService.getToken()?.let {
-            apiComment.addComment(
+            val user = loggedInUserDao.getLoggedInUser1()
+            if (it == null || user == null) { // 토큰이 없거나 로그인한 사용자 정보가 없다면
+                throw Exception("로그인 해주세요")
+            }
+
+            val commentEntity = CommentEntity(
+                userId = user.userId,
+                comment = comment,
+                profilePicUrl = user.profilePicUrl ?: "",
+                reviewId = reviewId,
+                userName = user.userName,
+                parentCommentId = parentCommentId,
+                isUploading = true
+            )
+
+            //DB insert
+            commentDao.insertComment(commentEntity)
+            onLocalUpdated.invoke()
+            delay(1000)
+            //API
+            val result = apiComment.addComment(
                 auth = it,
                 review_id = reviewId,
                 comment = comment,
                 parentCommentId = parentCommentId
             )
+            //DB update
+            commentDao.update(
+                updateId = commentEntity.commentId, result.toCommentEntity()
+            )
         }
-        throw Exception("로그인을 해주세요")
     }
 
     override suspend fun getCommentsWithOneReply(reviewId: Int): RemoteCommentList {
