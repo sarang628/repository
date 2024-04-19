@@ -36,7 +36,7 @@ class ReviewRepositoryImpl @Inject constructor(
 
     override suspend fun addReview(
         content: String,
-        restaurantId: Int,
+        restaurantId: Int?,
         rating: Float,
         files: List<String>
     ): RemoteFeed {
