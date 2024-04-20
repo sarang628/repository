@@ -66,7 +66,7 @@ class ReviewRepositoryImpl @Inject constructor(
     override suspend fun updateReview(
         reviewId: Int,
         contents: String,
-        restaurantId: Int,
+        restaurantId: Int?,
         rating: Float,
         files: List<String>,
         uploadedImage: List<Int>
