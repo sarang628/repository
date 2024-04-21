@@ -17,7 +17,7 @@ import com.sarang.torang.repository.LoginRepository
 import com.sarang.torang.repository.MapRepository
 import com.sarang.torang.repository.ProfileRepository
 import com.sarang.torang.repository.RestaurantRepository
-import com.sarang.torang.repository.ReviewRepository
+import com.sarang.torang.repository.review.ReviewRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

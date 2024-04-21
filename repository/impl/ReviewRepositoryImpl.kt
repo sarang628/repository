@@ -11,7 +11,7 @@ import com.sarang.torang.data.dao.ReviewDao
 import com.sarang.torang.data.entity.ReviewAndImageEntity
 import com.sarang.torang.data.remote.response.RemoteFeed
 import com.sarang.torang.data.remote.response.toReviewImage
-import com.sarang.torang.repository.ReviewRepository
+import com.sarang.torang.repository.review.ReviewRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
