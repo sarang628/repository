@@ -15,8 +15,8 @@ class ApiReviewModule {
     @Singleton
     @Provides
     fun provideApiReview(
-//        service: ReviewServiceProductImpl,
-        service: ReviewServiceLocalImpl
+        service: ReviewServiceProductImpl,
+//        service: ReviewServiceLocalImpl
     ): ApiReview {
         return service.create()
     }
@@ -35,7 +35,8 @@ class ReviewServiceLocalImpl @Inject constructor(
     private var url = ApiUrl.local
     fun create(): ApiReview
     {
-        return retrofitModule //            .getRetrofit(torangOkHttpClientImpl.getUnsafeOkHttpClient(), url)
+        return retrofitModule
+            //            .getRetrofit(torangOkHttpClientImpl.getUnsafeOkHttpClient(), url)
             .getRetrofit(torangOkHttpClientImpl.getHttpClient(), url).create(ApiReview::class.java)
     }
 }
