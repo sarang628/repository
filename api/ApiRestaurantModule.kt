@@ -34,8 +34,8 @@ class ApiRestaurantModule {
     @Singleton
     @Provides
     fun provideRemoteFeedService(
-        apiRestaurant: ProductApiRestaurant
-//        apiRestaurant: LocalApiRestaurant
+//        apiRestaurant: ProductApiRestaurant
+        apiRestaurant: LocalApiRestaurant
     ): ApiRestaurant {
         return apiRestaurant.create()
     }

@@ -12,6 +12,7 @@ import com.sarang.torang.data.RemoteLike
 import com.sarang.torang.data.dao.FavoriteDao
 import com.sarang.torang.data.dao.FeedDao
 import com.sarang.torang.data.dao.LikeDao
+import com.sarang.torang.data.dao.MyFeedDao
 import com.sarang.torang.data.dao.PictureDao
 import com.sarang.torang.data.dao.UserDao
 import com.sarang.torang.data.entity.FavoriteEntity
@@ -33,6 +34,7 @@ import javax.inject.Singleton
 class FeedRepositoryImpl @Inject constructor(
     private val apiFeed: ApiFeed,
     private val feedDao: FeedDao,
+    private val myFeedDao: MyFeedDao,
     private val pictureDao: PictureDao,
     private val userDao: UserDao,
     private val likeDao: LikeDao,
@@ -41,6 +43,9 @@ class FeedRepositoryImpl @Inject constructor(
     private val sessionClientService: SessionClientService
 ) : FeedRepository {
     override val feeds: Flow<List<ReviewAndImageEntity>> = feedDao.getAllFeedWithUser()
+    override suspend fun getMyFeed(reviewId: Int) : List<ReviewAndImageEntity> {
+        return myFeedDao.getMyFeedByReviewId(reviewId)
+    }
 
     override suspend fun deleteFeed(reviewId: Int) {
         //원격 저장소 요청

@@ -1,15 +1,25 @@
 package com.sarang.torang.di.repository.repository.impl
 
+import android.util.Log
+import androidx.room.Transaction
+import com.google.gson.Gson
+import com.sarang.torang.api.ApiFeed
 import com.sarang.torang.api.ApiProfile
+import com.sarang.torang.api.ApiReview
 import com.sarang.torang.api.handle
 import com.sarang.torang.data.dao.FavoriteDao
 import com.sarang.torang.data.dao.FeedDao
 import com.sarang.torang.data.dao.LikeDao
+import com.sarang.torang.data.dao.MyFeedDao
+import com.sarang.torang.data.dao.PictureDao
+import com.sarang.torang.data.dao.UserDao
 import com.sarang.torang.data.entity.FavoriteEntity
 import com.sarang.torang.data.entity.LikeEntity
 import com.sarang.torang.data.entity.ReviewAndImageEntity
 import com.sarang.torang.data.entity.ReviewImageEntity
+import com.sarang.torang.data.entity.toMyFeedEntity
 import com.sarang.torang.data.remote.response.RemoteUser
+import com.sarang.torang.data.remote.response.toReviewImage
 import com.sarang.torang.repository.ProfileRepository
 import com.sarang.torang.session.SessionClientService
 import kotlinx.coroutines.flow.Flow
@@ -21,8 +31,12 @@ import javax.inject.Singleton
 @Singleton
 class ProfileRepositoryImpl @Inject constructor(
     private val apiProfile: ApiProfile,
-    private val feedDao: FeedDao,
+    private val apiFeed: ApiFeed,
+    private val apiReview: ApiReview,
+    private val myFeedDao: MyFeedDao,
+    private val pictureDao: PictureDao,
     private val likeDao: LikeDao,
+    private val userDao: UserDao,
     private val favoriteDao: FavoriteDao,
     private val sessionClientService: SessionClientService
 ) : ProfileRepository {
@@ -50,11 +64,52 @@ class ProfileRepositoryImpl @Inject constructor(
     }
 
     override fun getMyFeed(userId: Int): Flow<List<ReviewAndImageEntity>> {
-        return feedDao.getMyFeed(userId)
+        return myFeedDao.getMyFeed(userId)
     }
 
     override fun getMyFavorite(userId: Int): Flow<List<ReviewAndImageEntity>> {
         return favoriteDao.getMyFavorite(userId)
+    }
+
+    @Transaction
+    suspend fun deleteFeedAll() {
+        //myFeedDao.deleteAll()
+        //likeDao.deleteAll()
+        //favoriteDao.deleteAll()
+        //pictureDao.deleteAll()
+    }
+
+    override suspend fun loadMyFeed(userId: Int) {
+        val feedList = apiReview.getMyReviewsByUserId(userId)
+        try {
+            deleteFeedAll()
+            myFeedDao.insertAll(feedList.map { it.toMyFeedEntity() })
+
+            val list = feedList
+                .map { it.pictures }
+                .flatMap { it }
+                .map { it.toReviewImage() }
+
+            myFeedDao.insertAllFeed(
+                feedList = feedList.map { it.toMyFeedEntity() },
+                userDao = userDao,
+                pictureDao = pictureDao,
+                reviewImages = list,
+                userList = feedList.map { it.toUserEntity() },
+                likeDao = likeDao,
+                likeList = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
+                favoriteDao = favoriteDao,
+                favorites = feedList.filter { it.favorite != null }
+                    .map { it.favorite!!.toFavoriteEntity() }
+            )
+        } catch (e: Exception) {
+            Log.e("FeedRepositoryImpl", e.toString())
+            Log.e(
+                "FeedRepositoryImpl",
+                Gson().newBuilder().setPrettyPrinting().create().toJson(feedList)
+            )
+            throw Exception("피드를 가져오는데 실패하였습니다.")
+        }
     }
 
     override suspend fun loadFeed() {
@@ -82,6 +137,6 @@ class ProfileRepositoryImpl @Inject constructor(
     }
 
     override fun getReviewImages(reviewId: Int): Flow<List<ReviewImageEntity>> {
-        return feedDao.getReviewImages(reviewId)
+        return myFeedDao.getReviewImages(reviewId)
     }
 }

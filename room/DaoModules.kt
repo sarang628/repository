@@ -6,6 +6,7 @@ import com.sarang.torang.data.dao.FavoriteDao
 import com.sarang.torang.data.dao.FeedDao
 import com.sarang.torang.data.dao.LikeDao
 import com.sarang.torang.data.dao.LoggedInUserDao
+import com.sarang.torang.data.dao.MyFeedDao
 import com.sarang.torang.data.dao.PictureDao
 import com.sarang.torang.data.dao.RestaurantDao
 import com.sarang.torang.data.dao.ReviewDao
@@ -61,5 +62,10 @@ class DaoModules {
     @Provides
     fun provideCommentDao(appDatabase: AppDatabase): CommentDao {
         return appDatabase.commentDao()
+    }
+
+    @Provides
+    fun provideMyFeedDao(appDatabase: AppDatabase): MyFeedDao {
+        return appDatabase.myFeedDao()
     }
 }
