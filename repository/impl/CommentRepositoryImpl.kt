@@ -101,7 +101,7 @@ class CommentRepositoryImpl @Inject constructor(
                 isUploading = true
             )
             Log.d(
-                "__sryang",
+                "__CommentRepositoryImpl",
                 SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(System.currentTimeMillis())
             )
             commentDao.insertComment(commentEntity)
