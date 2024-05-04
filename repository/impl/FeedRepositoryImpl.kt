@@ -43,7 +43,7 @@ class FeedRepositoryImpl @Inject constructor(
     private val sessionClientService: SessionClientService
 ) : FeedRepository {
     override val feeds: Flow<List<ReviewAndImageEntity>> = feedDao.getAllFeedWithUser()
-    override fun getMyFeed(reviewId: Int) : Flow<List<ReviewAndImageEntity>> {
+    override fun getMyFeed(reviewId: Int): Flow<List<ReviewAndImageEntity>> {
         return myFeedDao.getMyFeedByReviewId(reviewId)
     }
 
