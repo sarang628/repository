@@ -15,10 +15,10 @@ class FollowRepositoryImpl @Inject constructor(
     val apiProfile: ApiProfile,
     val sessionService: SessionService
 ) : FollowRepository {
-    override suspend fun getFollower(): List<RemoteFollower> {
+    override suspend fun getMyFollower(): List<RemoteFollower> {
         try {
             sessionService.getToken()?.let {
-                return apiProfile.getFollower(it)
+                return apiProfile.getMyFollower(it)
             }
         } catch (e: HttpException) {
             throw Exception(e.handle())
@@ -28,11 +28,33 @@ class FollowRepositoryImpl @Inject constructor(
         return ArrayList()
     }
 
-    override suspend fun getFollowing(): List<RemoteFollower> {
+    override suspend fun getFollower(userId: Int): List<RemoteFollower> {
+        try {
+            return apiProfile.getFollower(userId)
+        } catch (e: HttpException) {
+            throw Exception(e.handle())
+        } catch (e: JsonSyntaxException) {
+            throw Exception(e.toString())
+        }
+        return ArrayList()
+    }
+
+    override suspend fun getMyFollowing(): List<RemoteFollower> {
         try {
             sessionService.getToken()?.let {
-                return apiProfile.getFollowing(it)
+                return apiProfile.getMyFollowing(it)
             }
+        } catch (e: HttpException) {
+            throw Exception(e.handle())
+        } catch (e: JsonSyntaxException) {
+            throw Exception(e.toString())
+        }
+        return ArrayList()
+    }
+
+    override suspend fun getFollowing(userId: Int): List<RemoteFollower> {
+        try {
+            return apiProfile.getFollowing(userId)
         } catch (e: HttpException) {
             throw Exception(e.handle())
         } catch (e: JsonSyntaxException) {

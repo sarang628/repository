@@ -73,10 +73,6 @@ class ProfileRepositoryImpl @Inject constructor(
 
     @Transaction
     suspend fun deleteFeedAll() {
-        //myFeedDao.deleteAll()
-        //likeDao.deleteAll()
-        //favoriteDao.deleteAll()
-        //pictureDao.deleteAll()
     }
 
     override suspend fun loadMyFeed(userId: Int) {
@@ -112,28 +108,8 @@ class ProfileRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun loadFeed() {
-
-    }
-
-    override suspend fun like(reviewId: Int) {
-        //userDao.insertLike(reviewId)
-    }
-
-    override suspend fun favorite(reviewId: Int) {
-        TODO("Not yet implemented")
-    }
-
-    override fun getLike(reviewId: Int): Flow<LikeEntity> {
-        return likeDao.getLike(reviewId)
-    }
-
     override fun getFavorite(reviewId: Int): Flow<FavoriteEntity> {
         return favoriteDao.getFavorite(reviewId)
-    }
-
-    override suspend fun isLogin(): Boolean {
-        return true
     }
 
     override fun getReviewImages(reviewId: Int): Flow<List<ReviewImageEntity>> {

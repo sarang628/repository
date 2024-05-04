@@ -15,8 +15,8 @@ class ApiProfileModule {
     @Singleton
     @Provides
     fun provideRemoteFeedService(
-        apiProfile: ProductApiProfile
-//        apiProfile: LocalApiProfile
+//        apiProfile: ProductApiProfile
+        apiProfile: LocalApiProfile
     ): ApiProfile {
         return apiProfile.create()
     }
@@ -27,7 +27,7 @@ class ProductApiProfile @Inject constructor(
     private val torangOkHttpClientImpl: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule
 ) {
-    private var url = "http://sarang628.iptime.org:8081/"
+    private var url = ApiUrl.prod
     fun create(): ApiProfile {
         return retrofitModule
 //            .getRetrofit(torangOkHttpClientImpl.getUnsafeOkHttpClient(), url)
@@ -41,7 +41,7 @@ class LocalApiProfile @Inject constructor(
     private val torangOkHttpClientImpl: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule
 ) {
-    private var url = "http://192.168.1.216:8081/"
+    private var url = ApiUrl.local
     fun create(): ApiProfile {
         return retrofitModule
 //            .getRetrofit(torangOkHttpClientImpl.getUnsafeOkHttpClient(), url)
