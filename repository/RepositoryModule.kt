@@ -4,7 +4,7 @@ import com.sarang.torang.di.repository.repository.impl.CommentRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.EditProfileRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.FeedRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.FollowRepositoryImpl
-import com.sarang.torang.di.repository.repository.impl.InfoRepositoryImpl
+import com.sarang.torang.di.repository.repository.impl.RestaurantRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.LoginRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.MapRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.ProfileRepositoryImpl
@@ -33,7 +33,7 @@ abstract class RepositoryModule {
     abstract fun provideEditProfileRepository(profileRepository: EditProfileRepositoryImpl): EditProfileRepository
 
     @Binds
-    abstract fun provideInfoRepository(infoRepositoryImpl: InfoRepositoryImpl): RestaurantRepository
+    abstract fun provideInfoRepository(infoRepositoryImpl: RestaurantRepositoryImpl): RestaurantRepository
 
     @Binds
     abstract fun provideReviewRepository(reviewRepositoryImpl: ReviewRepositoryImpl): ReviewRepository

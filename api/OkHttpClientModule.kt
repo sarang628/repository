@@ -6,7 +6,11 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import okhttp3.Authenticator
 import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.Response
+import okhttp3.Route
 import okhttp3.logging.HttpLoggingInterceptor
 import java.security.SecureRandom
 import java.security.cert.CertificateException
@@ -40,12 +44,11 @@ class TorangOkHttpClientImpl @Inject constructor(@ApplicationContext val context
         httpClient.addInterceptor { chain ->
             val original = chain.request()
             val request = original.newBuilder()
-                .header("User-Agent", "android")
-                .header("accessToken", "")
                 .method(original.method, original.body)
                 .build()
             chain.proceed(request)
         }
+        httpClient.authenticator { route, response -> TODO("Not yet implemented") }
         return httpClient.build()
     }
 

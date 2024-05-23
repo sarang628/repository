@@ -47,7 +47,7 @@ class LocalApiLogin @Inject constructor(
     private val torangOkhttpClient: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule
 ) {
-    private var url = "http://192.168.0.14:8081/"
+    private var url = ApiUrl.local
     fun create(): ApiLogin {
         return retrofitModule.getRetrofit(torangOkhttpClient.getHttpClient(), url).create(
             ApiLogin::class.java

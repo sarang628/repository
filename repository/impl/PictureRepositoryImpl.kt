@@ -1,6 +1,6 @@
 package com.sarang.torang.di.repository.repository.impl
 
-import android.graphics.Picture
+import com.sarang.torang.Picture
 import com.sarang.torang.data.dao.PictureDao
 import com.sarang.torang.data.entity.ReviewImageEntity
 import com.sarang.torang.api.ApiRestaurant
@@ -16,7 +16,7 @@ import javax.inject.Singleton
 @Singleton
 class PicturesRepositoryImpl @Inject constructor(
     private val restaurantService: ApiRestaurant,
-    private val pictureDao: PictureDao
+    private val pictureDao: PictureDao,
 ) :
     PicturesRepository {
     override suspend fun getPictures(restaurantId: Int): ArrayList<Picture> {
@@ -25,9 +25,16 @@ class PicturesRepositoryImpl @Inject constructor(
         })
     }
 
-    override fun getFeedPicture(reviewId: Int): Flow<List<ReviewImageEntity>> {
-//        Logger.d(reviewId)
+    override fun getFeedPictureFlow(reviewId: Int): Flow<List<ReviewImageEntity>> {
+        return pictureDao.getFeedImageFlow(reviewId)
+    }
+
+    override suspend fun getFeedPicture(reviewId: Int): List<ReviewImageEntity> {
         return pictureDao.getFeedImage(reviewId)
+    }
+
+    override suspend fun getImagesByRestaurantId(restaurantId: Int): List<ReviewImageEntity> {
+        return pictureDao.getFeedImageByRestaurantId(restaurantId)
     }
 }
 
