@@ -36,6 +36,10 @@ class PicturesRepositoryImpl @Inject constructor(
     override suspend fun getImagesByRestaurantId(restaurantId: Int): List<ReviewImageEntity> {
         return pictureDao.getFeedImageByRestaurantId(restaurantId)
     }
+
+    override suspend fun getImagesByImageId(imageId: Int): List<ReviewImageEntity> {
+        return pictureDao.getFeedImageByImageId(imageId)
+    }
 }
 
 @Module
