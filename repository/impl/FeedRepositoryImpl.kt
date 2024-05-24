@@ -47,6 +47,10 @@ class FeedRepositoryImpl @Inject constructor(
         return myFeedDao.getMyFeedByReviewId(reviewId)
     }
 
+    override suspend fun getFeedByReviewId(reviewId : Int) : ReviewAndImageEntity{
+        return feedDao.getFeed(reviewId)
+    }
+
     override suspend fun deleteFeed(reviewId: Int) {
         //원격 저장소 요청
         apiFeed.deleteReview(reviewId)
