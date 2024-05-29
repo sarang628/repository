@@ -94,9 +94,9 @@ class FeedRepositoryImpl @Inject constructor(
                     .map { it.favorite!!.toFavoriteEntity() }
             )
         } catch (e: Exception) {
-            Log.e("FeedRepositoryImpl", e.toString())
+            Log.e("__FeedRepositoryImpl", e.toString())
             Log.e(
-                "FeedRepositoryImpl",
+                "__FeedRepositoryImpl",
                 Gson().newBuilder().setPrettyPrinting().create().toJson(feedList)
             )
             throw Exception("피드를 가져오는데 실패하였습니다.")

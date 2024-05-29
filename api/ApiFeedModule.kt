@@ -15,8 +15,8 @@ class ApiFeedModule {
     @Singleton
     @Provides
     fun provideRemoteFeedService(
-        apiFeed: ProductApiFeed,
-//        apiFeed: LocalApiFeed
+//        apiFeed: ProductApiFeed,
+        apiFeed: LocalApiFeed
     ): ApiFeed {
         return apiFeed.create()
     }
@@ -47,7 +47,7 @@ class LocalApiFeed @Inject constructor(
     private val torangOkHttpClientImpl: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule
 ) {
-    private var url = "http://192.168.0.14:8081/"
+    private var url = ApiUrl.prod
     fun create(): ApiFeed {
         return retrofitModule.getRetrofit(torangOkHttpClientImpl.getHttpClient(), url).create(
             ApiFeed::class.java
