@@ -15,8 +15,8 @@ class ApiAlarmModule {
     @Singleton
     @Provides
     fun provideRemoteFeedService(
-        apiAlarm: ProductApiAlarm,
-        //apiFeed: LocalApiAlarm
+//        apiAlarm: ProductApiAlarm,
+        apiAlarm: LocalApiAlarm
     ): ApiAlarm {
         return apiAlarm.create()
     }
