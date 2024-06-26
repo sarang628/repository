@@ -1,5 +1,6 @@
 package com.sarang.torang.di.repository.repository.impl
 
+import com.sarang.torang.api.ApiJoin
 import com.sarang.torang.api.ApiLogin
 import com.sarang.torang.api.handle
 import com.sarang.torang.data.dao.LoggedInUserDao
@@ -18,6 +19,7 @@ import javax.inject.Singleton
 @Singleton
 class LoginRepositoryImpl @Inject constructor(
     private val apiLogin: ApiLogin,
+    private val apiJoin: ApiJoin,
     private val sessionService: SessionService,
     private val loggedInUserDao: LoggedInUserDao
 ) : LoginRepository {
@@ -62,7 +64,7 @@ class LoginRepositoryImpl @Inject constructor(
 
     override suspend fun checkEmail(email: String, password: String): String {
         try {
-            return apiLogin.checkEmail(email, password)
+            return apiJoin.checkEmail(email, password)
         } catch (e: HttpException) {
             throw Exception(e.handle())
         }
@@ -76,7 +78,7 @@ class LoginRepositoryImpl @Inject constructor(
         password: String
     ): Boolean {
         try {
-            return apiLogin.confirmCode(token, confirmCode, name, email, password);
+            return apiJoin.confirmCode(token, confirmCode, name, email, password);
         } catch (e: HttpException) {
             throw Exception(e.handle())
         }

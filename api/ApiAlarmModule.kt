@@ -5,7 +5,6 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Inject
 import javax.inject.Singleton
 
 
@@ -15,35 +14,11 @@ class ApiAlarmModule {
     @Singleton
     @Provides
     fun provideRemoteFeedService(
-        apiAlarm: ProductApiAlarm,
-        //apiFeed: LocalApiAlarm
+        torangOkHttpClientImpl: TorangOkhttpClient,
+        retrofitModule: RetrofitModule,
     ): ApiAlarm {
-        return apiAlarm.create()
-    }
-}
-
-@Singleton
-class ProductApiAlarm @Inject constructor(
-    private val torangOkHttpClientImpl: TorangOkhttpClient,
-    private val retrofitModule: RetrofitModule
-) {
-    private var url = "http://sarang628.iptime.org:8081/"
-    fun create(): ApiAlarm {
         return retrofitModule
-            .getRetrofit(torangOkHttpClientImpl.getHttpClient(), url)
+            .getRetrofit(torangOkHttpClientImpl.getHttpClient(), ApiUrl.alarm)
             .create(ApiAlarm::class.java)
-    }
-}
-
-@Singleton
-class LocalApiAlarm @Inject constructor(
-    private val torangOkHttpClientImpl: TorangOkhttpClient,
-    private val retrofitModule: RetrofitModule
-) {
-    private var url = "http://192.168.0.14:8081/"
-    fun create(): ApiAlarm {
-        return retrofitModule.getRetrofit(torangOkHttpClientImpl.getHttpClient(), url).create(
-            ApiAlarm::class.java
-        )
     }
 }

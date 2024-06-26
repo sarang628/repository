@@ -21,7 +21,7 @@ class ApiLoginModule {
     @Provides
     fun provideApiLogin(
 //        apiLogin: ProductApiLogin,
-        apiLogin: LocalApiLogin
+        apiLogin: LocalApiLogin,
 //        apiLogin: FakeApiLogin
     ): ApiLogin {
         return apiLogin.create()
@@ -32,7 +32,7 @@ class ApiLoginModule {
 @Singleton
 class ProductApiLogin @Inject constructor(
     private val torangOkhttpClient: TorangOkhttpClient,
-    private val retrofitModule: RetrofitModule
+    private val retrofitModule: RetrofitModule,
 ) {
     private var url = "http://sarang628.iptime.org:8081/"
     fun create(): ApiLogin {
@@ -45,7 +45,7 @@ class ProductApiLogin @Inject constructor(
 @Singleton
 class LocalApiLogin @Inject constructor(
     private val torangOkhttpClient: TorangOkhttpClient,
-    private val retrofitModule: RetrofitModule
+    private val retrofitModule: RetrofitModule,
 ) {
     private var url = ApiUrl.local
     fun create(): ApiLogin {
@@ -59,20 +59,6 @@ class LocalApiLogin @Inject constructor(
 class FakeApiLogin @Inject constructor() {
     fun create(): ApiLogin {
         return object : ApiLogin {
-            override suspend fun checkEmail(email: String, password: String): String {
-                TODO("Not yet implemented")
-            }
-
-            override suspend fun confirmCode(
-                token: String,
-                confirmCode: String,
-                name: String,
-                email: String,
-                password: String
-            ): Boolean {
-                TODO("Not yet implemented")
-            }
-
             override suspend fun emailLogin(email: String, password: String): LoginResponse {
                 return LoginResponse(
                     "123456", RemoteUser(
@@ -94,9 +80,6 @@ class FakeApiLogin @Inject constructor() {
                 TODO("Not yet implemented")
             }
 
-            override suspend fun join(filter: Filter): Response<ArrayList<Restaurant>> {
-                TODO("Not yet implemented")
-            }
 
             override suspend fun sessionCheck(auth: String): Boolean {
                 TODO("Not yet implemented")
