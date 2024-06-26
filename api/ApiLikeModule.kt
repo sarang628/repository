@@ -15,8 +15,8 @@ class ApiLikeModule {
     @Singleton
     @Provides
     fun provideRemoteFeedService(
-//        apiLike: ProductApiLike,
-        apiLike: LocalApiLike
+        apiLike: ProductApiLike,
+//        apiLike: LocalApiLike
     ): ApiLike {
         return apiLike.create()
     }
