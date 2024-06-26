@@ -20,8 +20,8 @@ class ApiLoginModule {
     @Singleton
     @Provides
     fun provideApiLogin(
-        apiLogin: ProductApiLogin,
-//        apiLogin: LocalApiLogin
+//        apiLogin: ProductApiLogin,
+        apiLogin: LocalApiLogin
 //        apiLogin: FakeApiLogin
     ): ApiLogin {
         return apiLogin.create()
