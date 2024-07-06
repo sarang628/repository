@@ -20,8 +20,7 @@ class ApiLoginModule {
     @Singleton
     @Provides
     fun provideApiLogin(
-//        apiLogin: ProductApiLogin,
-        apiLogin: LocalApiLogin,
+        apiLogin: ProductApiLogin,
 //        apiLogin: FakeApiLogin
     ): ApiLogin {
         return apiLogin.create()
@@ -31,19 +30,6 @@ class ApiLoginModule {
 
 @Singleton
 class ProductApiLogin @Inject constructor(
-    private val torangOkhttpClient: TorangOkhttpClient,
-    private val retrofitModule: RetrofitModule,
-) {
-    private var url = "http://sarang628.iptime.org:8081/"
-    fun create(): ApiLogin {
-        return retrofitModule.getRetrofit(torangOkhttpClient.getHttpClient(), url).create(
-            ApiLogin::class.java
-        )
-    }
-}
-
-@Singleton
-class LocalApiLogin @Inject constructor(
     private val torangOkhttpClient: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule,
 ) {
