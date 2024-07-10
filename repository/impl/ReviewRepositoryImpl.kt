@@ -9,7 +9,7 @@ import com.sarang.torang.data.dao.PictureDao
 import com.sarang.torang.data.dao.RestaurantDao
 import com.sarang.torang.data.dao.ReviewDao
 import com.sarang.torang.data.entity.ReviewAndImageEntity
-import com.sarang.torang.data.remote.response.RemoteFeed
+import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.data.remote.response.toReviewImage
 import com.sarang.torang.repository.review.ReviewRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -30,7 +30,7 @@ class ReviewRepositoryImpl @Inject constructor(
     private val pictureDao: PictureDao,
     private val feedDao: FeedDao
 ) : ReviewRepository {
-    override suspend fun getReviews(restaurantId: Int): List<RemoteFeed> {
+    override suspend fun getReviews(restaurantId: Int): List<FeedApiModel> {
         return apiReview.getReviews(restaurantId)
     }
 
@@ -39,7 +39,7 @@ class ReviewRepositoryImpl @Inject constructor(
         restaurantId: Int?,
         rating: Float,
         files: List<String>
-    ): RemoteFeed {
+    ): FeedApiModel {
         val user = loggedInUserDao.getLoggedInUser1() ?: throw Exception("로그인을 해주세요.")
         try {
             val review = apiReview.addReview(

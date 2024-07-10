@@ -3,7 +3,7 @@ package com.sarang.torang.di.repository.repository.impl
 import android.content.Context
 import com.sarang.torang.api.ApiComment
 import com.sarang.torang.api.ApiRestaurant
-import com.sarang.torang.data.RemoteComment
+import com.sarang.torang.data.remote.response.RemoteComment
 import com.sarang.torang.data.Restaurant
 import com.sarang.torang.data.dao.CommentDao
 import com.sarang.torang.data.dao.LoggedInUserDao

@@ -1,7 +1,7 @@
 package com.sarang.torang.di.repository.repository.impl
 
 import com.sarang.torang.api.ApiAlarm
-import com.sarang.torang.data.RemoteAlarm
+import com.sarang.torang.data.remote.response.AlarmAlarmModel
 import com.sarang.torang.repository.AlarmRepository
 import com.sarang.torang.session.SessionService
 import kotlinx.coroutines.flow.Flow
@@ -16,8 +16,8 @@ class AlarmRepositoryImpl @Inject constructor(
 ) : AlarmRepository {
 
 
-    override suspend fun loadAlarm(): List<RemoteAlarm> {
-        var list = ArrayList<RemoteAlarm>()
+    override suspend fun loadAlarm(): List<AlarmAlarmModel> {
+        var list = ArrayList<AlarmAlarmModel>()
         sessionService.getToken()?.let {
             list = apiAlarm.getAlarms(it)
         }

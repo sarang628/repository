@@ -9,5 +9,6 @@ object ApiUrl {
 
     val alarm = local
     val login = local
+    val join = local
 }
 

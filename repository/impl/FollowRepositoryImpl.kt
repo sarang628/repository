@@ -3,7 +3,7 @@ package com.sarang.torang.di.repository.repository.impl
 import com.google.gson.JsonSyntaxException
 import com.sarang.torang.api.ApiProfile
 import com.sarang.torang.api.handle
-import com.sarang.torang.data.remote.response.RemoteFollower
+import com.sarang.torang.data.remote.response.FollowerApiModel
 import com.sarang.torang.repository.FollowRepository
 import com.sarang.torang.session.SessionService
 import retrofit2.HttpException
@@ -15,7 +15,7 @@ class FollowRepositoryImpl @Inject constructor(
     val apiProfile: ApiProfile,
     val sessionService: SessionService
 ) : FollowRepository {
-    override suspend fun getMyFollower(): List<RemoteFollower> {
+    override suspend fun getMyFollower(): List<FollowerApiModel> {
         try {
             sessionService.getToken()?.let {
                 return apiProfile.getMyFollower(it)
@@ -28,7 +28,7 @@ class FollowRepositoryImpl @Inject constructor(
         return ArrayList()
     }
 
-    override suspend fun getFollower(userId: Int): List<RemoteFollower> {
+    override suspend fun getFollower(userId: Int): List<FollowerApiModel> {
         try {
             return apiProfile.getFollower(userId)
         } catch (e: HttpException) {
@@ -39,7 +39,7 @@ class FollowRepositoryImpl @Inject constructor(
         return ArrayList()
     }
 
-    override suspend fun getMyFollowing(): List<RemoteFollower> {
+    override suspend fun getMyFollowing(): List<FollowerApiModel> {
         try {
             sessionService.getToken()?.let {
                 return apiProfile.getMyFollowing(it)
@@ -52,7 +52,7 @@ class FollowRepositoryImpl @Inject constructor(
         return ArrayList()
     }
 
-    override suspend fun getFollowing(userId: Int): List<RemoteFollower> {
+    override suspend fun getFollowing(userId: Int): List<FollowerApiModel> {
         try {
             return apiProfile.getFollowing(userId)
         } catch (e: HttpException) {

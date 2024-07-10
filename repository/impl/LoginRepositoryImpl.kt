@@ -5,7 +5,7 @@ import com.sarang.torang.api.ApiLogin
 import com.sarang.torang.api.handle
 import com.sarang.torang.data.dao.LoggedInUserDao
 import com.sarang.torang.data.entity.LoggedInUserEntity
-import com.sarang.torang.data.remote.response.RemoteUser
+import com.sarang.torang.data.remote.response.UserApiModel
 import com.sarang.torang.repository.LoginRepository
 import com.sarang.torang.session.SessionService
 import kotlinx.coroutines.flow.Flow
@@ -86,7 +86,7 @@ class LoginRepositoryImpl @Inject constructor(
 
 }
 
-fun RemoteUser.toLoggedInUserEntity(): LoggedInUserEntity {
+fun UserApiModel.toLoggedInUserEntity(): LoggedInUserEntity {
     return LoggedInUserEntity(
         userId = this.userId,
         userName = this.userName,

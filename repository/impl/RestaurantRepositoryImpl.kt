@@ -2,7 +2,6 @@ package com.sarang.torang.di.repository.repository.impl
 
 import android.content.Context
 import android.view.Menu
-import androidx.compose.runtime.Composable
 import com.sarang.torang.Picture
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.HoursOfOperation
@@ -10,7 +9,7 @@ import com.sarang.torang.data.RestaurantDetail
 import com.sarang.torang.data.dao.PictureDao
 import com.sarang.torang.data.dao.RestaurantDao
 import com.sarang.torang.data.entity.ReviewImageEntity
-import com.sarang.torang.data.remote.response.RemoteRestaurant
+import com.sarang.torang.data.remote.response.RestaurantApiModel
 import com.sarang.torang.repository.RestaurantRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +28,7 @@ class RestaurantRepositoryImpl @Inject constructor(
     private val mapClick = MutableStateFlow<Boolean>(false)
 //    private val location = MutableStateFlow(Location(0.0, 0.0))
 
-    override suspend fun loadRestaurant(restaurantId: Int): RemoteRestaurant {
+    override suspend fun loadRestaurant(restaurantId: Int): RestaurantApiModel {
         return apiRestaurant.getRestaurantById(restaurantId)
     }
 

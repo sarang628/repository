@@ -2,15 +2,14 @@ package com.sarang.torang.di.repository.repository.impl
 
 import android.util.Log
 import com.sarang.torang.api.ApiComment
-import com.sarang.torang.data.RemoteComment
-import com.sarang.torang.data.RemoteCommentList
+import com.sarang.torang.data.remote.response.RemoteComment
+import com.sarang.torang.data.remote.response.CommentListApiModel
 import com.sarang.torang.data.dao.CommentDao
 import com.sarang.torang.data.dao.LoggedInUserDao
 import com.sarang.torang.data.entity.CommentEntity
 import com.sarang.torang.data.entity.toCommentEntity
 import com.sarang.torang.data.entity.toCommentEntityList
 import com.sarang.torang.repository.comment.CommentRepository
-import com.sarang.torang.repository.comment.compose.Comment
 import com.sarang.torang.session.SessionClientService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
@@ -19,7 +18,6 @@ import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
 import java.text.SimpleDateFormat
 import javax.inject.Inject
-import kotlin.random.Random
 
 class CommentRepositoryImpl @Inject constructor(
     val apiComment: ApiComment,
@@ -59,7 +57,7 @@ class CommentRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getComment(reviewId: Int): RemoteCommentList {
+    override suspend fun getComment(reviewId: Int): CommentListApiModel {
         val token = sessionClientService.getToken()
         if (token != null) {
             commentDao.clear()
@@ -149,7 +147,7 @@ class CommentRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getCommentsWithOneReply(reviewId: Int): RemoteCommentList {
+    override suspend fun getCommentsWithOneReply(reviewId: Int): CommentListApiModel {
         val token = sessionClientService.getToken()
         if (token != null) {
             val result = apiComment.getCommentsWithOneReply(token, reviewId)

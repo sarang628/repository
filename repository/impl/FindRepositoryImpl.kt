@@ -10,7 +10,7 @@ import com.sarang.torang.data.Prices
 import com.sarang.torang.data.SearchType
 import com.sarang.torang.data.dao.RestaurantDao
 import com.sarang.torang.api.ApiRestaurant
-import com.sarang.torang.data.remote.response.RemoteRestaurant
+import com.sarang.torang.data.remote.response.RestaurantApiModel
 import com.sarang.torang.repository.FindRepository
 import com.sarang.torang.repository.RequestLocationResult
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -50,7 +50,7 @@ class FindRepositoryImpl @Inject constructor(
         private val hasGrantPermission: MutableStateFlow<Int> =
             MutableStateFlow<Int>(context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION))
 
-        private val restaurants = MutableStateFlow<List<RemoteRestaurant>>(ArrayList())
+        private val restaurants = MutableStateFlow<List<RestaurantApiModel>>(ArrayList())
 
         private val manager: LocationManager =
             context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -144,7 +144,7 @@ class FindRepositoryImpl @Inject constructor(
             showRestaurantCardAndFilter.emit(!showRestaurantCardAndFilter.value)
         }
 
-        override fun getSearchedRestaurant(): List<RemoteRestaurant> {
+        override fun getSearchedRestaurant(): List<RestaurantApiModel> {
             return restaurants.value
         }
 
@@ -197,7 +197,7 @@ class FindRepositoryImpl @Inject constructor(
         return MutableStateFlow(false)
     }
 
-    override fun getSearchedRestaurant(): List<RemoteRestaurant> {
+    override fun getSearchedRestaurant(): List<RestaurantApiModel> {
         return ArrayList()
     }
 

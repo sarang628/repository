@@ -5,10 +5,7 @@ import androidx.room.Transaction
 import com.google.gson.Gson
 import com.sarang.torang.api.ApiComment
 import com.sarang.torang.api.ApiFeed
-import com.sarang.torang.data.RemoteComment
-import com.sarang.torang.data.RemoteCommentList
-import com.sarang.torang.data.RemoteFavorite
-import com.sarang.torang.data.RemoteLike
+import com.sarang.torang.data.remote.response.LikeApiModel
 import com.sarang.torang.data.dao.FavoriteDao
 import com.sarang.torang.data.dao.FeedDao
 import com.sarang.torang.data.dao.LikeDao
@@ -20,9 +17,8 @@ import com.sarang.torang.data.entity.FeedEntity
 import com.sarang.torang.data.entity.LikeEntity
 import com.sarang.torang.data.entity.ReviewAndImageEntity
 import com.sarang.torang.data.entity.UserEntity
-import com.sarang.torang.data.remote.response.FavoriteResponse
-import com.sarang.torang.data.remote.response.LikeResponse
-import com.sarang.torang.data.remote.response.RemoteFeed
+import com.sarang.torang.data.remote.response.FavoriteApiModel
+import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.data.remote.response.toReviewImage
 import com.sarang.torang.repository.FeedRepository
 import com.sarang.torang.session.SessionClientService
@@ -146,7 +142,7 @@ class FeedRepositoryImpl @Inject constructor(
     }
 }
 
-fun RemoteFeed.toUserEntity(): UserEntity {
+fun FeedApiModel.toUserEntity(): UserEntity {
     return UserEntity(
         userId = this.user.userId,
         email = this.user.email ?: "",
@@ -162,7 +158,7 @@ fun RemoteFeed.toUserEntity(): UserEntity {
     )
 }
 
-fun RemoteFeed.toFeedEntity(): FeedEntity {
+fun FeedApiModel.toFeedEntity(): FeedEntity {
     return FeedEntity(
         reviewId = this.reviewId,
         userId = this.user.userId,
@@ -178,16 +174,7 @@ fun RemoteFeed.toFeedEntity(): FeedEntity {
     )
 }
 
-fun LikeResponse.toLikeEntity(): LikeEntity {
-    return LikeEntity(
-        reviewId = this.review_id,
-        likeId = this.like_id,
-        userId = this.user_id,
-        createDate = this.create_date
-    )
-}
-
-fun FavoriteResponse.toFavoriteEntity(): FavoriteEntity {
+fun FavoriteApiModel.toFavoriteEntity(): FavoriteEntity {
     return FavoriteEntity(
         reviewId = this.review_id,
         favoriteId = this.favorite_id,
@@ -196,20 +183,11 @@ fun FavoriteResponse.toFavoriteEntity(): FavoriteEntity {
     )
 }
 
-fun RemoteLike.toLikeEntity(): LikeEntity {
+fun LikeApiModel.toLikeEntity(): LikeEntity {
     return LikeEntity(
         likeId = likeId,
         userId = userId,
         createDate = createDate,
         reviewId = reviewId
-    )
-}
-
-fun RemoteFavorite.toFavoriteEntity(): FavoriteEntity {
-    return FavoriteEntity(
-        reviewId = review_id,
-        favoriteId = favorite_id,
-        userId = user_id,
-        createDate = create_date
     )
 }

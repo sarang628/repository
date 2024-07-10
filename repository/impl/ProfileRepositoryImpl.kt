@@ -8,17 +8,15 @@ import com.sarang.torang.api.ApiProfile
 import com.sarang.torang.api.ApiReview
 import com.sarang.torang.api.handle
 import com.sarang.torang.data.dao.FavoriteDao
-import com.sarang.torang.data.dao.FeedDao
 import com.sarang.torang.data.dao.LikeDao
 import com.sarang.torang.data.dao.MyFeedDao
 import com.sarang.torang.data.dao.PictureDao
 import com.sarang.torang.data.dao.UserDao
 import com.sarang.torang.data.entity.FavoriteEntity
-import com.sarang.torang.data.entity.LikeEntity
 import com.sarang.torang.data.entity.ReviewAndImageEntity
 import com.sarang.torang.data.entity.ReviewImageEntity
 import com.sarang.torang.data.entity.toMyFeedEntity
-import com.sarang.torang.data.remote.response.RemoteUser
+import com.sarang.torang.data.remote.response.UserApiModel
 import com.sarang.torang.data.remote.response.toReviewImage
 import com.sarang.torang.repository.ProfileRepository
 import com.sarang.torang.session.SessionClientService
@@ -41,7 +39,7 @@ class ProfileRepositoryImpl @Inject constructor(
     private val sessionClientService: SessionClientService
 ) : ProfileRepository {
 
-    override suspend fun loadProfile(userId: Int): RemoteUser {
+    override suspend fun loadProfile(userId: Int): UserApiModel {
         sessionClientService.getToken()?.let {
             try {
                 return apiProfile.getProfileWithFollow(it, userId)
@@ -52,7 +50,7 @@ class ProfileRepositoryImpl @Inject constructor(
         throw Exception("로그인 상태가 아닙니다.")
     }
 
-    override suspend fun loadProfileByToken(): RemoteUser {
+    override suspend fun loadProfileByToken(): UserApiModel {
         sessionClientService.getToken()?.let {
             try {
                 return apiProfile.getProfileByToken(it)

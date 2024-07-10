@@ -15,8 +15,7 @@ class ApiJoinModule {
     @Singleton
     @Provides
     fun provideApiLogin(
-//        apiLogin: ProductApiJoin,
-        apiLogin: LocalApiJoin,
+        apiLogin: ProductApiJoin,
 //        apiLogin: FakeApiJoin
     ): ApiJoin {
         return apiLogin.create()
@@ -29,7 +28,7 @@ class ProductApiJoin @Inject constructor(
     private val torangOkhttpClient: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule,
 ) {
-    private var url = "http://sarang628.iptime.org:8081/"
+    private var url = ApiUrl.join
     fun create(): ApiJoin {
         return retrofitModule.getRetrofit(torangOkhttpClient.getHttpClient(), url).create(
             ApiJoin::class.java
@@ -37,18 +36,6 @@ class ProductApiJoin @Inject constructor(
     }
 }
 
-@Singleton
-class LocalApiJoin @Inject constructor(
-    private val torangOkhttpClient: TorangOkhttpClient,
-    private val retrofitModule: RetrofitModule,
-) {
-    private var url = ApiUrl.local
-    fun create(): ApiJoin {
-        return retrofitModule.getRetrofit(torangOkhttpClient.getHttpClient(), url).create(
-            ApiJoin::class.java
-        )
-    }
-}
 
 @Singleton
 class FakeApiJoin @Inject constructor() {
