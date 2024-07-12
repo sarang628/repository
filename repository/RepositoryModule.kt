@@ -2,6 +2,7 @@ package com.sarang.torang.di.repository.repository
 
 import com.sarang.torang.di.repository.repository.impl.CommentRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.EditProfileRepositoryImpl
+import com.sarang.torang.di.repository.repository.impl.FakeLoginRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.FeedRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.FollowRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.RestaurantRepositoryImpl

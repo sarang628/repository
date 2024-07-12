@@ -31,7 +31,7 @@ class ProductApiLogin @Inject constructor(
     private val torangOkhttpClient: TorangOkhttpClient,
     private val retrofitModule: RetrofitModule,
 ) {
-    private var url = ApiUrl.local
+    private var url = ApiUrl.login
     fun create(): ApiLogin {
         return retrofitModule.getRetrofit(torangOkhttpClient.getHttpClient(), url).create(
             ApiLogin::class.java

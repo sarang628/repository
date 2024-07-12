@@ -8,7 +8,7 @@ object ApiUrl {
     val prod = "http://sarang628.iptime.org:8081/"
 
     val alarm = local
-    val login = local
-    val join = local
+    val login = prod
+    val join = prod
 }
 
