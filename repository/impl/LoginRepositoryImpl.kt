@@ -16,6 +16,9 @@ import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/**
+ * 로그인 관련 Repository
+ */
 @Singleton
 class LoginRepositoryImpl @Inject constructor(
     private val apiLogin: ApiLogin,
@@ -57,6 +60,7 @@ class LoginRepositoryImpl @Inject constructor(
         return false;
     }
 
+    /** 로그인 여부를 관찰하는 Flow */
     override val isLogin: Flow<Boolean> get() = loggedInUserDao.getLoggedInUser().map { it != null }
     override fun getUserName(): Flow<String> {
         return loggedInUserDao.getUserName()
