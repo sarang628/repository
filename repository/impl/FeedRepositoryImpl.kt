@@ -99,6 +99,38 @@ class FeedRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun loadFeedWithPage(page: Int) {
+        val feedList = apiFeed.getFeedsWithPage(sessionClientService.getToken(), page)
+        try {
+            feedDao.insertAll(feedList.map { it.toFeedEntity() })
+
+            val list = feedList
+                .map { it.pictures }
+                .flatMap { it }
+                .map { it.toReviewImage() }
+
+            feedDao.insertAllFeed(
+                feedList = feedList.map { it.toFeedEntity() },
+                userDao = userDao,
+                pictureDao = pictureDao,
+                reviewImages = list,
+                userList = feedList.map { it.toUserEntity() },
+                likeDao = likeDao,
+                likeList = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
+                favoriteDao = favoriteDao,
+                favorites = feedList.filter { it.favorite != null }
+                    .map { it.favorite!!.toFavoriteEntity() }
+            )
+        } catch (e: Exception) {
+            Log.e("__FeedRepositoryImpl", e.toString())
+            Log.e(
+                "__FeedRepositoryImpl",
+                Gson().newBuilder().setPrettyPrinting().create().toJson(feedList)
+            )
+            throw Exception("피드를 가져오는데 실패하였습니다.")
+        }
+    }
+
     override suspend fun addLike(reviewId: Int) {
         val token = sessionClientService.getToken()
         if (token != null) {
