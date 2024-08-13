@@ -102,6 +102,9 @@ class FeedRepositoryImpl @Inject constructor(
     override suspend fun loadFeedWithPage(page: Int) {
         val feedList = apiFeed.getFeedsWithPage(sessionClientService.getToken(), page)
         try {
+            if(page == 0)
+                deleteFeedAll()
+
             feedDao.insertAll(feedList.map { it.toFeedEntity() })
 
             val list = feedList
