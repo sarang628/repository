@@ -36,14 +36,14 @@ class FeedRepositoryImpl @Inject constructor(
     private val likeDao: LikeDao,
     private val favoriteDao: FavoriteDao,
     private val apiComment: ApiComment,
-    private val sessionClientService: SessionClientService
+    private val sessionClientService: SessionClientService,
 ) : FeedRepository {
     override val feeds: Flow<List<ReviewAndImageEntity>> = feedDao.getAllFeedWithUser()
     override fun getMyFeed(reviewId: Int): Flow<List<ReviewAndImageEntity>> {
         return myFeedDao.getMyFeedByReviewId(reviewId)
     }
 
-    override suspend fun getFeedByReviewId(reviewId : Int) : ReviewAndImageEntity{
+    override suspend fun getFeedByReviewId(reviewId: Int): ReviewAndImageEntity {
         return feedDao.getFeed(reviewId)
     }
 
@@ -170,6 +170,38 @@ class FeedRepositoryImpl @Inject constructor(
             )
         } else {
             throw Exception("로그인을 해주세요.")
+        }
+    }
+
+    override suspend fun loadUserAllFeedsByReviewId(reviewId: Int) {
+        val feedList = apiFeed.loadUserAllFeedsByReviewId(sessionClientService.getToken(), reviewId)
+        try {
+            feedDao.insertAll(feedList.map { it.toFeedEntity() })
+
+            val list = feedList
+                .map { it.pictures }
+                .flatMap { it }
+                .map { it.toReviewImage() }
+
+            feedDao.insertAllFeed(
+                feedList = feedList.map { it.toFeedEntity() },
+                userDao = userDao,
+                pictureDao = pictureDao,
+                reviewImages = list,
+                userList = feedList.map { it.toUserEntity() },
+                likeDao = likeDao,
+                likeList = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
+                favoriteDao = favoriteDao,
+                favorites = feedList.filter { it.favorite != null }
+                    .map { it.favorite!!.toFavoriteEntity() }
+            )
+        } catch (e: Exception) {
+            Log.e("__FeedRepositoryImpl", e.toString())
+            Log.e(
+                "__FeedRepositoryImpl",
+                Gson().newBuilder().setPrettyPrinting().create().toJson(feedList)
+            )
+            throw Exception("피드를 가져오는데 실패하였습니다.")
         }
     }
 }
