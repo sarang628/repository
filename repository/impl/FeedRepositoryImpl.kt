@@ -17,6 +17,7 @@ import com.sarang.torang.data.entity.FeedEntity
 import com.sarang.torang.data.entity.LikeEntity
 import com.sarang.torang.data.entity.ReviewAndImageEntity
 import com.sarang.torang.data.entity.UserEntity
+import com.sarang.torang.data.entity.toMyFeedEntity
 import com.sarang.torang.data.remote.response.FavoriteApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.data.remote.response.toReviewImage
@@ -188,6 +189,38 @@ class FeedRepositoryImpl @Inject constructor(
 
             feedDao.insertAllFeed(
                 feedList = feedList.map { it.toFeedEntity() },
+                userDao = userDao,
+                pictureDao = pictureDao,
+                reviewImages = list,
+                userList = feedList.map { it.toUserEntity() },
+                likeDao = likeDao,
+                likeList = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
+                favoriteDao = favoriteDao,
+                favorites = feedList.filter { it.favorite != null }
+                    .map { it.favorite!!.toFavoriteEntity() }
+            )
+        } catch (e: Exception) {
+            Log.e("__FeedRepositoryImpl", e.toString())
+            Log.e(
+                "__FeedRepositoryImpl",
+                Gson().newBuilder().setPrettyPrinting().create().toJson(feedList)
+            )
+            throw Exception("피드를 가져오는데 실패하였습니다.")
+        }
+    }
+
+    override suspend fun loadMyAllFeedsByReviewId(reviewId: Int) {
+        val feedList = apiFeed.loadUserAllFeedsByReviewId(sessionClientService.getToken(), reviewId)
+        try {
+            feedDao.insertAll(feedList.map { it.toFeedEntity() })
+
+            val list = feedList
+                .map { it.pictures }
+                .flatMap { it }
+                .map { it.toReviewImage() }
+
+            myFeedDao.insertAllFeed(
+                feedList = feedList.map { it.toMyFeedEntity() },
                 userDao = userDao,
                 pictureDao = pictureDao,
                 reviewImages = list,
