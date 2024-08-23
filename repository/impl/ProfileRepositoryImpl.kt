@@ -36,18 +36,20 @@ class ProfileRepositoryImpl @Inject constructor(
     private val likeDao: LikeDao,
     private val userDao: UserDao,
     private val favoriteDao: FavoriteDao,
-    private val sessionClientService: SessionClientService
+    private val sessionClientService: SessionClientService,
 ) : ProfileRepository {
 
     override suspend fun loadProfile(userId: Int): UserApiModel {
-        sessionClientService.getToken()?.let {
+
+        if (sessionClientService.getToken() != null) {
             try {
-                return apiProfile.getProfileWithFollow(it, userId)
+                return apiProfile.getProfileWithFollow(sessionClientService.getToken()!!, userId)
             } catch (e: HttpException) {
                 throw Exception(e.handle())
             }
+        } else {
+            return apiProfile.getProfile("$userId")
         }
-        throw Exception("로그인 상태가 아닙니다.")
     }
 
     override suspend fun loadProfileByToken(): UserApiModel {
