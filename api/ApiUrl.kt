@@ -10,6 +10,6 @@ object ApiUrl {
     val alarm = prod
     val login = prod
     val join = prod
-    val feed = local
+    val feed = prod
 }
 
