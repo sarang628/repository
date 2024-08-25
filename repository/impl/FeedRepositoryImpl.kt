@@ -5,6 +5,7 @@ import androidx.room.Transaction
 import com.google.gson.Gson
 import com.sarang.torang.api.ApiComment
 import com.sarang.torang.api.ApiFeed
+import com.sarang.torang.api.handle
 import com.sarang.torang.data.remote.response.LikeApiModel
 import com.sarang.torang.data.dao.FavoriteDao
 import com.sarang.torang.data.dao.FeedDao
@@ -46,9 +47,13 @@ class FeedRepositoryImpl @Inject constructor(
 
     override suspend fun getFeedByReviewId(reviewId: Int): ReviewAndImageEntity {
 
-        val result: FeedApiModel =
-            apiFeed.getFeedByReviewId(sessionClientService.getToken(), reviewId)
-        insertFeed(listOf(result))
+        try {
+            val result: FeedApiModel =
+                apiFeed.getFeedByReviewId(sessionClientService.getToken(), reviewId)
+            insertFeed(listOf(result))
+        }catch (e : Exception){
+            throw Exception(e.handle())
+        }
 
         return feedDao.getFeed(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
     }
