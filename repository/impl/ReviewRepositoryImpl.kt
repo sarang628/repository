@@ -28,7 +28,7 @@ class ReviewRepositoryImpl @Inject constructor(
     private val loggedInUserDao: LoggedInUserDao,
     private val reviewDao: ReviewDao,
     private val pictureDao: PictureDao,
-    private val feedDao: FeedDao
+    private val feedDao: FeedDao,
 ) : ReviewRepository {
     override suspend fun getReviews(restaurantId: Int): List<FeedApiModel> {
         return apiReview.getReviews(restaurantId)
@@ -38,7 +38,7 @@ class ReviewRepositoryImpl @Inject constructor(
         content: String,
         restaurantId: Int?,
         rating: Float,
-        files: List<String>
+        files: List<String>,
     ): FeedApiModel {
         val user = loggedInUserDao.getLoggedInUser1() ?: throw Exception("로그인을 해주세요.")
         try {
@@ -69,7 +69,7 @@ class ReviewRepositoryImpl @Inject constructor(
         restaurantId: Int?,
         rating: Float,
         files: List<String>,
-        uploadedImage: List<Int>
+        uploadedImage: List<Int>,
     ) {
         val userId = loggedInUserDao.getLoggedInUser1()?.userId
         userId ?: throw java.lang.Exception("로그인을 해주세요.")
@@ -93,7 +93,7 @@ class ReviewRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getReview(reviewId: Int): ReviewAndImageEntity {
-        return feedDao.getFeed(reviewId)
+        return feedDao.getFeed(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
     }
 }
 

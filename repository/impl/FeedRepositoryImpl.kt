@@ -45,7 +45,7 @@ class FeedRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getFeedByReviewId(reviewId: Int): ReviewAndImageEntity {
-        return feedDao.getFeed(reviewId)
+        return feedDao.getFeed(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
     }
 
     override fun getFeedByRestaurantId(restaurantId: Int): Flow<List<ReviewAndImageEntity>> {
