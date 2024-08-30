@@ -141,6 +141,7 @@ class FeedRepositoryImpl @Inject constructor(
             val result = apiFeed.addLike(token, reviewId)
 //            val result = apiFeed.addLike(it, reviewId)
             likeDao.insertLike(result.toLikeEntity())
+            feedDao.addLikeCount(reviewId)
         } else {
             throw java.lang.Exception("로그인을 해주세요.")
         }
@@ -152,6 +153,7 @@ class FeedRepositoryImpl @Inject constructor(
         likeDao.deleteLike(
             remoteLike.toLikeEntity()
         )
+        feedDao.subTractLikeCount(reviewId)
     }
 
     override suspend fun addFavorite(reviewId: Int) {
