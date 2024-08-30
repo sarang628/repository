@@ -5,6 +5,7 @@ import androidx.room.Transaction
 import com.google.gson.Gson
 import com.sarang.torang.api.ApiComment
 import com.sarang.torang.api.ApiFeed
+import com.sarang.torang.api.handle
 import com.sarang.torang.data.remote.response.LikeApiModel
 import com.sarang.torang.data.dao.FavoriteDao
 import com.sarang.torang.data.dao.FeedDao
@@ -45,6 +46,15 @@ class FeedRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getFeedByReviewId(reviewId: Int): ReviewAndImageEntity {
+
+        try {
+            val result: FeedApiModel =
+                apiFeed.getFeedByReviewId(sessionClientService.getToken(), reviewId)
+            insertFeed(listOf(result))
+        }catch (e : Exception){
+            throw Exception(e.handle())
+        }
+
         return feedDao.getFeed(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
     }
 
@@ -71,25 +81,7 @@ class FeedRepositoryImpl @Inject constructor(
         val feedList = apiFeed.getFeeds(sessionClientService.getToken())
         try {
             deleteFeedAll()
-            feedDao.insertAll(feedList.map { it.toFeedEntity() })
-
-            val list = feedList
-                .map { it.pictures }
-                .flatMap { it }
-                .map { it.toReviewImage() }
-
-            feedDao.insertAllFeed(
-                feedList = feedList.map { it.toFeedEntity() },
-                userDao = userDao,
-                pictureDao = pictureDao,
-                reviewImages = list,
-                userList = feedList.map { it.toUserEntity() },
-                likeDao = likeDao,
-                likeList = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
-                favoriteDao = favoriteDao,
-                favorites = feedList.filter { it.favorite != null }
-                    .map { it.favorite!!.toFavoriteEntity() }
-            )
+            insertFeed(feedList)
         } catch (e: Exception) {
             Log.e("__FeedRepositoryImpl", e.toString())
             Log.e(
@@ -100,31 +92,33 @@ class FeedRepositoryImpl @Inject constructor(
         }
     }
 
+    private suspend fun insertFeed(feedList: List<FeedApiModel>) {
+        //feedDao.insertAll(feedList.map { it.toFeedEntity() })
+        val list = feedList
+            .map { it.pictures }
+            .flatMap { it }
+            .map { it.toReviewImage() }
+
+        feedDao.insertAllFeed(
+            feedList = feedList.map { it.toFeedEntity() },
+            userDao = userDao,
+            pictureDao = pictureDao,
+            reviewImages = list,
+            userList = feedList.map { it.toUserEntity() },
+            likeDao = likeDao,
+            likeList = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
+            favoriteDao = favoriteDao,
+            favorites = feedList.filter { it.favorite != null }
+                .map { it.favorite!!.toFavoriteEntity() }
+        )
+    }
+
     override suspend fun loadFeedWithPage(page: Int) {
         val feedList = apiFeed.getFeedsWithPage(sessionClientService.getToken(), page)
         try {
-            if(page == 0)
+            if (page == 0)
                 deleteFeedAll()
-
-            feedDao.insertAll(feedList.map { it.toFeedEntity() })
-
-            val list = feedList
-                .map { it.pictures }
-                .flatMap { it }
-                .map { it.toReviewImage() }
-
-            feedDao.insertAllFeed(
-                feedList = feedList.map { it.toFeedEntity() },
-                userDao = userDao,
-                pictureDao = pictureDao,
-                reviewImages = list,
-                userList = feedList.map { it.toUserEntity() },
-                likeDao = likeDao,
-                likeList = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
-                favoriteDao = favoriteDao,
-                favorites = feedList.filter { it.favorite != null }
-                    .map { it.favorite!!.toFavoriteEntity() }
-            )
+            insertFeed(feedList)
         } catch (e: Exception) {
             Log.e("__FeedRepositoryImpl", e.toString())
             Log.e(
@@ -182,25 +176,7 @@ class FeedRepositoryImpl @Inject constructor(
     override suspend fun loadUserAllFeedsByReviewId(reviewId: Int) {
         val feedList = apiFeed.loadUserAllFeedsByReviewId(sessionClientService.getToken(), reviewId)
         try {
-            feedDao.insertAll(feedList.map { it.toFeedEntity() })
-
-            val list = feedList
-                .map { it.pictures }
-                .flatMap { it }
-                .map { it.toReviewImage() }
-
-            feedDao.insertAllFeed(
-                feedList = feedList.map { it.toFeedEntity() },
-                userDao = userDao,
-                pictureDao = pictureDao,
-                reviewImages = list,
-                userList = feedList.map { it.toUserEntity() },
-                likeDao = likeDao,
-                likeList = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
-                favoriteDao = favoriteDao,
-                favorites = feedList.filter { it.favorite != null }
-                    .map { it.favorite!!.toFavoriteEntity() }
-            )
+            insertFeed(feedList)
         } catch (e: Exception) {
             Log.e("__FeedRepositoryImpl", e.toString())
             Log.e(
@@ -214,25 +190,7 @@ class FeedRepositoryImpl @Inject constructor(
     override suspend fun loadMyAllFeedsByReviewId(reviewId: Int) {
         val feedList = apiFeed.loadUserAllFeedsByReviewId(sessionClientService.getToken(), reviewId)
         try {
-            feedDao.insertAll(feedList.map { it.toFeedEntity() })
-
-            val list = feedList
-                .map { it.pictures }
-                .flatMap { it }
-                .map { it.toReviewImage() }
-
-            myFeedDao.insertAllFeed(
-                feedList = feedList.map { it.toMyFeedEntity() },
-                userDao = userDao,
-                pictureDao = pictureDao,
-                reviewImages = list,
-                userList = feedList.map { it.toUserEntity() },
-                likeDao = likeDao,
-                likeList = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
-                favoriteDao = favoriteDao,
-                favorites = feedList.filter { it.favorite != null }
-                    .map { it.favorite!!.toFavoriteEntity() }
-            )
+            insertFeed(feedList)
         } catch (e: Exception) {
             Log.e("__FeedRepositoryImpl", e.toString())
             Log.e(

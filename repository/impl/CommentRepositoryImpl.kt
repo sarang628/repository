@@ -148,14 +148,9 @@ class CommentRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getCommentsWithOneReply(reviewId: Int): CommentListApiModel {
-        val token = sessionClientService.getToken()
-        if (token != null) {
-            val result = apiComment.getCommentsWithOneReply(token, reviewId)
+            val result = apiComment.getCommentsWithOneReply(sessionClientService.getToken()?:"", reviewId)
             commentDao.insertComments(result.list.toCommentEntityList())
             return result
-        } else {
-            throw Exception("로그인을 해주세요")
-        }
     }
 
     override suspend fun getSubComments(commentId: Int): List<RemoteComment> {

@@ -11,5 +11,6 @@ object ApiUrl {
     val login = prod
     val join = prod
     val feed = prod
+    val comment = prod
 }
 
