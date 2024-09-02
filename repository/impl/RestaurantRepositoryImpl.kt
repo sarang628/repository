@@ -64,6 +64,8 @@ fun Picture.toReviewImageEntity(): ReviewImageEntity {
         createDate = create_date,
         userId = user_id,
         menuId = menu_id,
-        menu = 0
+        menu = 0,
+        width = width,
+        height = height
     )
 }
