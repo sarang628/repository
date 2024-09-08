@@ -16,28 +16,30 @@ import javax.inject.Singleton
 
 @Singleton
 class ChatRepositoryImpl @Inject constructor(
-    @ApplicationContext context: Context,
     private val apiChat: ApiChat,
     private val chatDao: ChatDao,
     private val sessionService: SessionService,
 ) :
     ChatRepository {
-
-    override suspend fun getChatRoom(): Flow<List<ChatRoomEntity>> {
+    override suspend fun loadChatRoom() {
         sessionService.getToken()?.let {
             val result = apiChat.getChatRoom(it)
             chatDao.addAll(result.map { it.toChatRoomEntity() })
         }
-
-        return chatDao.getChatRoom()
     }
 
-    override suspend fun getContents(roomId: Int): Flow<List<ChatEntity>> {
+    override suspend fun loadContents(roomId: Int) {
         sessionService.getToken()?.let {
             val result = apiChat.getContents(it, roomId)
             chatDao.addAllChat(result.map { it.toChatEntity() })
         }
+    }
 
+    override fun getChatRoom(): Flow<List<ChatRoomEntity>> {
+        return chatDao.getChatRoom()
+    }
+
+    override fun getContents(roomId: Int): Flow<List<ChatEntity>> {
         return chatDao.getContents(roomId)
     }
 }
