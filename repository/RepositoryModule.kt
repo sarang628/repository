@@ -1,5 +1,6 @@
 package com.sarang.torang.di.repository.repository
 
+import com.sarang.torang.di.repository.repository.impl.ChatRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.CommentRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.EditProfileRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.FakeLoginRepositoryImpl
@@ -10,6 +11,7 @@ import com.sarang.torang.di.repository.repository.impl.LoginRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.MapRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.ProfileRepositoryImpl
 import com.sarang.torang.di.repository.repository.impl.ReviewRepositoryImpl
+import com.sarang.torang.repository.ChatRepository
 import com.sarang.torang.repository.comment.CommentRepository
 import com.sarang.torang.repository.EditProfileRepository
 import com.sarang.torang.repository.FeedRepository
@@ -53,4 +55,7 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun provideCommentRepository(commentRepository: CommentRepositoryImpl): CommentRepository
+
+    @Binds
+    abstract fun provideChatRepository(chatRepository: ChatRepositoryImpl): ChatRepository
 }
