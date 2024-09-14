@@ -75,6 +75,8 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun loadChatRoom() {
         sessionService.getToken()?.let {
             val result = apiChat.getChatRoom(it)
+            chatDao.delAllChatRoom()
+            chatDao.delAllParticipants()
             chatDao.addAll(result.map { it.toChatRoomEntity() })
             result.forEach { chatRoom ->
                 insertOrUpdateUser(userDao, chatRoom.users)
