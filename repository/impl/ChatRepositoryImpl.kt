@@ -11,6 +11,7 @@ import com.sarang.torang.data.entity.ChatRoomWithParticipantsEntity
 import com.sarang.torang.data.entity.UserEntity
 import com.sarang.torang.data.remote.response.ChatApiModel
 import com.sarang.torang.data.remote.response.ChatRoomApiModel
+import com.sarang.torang.data.remote.response.ChatUserApiModel
 import com.sarang.torang.repository.ChatRepository
 import com.sarang.torang.session.SessionService
 import kotlinx.coroutines.flow.Flow
@@ -19,6 +20,49 @@ import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
+
+private suspend fun insertParticipants(
+    chatDao: ChatDao,
+    users: List<ChatUserApiModel>,
+    roomId: Int,
+) {
+    chatDao.insertParticipats(
+        users.map { user ->
+            ChatParticipantsEntity(
+                roomId = roomId,
+                userId = user.userId
+            )
+        }
+    )
+}
+
+private suspend fun insertOrUpdateUser(userDao: UserDao, users: List<ChatUserApiModel>) {
+    users.forEach { user ->
+        if (userDao.exists(user.userId) > 0) {
+            userDao.updateByChatRoom(
+                user.userId,
+                user.userName,
+                user.profilePicUrl
+            )
+        } else {
+            userDao.insertUser(
+                UserEntity(
+                    userId = user.userId,
+                    userName = user.userName,
+                    email = "",
+                    loginPlatform = "",
+                    createDate = "",
+                    accessToken = "",
+                    profilePicUrl = user.profilePicUrl,
+                    point = 0,
+                    reviewCount = "",
+                    followers = "",
+                    following = ""
+                )
+            )
+        }
+    }
+}
 
 @Singleton
 class ChatRepositoryImpl @Inject constructor(
@@ -33,41 +77,8 @@ class ChatRepositoryImpl @Inject constructor(
             val result = apiChat.getChatRoom(it)
             chatDao.addAll(result.map { it.toChatRoomEntity() })
             result.forEach { chatRoom ->
-
-                chatRoom.users.forEach { user ->
-                    if (userDao.exists(user.userId) > 0) {
-                        userDao.updateByChatRoom(
-                            user.userId,
-                            user.userName,
-                            user.profilePicUrl
-                        )
-                    } else {
-                        userDao.insertUser(
-                            UserEntity(
-                                userId = user.userId,
-                                userName = user.userName,
-                                email = "",
-                                loginPlatform = "",
-                                createDate = "",
-                                accessToken = "",
-                                profilePicUrl = user.profilePicUrl,
-                                point = 0,
-                                reviewCount = "",
-                                followers = "",
-                                following = ""
-                            )
-                        )
-                    }
-                }
-
-                chatDao.insertParticipats(
-                    chatRoom.users.map { user ->
-                        ChatParticipantsEntity(
-                            roomId = chatRoom.roomId,
-                            userId = user.userId
-                        )
-                    }
-                )
+                insertOrUpdateUser(userDao, chatRoom.users)
+                insertParticipants(chatDao, chatRoom.users, chatRoom.roomId)
             }
         }
     }
@@ -83,6 +94,33 @@ class ChatRepositoryImpl @Inject constructor(
         return chatDao.getChatRoom()
     }
 
+    override suspend fun getUserOrCreateRoomByUserId(userId: Int): ChatRoomWithParticipantsAndUsers {
+        var chatRoom = chatDao.getChatRoomByUserId(userId)
+
+        if (chatRoom == null) {
+            val result = apiChat.createChatRoom(sessionService.getToken() ?: "", userId)
+            chatDao.addAll(listOf(result.toChatRoomEntity()))
+            insertOrUpdateUser(userDao, result.users)
+            insertParticipants(chatDao, result.users, result.roomId)
+        }
+
+        chatRoom = chatDao.getChatRoomByUserId(userId)
+
+        if (chatRoom == null)
+            throw throw Exception("채팅방 생성에 실패 하였습니다.")
+
+        val participantsWithUserEntity =
+            chatDao.getParticipantsWithUsers(chatRoom.chatRoomEntity.roomId)
+
+        if (participantsWithUserEntity == null)
+            throw throw Exception("참여자 정보를 가져오는데 실패했습니다.")
+
+        return ChatRoomWithParticipantsAndUsers(
+            chatRoomEntity = chatRoom.chatRoomEntity,
+            participantsWithUsers = participantsWithUserEntity
+        )
+    }
+
     override fun getChatRoomsWithParticipantsAndUsers(): Flow<List<ChatRoomWithParticipantsAndUsers>> {
         // 첫 번째 Flow: ChatRoomEntity 목록 가져오기
         val chatRoomFlow = chatDao.getChatRoom()
@@ -91,11 +129,11 @@ class ChatRepositoryImpl @Inject constructor(
         return chatRoomFlow.flatMapLatest { chatRooms ->
             // 각 채팅방에 대한 Participants 정보를 가져와서 결합
             val flows = chatRooms.map { chatRoom ->
-                chatDao.getParticipantsWithUsers(chatRoom.chatRoomEntity.roomId)
+                chatDao.getParticipantsWithUsersFlow(chatRoom.chatRoomEntity.roomId)
                     .map { participantsWithUsers ->
                         ChatRoomWithParticipantsAndUsers(
                             chatRoomEntity = chatRoom.chatRoomEntity,
-                            participantsWithUsers = participantsWithUsers
+                            participantsWithUsers = participantsWithUsers ?: listOf()
                         )
                     }
             }
