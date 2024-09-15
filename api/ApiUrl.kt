@@ -12,6 +12,6 @@ object ApiUrl {
     val join = prod
     val feed = prod
     val comment = prod
-    val chat = prod
+    val chat = local
 }
 

@@ -2,8 +2,10 @@ package com.sarang.torang.di.repository.repository.impl
 
 import com.sarang.torang.api.ApiChat
 import com.sarang.torang.data.dao.ChatDao
+import com.sarang.torang.data.dao.LoggedInUserDao
 import com.sarang.torang.data.dao.UserDao
 import com.sarang.torang.data.entity.ChatEntity
+import com.sarang.torang.data.entity.ChatEntityWithUser
 import com.sarang.torang.data.entity.ChatParticipantsEntity
 import com.sarang.torang.data.entity.ChatRoomEntity
 import com.sarang.torang.data.entity.ChatRoomWithParticipantsAndUsers
@@ -18,6 +20,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -70,6 +73,7 @@ class ChatRepositoryImpl @Inject constructor(
     private val chatDao: ChatDao,
     private val sessionService: SessionService,
     private val userDao: UserDao,
+    private val loggedInUserDao: LoggedInUserDao,
 ) :
     ChatRepository {
     override suspend fun loadChatRoom() {
@@ -142,7 +146,27 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun getContents(roomId: Int): Flow<List<ChatEntity>> {
+    override suspend fun addChat(roomId: Int, message: String) {
+        sessionService.getToken()?.let { auth ->
+            loggedInUserDao.getLoggedInUser1()?.userId?.let {
+                val chat = ChatEntity(
+                    uuid = UUID.randomUUID().toString(),
+                    roomId = roomId,
+                    userId = it,
+                    message = message,
+                    createDate = ""
+                )
+                //로컬 DB에 우선 추가
+                chatDao.addChat(chat)
+
+                val result = apiChat.addChat(auth = auth, roomId = roomId, message = message)
+                chatDao.delete(chat.uuid)
+                chatDao.addChat(result.toChatEntity())
+            }
+        }
+    }
+
+    override fun getContents(roomId: Int): Flow<List<ChatEntityWithUser>> {
         return chatDao.getContents(roomId)
     }
 }
@@ -157,4 +181,5 @@ fun ChatApiModel.toChatEntity(): ChatEntity = ChatEntity(
     createDate = createDate,
     message = message,
     userId = userId,
+    uuid = uuid
 )
