@@ -20,6 +20,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import java.text.SimpleDateFormat
+import java.util.Locale
 import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -156,7 +158,11 @@ class ChatRepositoryImpl @Inject constructor(
                     roomId = roomId,
                     userId = it,
                     message = message,
-                    createDate = ""
+                    createDate = SimpleDateFormat(
+                        "yyyy-MM-dd HH:mm:ss",
+                        Locale.KOREA
+                    ).format(System.currentTimeMillis()),
+                    sending = true
                 )
                 //로컬 DB에 우선 추가
                 chatDao.addChat(chat)
@@ -183,5 +189,6 @@ fun ChatApiModel.toChatEntity(): ChatEntity = ChatEntity(
     createDate = createDate,
     message = message,
     userId = userId,
-    uuid = uuid
+    uuid = uuid,
+    sending = false // 전송 완료
 )
