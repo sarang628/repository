@@ -81,8 +81,8 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun loadChatRoom() {
         sessionService.getToken()?.let {
             val result = apiChat.getChatRoom(it)
-            chatDao.delAllChatRoom()
-            chatDao.delAllParticipants()
+            chatDao.deleteAllChatRoom()
+            chatDao.deleteAllParticipants()
             chatDao.addAll(result.map { it.toChatRoomEntity() })
             result.forEach { chatRoom ->
                 insertOrUpdateUser(userDao, chatRoom.users)
@@ -172,6 +172,12 @@ class ChatRepositoryImpl @Inject constructor(
                 chatDao.addChat(result.toChatEntity())
             }
         }
+    }
+
+    override suspend fun removeAll() {
+        chatDao.deleteAllChatRoom()
+        chatDao.deleteAllParticipants()
+        chatDao.deleteAllChat()
     }
 
     override fun getContents(roomId: Int): Flow<List<ChatEntityWithUser>> {
