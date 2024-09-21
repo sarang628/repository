@@ -7,6 +7,7 @@ import com.sarang.torang.api.handle
 import com.sarang.torang.data.dao.LoggedInUserDao
 import com.sarang.torang.data.entity.LoggedInUserEntity
 import com.sarang.torang.data.remote.response.UserApiModel
+import com.sarang.torang.repository.ChatRepository
 import com.sarang.torang.repository.LoginRepository
 import com.sarang.torang.session.SessionService
 import kotlinx.coroutines.flow.Flow
@@ -27,6 +28,7 @@ class LoginRepositoryImpl @Inject constructor(
     private val apiJoin: ApiJoin,
     private val sessionService: SessionService,
     private val loggedInUserDao: LoggedInUserDao,
+    private val chatRepository: ChatRepository
 ) : LoginRepository {
     override suspend fun emailLogin(email: String, password: String) {
         try {
@@ -59,6 +61,7 @@ class LoginRepositoryImpl @Inject constructor(
     }
 
     override suspend fun logout() {
+        chatRepository.removeAll()
         loggedInUserDao.clear()
         sessionService.removeToken()
     }
