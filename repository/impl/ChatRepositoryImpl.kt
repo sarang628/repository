@@ -1,6 +1,8 @@
 package com.sarang.torang.di.repository.repository.impl
 
 import android.util.Log
+import com.gmail.bishoybasily.stomp.lib.Event
+import com.google.gson.GsonBuilder
 import com.sarang.torang.api.ApiChat
 import com.sarang.torang.data.dao.ChatDao
 import com.sarang.torang.data.dao.LoggedInUserDao
@@ -16,10 +18,15 @@ import com.sarang.torang.data.remote.response.ChatApiModel
 import com.sarang.torang.data.remote.response.toChatRoomEntity
 import com.sarang.torang.repository.ChatRepository
 import com.sarang.torang.session.SessionService
+import com.sarang.torang.util.WebSocketClient
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
+import okhttp3.WebSocketListener
 import java.text.SimpleDateFormat
 import java.util.Locale
 import java.util.UUID
@@ -35,6 +42,8 @@ class ChatRepositoryImpl @Inject constructor(
     private val loggedInUserDao: LoggedInUserDao,
 ) :
     ChatRepository {
+    private var webSocketClient = WebSocketClient(object : WebSocketListener() {})
+
     override suspend fun loadChatRoom() {
         Log.d("__ChatRepositoryImpl", "loadChatRoom")
         sessionService.getToken()?.let {
@@ -127,19 +136,45 @@ class ChatRepositoryImpl @Inject constructor(
                     sending = true
                 )
                 //로컬 DB에 우선 추가
-                chatDao.addChat(chat)
+                //chatDao.addChat(chat)
 
-                val result = apiChat.addChat(auth = auth, roomId = roomId, message = message)
-                chatDao.delete(chat.uuid)
-                chatDao.addChat(result.toChatEntity())
+                try {
+                    webSocketClient.sendMessage(auth, chat.uuid, roomId, chat.message)
+                } catch (e: Exception) {
+                    Log.e("__ChatRepositoryImpl", "Error sending message: ${e.message}")
+                    throw Exception("메시지 전송에 실패하였습니다.")
+                }
             }
         }
     }
+
 
     override suspend fun removeAll() {
         chatDao.deleteAllChatRoom()
         chatDao.deleteAllParticipants()
         chatDao.deleteAllChat()
+    }
+
+    override suspend fun openChatRoom(roomId: Int, coroutineScope: CoroutineScope) {
+        webSocketClient.subScribe(roomId).collect {
+//            val result = GsonBuilder().create().fromJson(it, ChatApiModel::class.java)
+            Log.d("__ChatRepositoryImpl", "received message: $it")
+//                chatDao.delete(result.uuid)
+//                chatDao.addChat(result.toChatEntity())
+        }
+    }
+
+    override fun connectSocket() {
+        return webSocketClient.connectToWebSocket()
+    }
+
+
+    override fun setListener(listener: WebSocketListener) {
+        webSocketClient = WebSocketClient(listener)
+    }
+
+    override fun closeConnection() {
+        webSocketClient.closeConnection()
     }
 
     override fun getContents(roomId: Int): Flow<List<ChatEntityWithUser>> {
