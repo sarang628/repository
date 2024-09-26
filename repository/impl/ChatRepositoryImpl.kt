@@ -160,10 +160,10 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun openChatRoom(roomId: Int): Flow<String> {
         return callbackFlow {
             webSocketClient.subScribe(roomId).collect {
-//            val result = GsonBuilder().create().fromJson(it, ChatApiModel::class.java)
+            val result = GsonBuilder().create().fromJson(it, ChatApiModel::class.java)
                 Log.d("__ChatRepositoryImpl", "received message: $it")
-//                chatDao.delete(result.uuid)
-//                chatDao.addChat(result.toChatEntity())
+                chatDao.delete(result.uuid)
+                chatDao.addChat(result.toChatEntity())
                 trySend(it)
             }
             awaitClose()
