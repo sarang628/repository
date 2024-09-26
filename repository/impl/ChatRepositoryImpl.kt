@@ -21,8 +21,10 @@ import com.sarang.torang.session.SessionService
 import com.sarang.torang.util.WebSocketClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
@@ -155,12 +157,16 @@ class ChatRepositoryImpl @Inject constructor(
         chatDao.deleteAllChat()
     }
 
-    override suspend fun openChatRoom(roomId: Int, coroutineScope: CoroutineScope) {
-        webSocketClient.subScribe(roomId).collect {
+    override suspend fun openChatRoom(roomId: Int): Flow<String> {
+        return callbackFlow {
+            webSocketClient.subScribe(roomId).collect {
 //            val result = GsonBuilder().create().fromJson(it, ChatApiModel::class.java)
-            Log.d("__ChatRepositoryImpl", "received message: $it")
+                Log.d("__ChatRepositoryImpl", "received message: $it")
 //                chatDao.delete(result.uuid)
 //                chatDao.addChat(result.toChatEntity())
+                trySend(it)
+            }
+            awaitClose()
         }
     }
 
