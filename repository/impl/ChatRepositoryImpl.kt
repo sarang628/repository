@@ -47,6 +47,14 @@ class ChatRepositoryImpl @Inject constructor(
     ChatRepository {
     private var webSocketClient = WebSocketClient()
 
+    init {
+        try {
+            webSocketClient.connect()
+        } catch (e: Exception) {
+            Log.e("__ChatRepositoryImpl", "Error connecting to WebSocket: ${e.message}")
+        }
+    }
+
     override suspend fun loadChatRoom() {
         Log.d("__ChatRepositoryImpl", "loadChatRoom")
         sessionService.getToken()?.let {
@@ -162,20 +170,8 @@ class ChatRepositoryImpl @Inject constructor(
         webSocketClient.subScribe(roomId)
     }
 
-    override fun connectSocket() {
-        return webSocketClient.connect()
-    }
-
-
-    override fun setListener() {
-        webSocketClient = WebSocketClient()
-    }
-
-    override fun closeConnection() {
-        webSocketClient.disconnect()
-    }
-
-    override fun event(): Flow<Message> {
+    override fun event(coroutineScope: CoroutineScope): Flow<Message> {
+        webSocketClient.subScribeEvent(coroutineScope)
         return callbackFlow {
             webSocketClient.getFlow().collect {
                 trySend(it)
@@ -187,14 +183,8 @@ class ChatRepositoryImpl @Inject constructor(
                     }
                 }
             }
-            awaitClose {
-                webSocketClient.disconnect()
-            }
+            awaitClose()
         }
-    }
-
-    override fun subScribeEvent(coroutineScope: CoroutineScope) {
-        webSocketClient.subScribeEvent(coroutineScope)
     }
 
     override fun unSubscribe(topic: Int) {
