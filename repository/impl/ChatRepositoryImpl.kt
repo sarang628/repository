@@ -2,6 +2,7 @@ package com.sarang.torang.di.repository.repository.impl
 
 import android.util.Log
 import com.gmail.bishoybasily.stomp.lib.Event
+import com.gmail.bishoybasily.stomp.lib.Message
 import com.google.gson.GsonBuilder
 import com.sarang.torang.api.ApiChat
 import com.sarang.torang.data.dao.ChatDao
@@ -44,7 +45,7 @@ class ChatRepositoryImpl @Inject constructor(
     private val loggedInUserDao: LoggedInUserDao,
 ) :
     ChatRepository {
-    private var webSocketClient = WebSocketClient(object : WebSocketListener() {})
+    private var webSocketClient = WebSocketClient()
 
     override suspend fun loadChatRoom() {
         Log.d("__ChatRepositoryImpl", "loadChatRoom")
@@ -157,30 +158,47 @@ class ChatRepositoryImpl @Inject constructor(
         chatDao.deleteAllChat()
     }
 
-    override suspend fun openChatRoom(roomId: Int): Flow<String> {
-        return callbackFlow {
-            webSocketClient.subScribe(roomId).collect {
-            val result = GsonBuilder().create().fromJson(it, ChatApiModel::class.java)
-                Log.d("__ChatRepositoryImpl", "received message: $it")
-                chatDao.delete(result.uuid)
-                chatDao.addChat(result.toChatEntity())
-                trySend(it)
-            }
-            awaitClose()
-        }
+    override suspend fun openChatRoom(roomId: Int) {
+        webSocketClient.subScribe(roomId)
     }
 
     override fun connectSocket() {
-        return webSocketClient.connectToWebSocket()
+        return webSocketClient.connect()
     }
 
 
-    override fun setListener(listener: WebSocketListener) {
-        webSocketClient = WebSocketClient(listener)
+    override fun setListener() {
+        webSocketClient = WebSocketClient()
     }
 
     override fun closeConnection() {
-        webSocketClient.closeConnection()
+        webSocketClient.disconnect()
+    }
+
+    override fun event(): Flow<Message> {
+        return callbackFlow {
+            webSocketClient.getFlow().collect {
+                trySend(it)
+                if (it.command == "MESSAGE") {
+                    it.payload?.let {
+                        val chat = GsonBuilder().create().fromJson(it, ChatApiModel::class.java)
+                        chatDao.delete(chat.uuid)
+                        chatDao.addChat(chat.toChatEntity())
+                    }
+                }
+            }
+            awaitClose {
+                webSocketClient.disconnect()
+            }
+        }
+    }
+
+    override fun subScribeEvent(coroutineScope: CoroutineScope) {
+        webSocketClient.subScribeEvent(coroutineScope)
+    }
+
+    override fun unSubscribe(topic: Int) {
+        webSocketClient.unSubscribe(topic)
     }
 
     override fun getContents(roomId: Int): Flow<List<ChatEntityWithUser>> {
