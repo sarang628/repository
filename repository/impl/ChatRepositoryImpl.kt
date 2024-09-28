@@ -147,7 +147,7 @@ class ChatRepositoryImpl @Inject constructor(
                     sending = true
                 )
                 //로컬 DB에 우선 추가
-                //chatDao.addChat(chat)
+                chatDao.addChat(chat)
 
                 try {
                     webSocketClient.sendMessage(auth, chat.uuid, roomId, chat.message)
