@@ -1,7 +1,7 @@
 package com.sarang.torang.di.repository.api
 
 import com.sarang.torang.api.ApiLogin
-import com.sarang.torang.data.User
+import com.sarang.torang.data.bottomsheet.User
 import com.sarang.torang.data.remote.response.LoginApiModel
 import com.sarang.torang.data.remote.response.UserApiModel
 import dagger.Module
