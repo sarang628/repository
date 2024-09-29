@@ -60,7 +60,7 @@ class FakeApiLogin @Inject constructor() {
                 )
             }
 
-            override suspend fun facebook_login(accessToken: String): Response<User> {
+            override suspend fun facebook_login(accessToken: String): Response<com.sarang.torang.data.User> {
                 TODO("Not yet implemented")
             }
 
