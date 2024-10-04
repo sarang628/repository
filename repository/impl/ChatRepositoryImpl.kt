@@ -1,7 +1,6 @@
 package com.sarang.torang.di.repository.repository.impl
 
 import android.util.Log
-import com.gmail.bishoybasily.stomp.lib.Event
 import com.gmail.bishoybasily.stomp.lib.Message
 import com.google.gson.GsonBuilder
 import com.sarang.torang.api.ApiChat
@@ -21,18 +20,14 @@ import com.sarang.torang.repository.ChatRepository
 import com.sarang.torang.session.SessionService
 import com.sarang.torang.util.WebSocketClient
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
-import okhttp3.WebSocketListener
 import java.text.SimpleDateFormat
 import java.util.Locale
-import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -134,11 +129,15 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun addChat(roomId: Int, message: String) {
+    override suspend fun addChat(
+        roomId: Int,
+        message: String,
+        uuid: String,
+    ) {
         sessionService.getToken()?.let { auth ->
             loggedInUserDao.getLoggedInUser1()?.userId?.let {
                 val chat = ChatEntity(
-                    uuid = UUID.randomUUID().toString(),
+                    uuid = uuid,
                     roomId = roomId,
                     userId = it,
                     message = message,
@@ -161,6 +160,30 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun addImage(roomId: Int, message: List<String>, uuid: String) {
+        Log.d("__ChatRepositoryImpl", "request add image : $message")
+
+        //uuid가 외래키가 걸려있어 ChatEntity에 먼저 추가해줘야 함.
+        addChat(roomId, "", uuid)
+
+        //로컬 DB에 추가하기
+        loggedInUserDao.getLoggedInUser1()?.userId?.let {
+            chatDao.addImage1(
+                parentUuid = uuid,
+                roomId = roomId,
+                userId = it,
+                createDate = SimpleDateFormat(
+                    "yyyy-MM-dd HH:mm:ss",
+                    Locale.KOREA
+                ).format(System.currentTimeMillis()),
+                uploadedDate = "",
+                sending = true,
+                message = message,
+            )
+        }
+
+    }
+
 
     override suspend fun removeAll() {
         chatDao.deleteAllChatRoom()
@@ -168,7 +191,7 @@ class ChatRepositoryImpl @Inject constructor(
         chatDao.deleteAllChat()
     }
 
-    override suspend fun openChatRoom(roomId: Int) {
+    override suspend fun subscribe(roomId: Int) {
         webSocketClient.subScribe(roomId)
     }
 
