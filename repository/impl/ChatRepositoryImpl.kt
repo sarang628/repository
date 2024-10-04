@@ -57,17 +57,19 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun loadChatRoom() {
         Log.d("__ChatRepositoryImpl", "loadChatRoom")
-        sessionService.getToken()?.let {
-            val result = apiChat.getChatRoom(it)
-            chatDao.loadChatRoom(userDao, result)
-        }
+        val token = sessionService.getToken() ?: throw Exception("채팅방 로딩에 실패하였습니다. 로그인을 해주세요.")
+        chatDao.loadChatRoom(userDao, apiChat.getChatRoom(token))
     }
 
     override suspend fun loadContents(roomId: Int) {
-        sessionService.getToken()?.let {
-            val result = apiChat.getContents(it, roomId)
-            chatDao.addAllChat(result.map { it.toChatEntity() })
-        }
+        val token = sessionService.getToken() ?: throw Exception("로그인을 해주세요.")
+
+        val result = apiChat.getContents(token, roomId)
+        Log.d("__ChatRepositoryImpl", "loaded chat roomId : $roomId, chatSize: ${result.size}")
+
+        chatDao.addAllChat(
+            result.map { it.toChatEntity() }
+        )
     }
 
     override fun getChatRoom(): Flow<List<ChatRoomWithParticipantsEntity>> {
