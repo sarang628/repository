@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
+import java.util.ArrayList
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -49,6 +50,8 @@ class ChatRepositoryImpl @Inject constructor(
             Log.e("__ChatRepositoryImpl", "Error connecting to WebSocket: ${e.message}")
         }
     }
+
+    private val uploadingList: ArrayList<String> = ArrayList()
 
     override suspend fun loadChatRoom() {
         Log.d("__ChatRepositoryImpl", "loadChatRoom")
@@ -163,6 +166,8 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun addImage(roomId: Int, message: List<String>, uuid: String) {
         Log.d("__ChatRepositoryImpl", "request add image : $message")
 
+        uploadingList.addAll(message)
+
         //uuid가 외래키가 걸려있어 ChatEntity에 먼저 추가해줘야 함.
         addChat(roomId, "", uuid)
 
@@ -181,7 +186,6 @@ class ChatRepositoryImpl @Inject constructor(
                 message = message,
             )
         }
-
     }
 
 
@@ -214,6 +218,10 @@ class ChatRepositoryImpl @Inject constructor(
 
     override fun unSubscribe(topic: Int) {
         webSocketClient.unSubscribe(topic)
+    }
+
+    override suspend fun updateFailedUploadImage(roomId: Int) {
+        chatDao.updateFailedSendImages(uploadingList, roomId)
     }
 
     override fun getContents(roomId: Int): Flow<List<ChatEntityWithUser>> {
