@@ -1,7 +1,6 @@
 package com.sarang.torang.di.repository.api
 
 import com.sarang.torang.api.ApiChat
-import com.sarang.torang.api.ApiFeed
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

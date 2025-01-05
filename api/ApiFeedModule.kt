@@ -1,6 +1,6 @@
 package com.sarang.torang.di.repository.api
 
-import com.sarang.torang.api.ApiFeed
+import com.sarang.torang.api.feed.ApiFeed
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
