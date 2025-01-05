@@ -3,7 +3,7 @@ package com.sarang.torang.di.repository.repository.impl
 import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
-import com.sarang.torang.api.ApiFeed
+import com.sarang.torang.api.feed.ApiFeed
 import com.sarang.torang.api.ApiProfile
 import com.sarang.torang.api.ApiReview
 import com.sarang.torang.api.handle
