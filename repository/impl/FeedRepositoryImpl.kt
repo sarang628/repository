@@ -3,8 +3,7 @@ package com.sarang.torang.di.repository.repository.impl
 import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
-import com.sarang.torang.api.ApiComment
-import com.sarang.torang.api.ApiFeed
+import com.sarang.torang.api.feed.ApiFeed
 import com.sarang.torang.api.handle
 import com.sarang.torang.data.remote.response.LikeApiModel
 import com.sarang.torang.data.dao.FavoriteDao
@@ -18,7 +17,6 @@ import com.sarang.torang.data.entity.FeedEntity
 import com.sarang.torang.data.entity.LikeEntity
 import com.sarang.torang.data.entity.ReviewAndImageEntity
 import com.sarang.torang.data.entity.UserEntity
-import com.sarang.torang.data.entity.toMyFeedEntity
 import com.sarang.torang.data.remote.response.FavoriteApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.data.remote.response.toReviewImage
@@ -37,7 +35,6 @@ class FeedRepositoryImpl @Inject constructor(
     private val userDao: UserDao,
     private val likeDao: LikeDao,
     private val favoriteDao: FavoriteDao,
-    private val apiComment: ApiComment,
     private val sessionClientService: SessionClientService,
 ) : FeedRepository {
     override val feeds: Flow<List<ReviewAndImageEntity>> = feedDao.getAllFeedWithUser()
@@ -51,7 +48,7 @@ class FeedRepositoryImpl @Inject constructor(
             val result: FeedApiModel =
                 apiFeed.getFeedByReviewId(sessionClientService.getToken(), reviewId)
             insertFeed(listOf(result))
-        }catch (e : Exception){
+        } catch (e: Exception) {
             throw Exception(e.handle())
         }
 
@@ -193,6 +190,28 @@ class FeedRepositoryImpl @Inject constructor(
             insertFeed(feedList)
         } catch (e: Exception) {
             Log.e("__FeedRepositoryImpl", e.toString())
+            Log.e(
+                "__FeedRepositoryImpl",
+                Gson().newBuilder().setPrettyPrinting().create().toJson(feedList)
+            )
+            throw Exception("피드를 가져오는데 실패하였습니다.")
+        }
+    }
+
+    /**
+     * 리뷰 ID 다음 피드 가져오기
+     * @param reviewId 리스트의 마지막 피드 ID
+     * @param count 가져올 다음 피드 갯수
+     */
+    override suspend fun loadNextFeedByReivewId(reviewId: Int, count: Int) {
+        val feedList = apiFeed.getNextReviewsByReviewId(
+            auth = sessionClientService.getToken(),
+            reviewId = reviewId,
+            count = count
+        )
+        try {
+            insertFeed(feedList)
+        } catch (e: Exception) {
             Log.e(
                 "__FeedRepositoryImpl",
                 Gson().newBuilder().setPrettyPrinting().create().toJson(feedList)
