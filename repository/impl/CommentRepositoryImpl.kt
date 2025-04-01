@@ -26,6 +26,8 @@ class CommentRepositoryImpl @Inject constructor(
     val loggedInUserDao: LoggedInUserDao
 ) : CommentRepository {
 
+    val TAG = "__CommentRepositoryImpl"
+
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun getCommentsFlow(reviewId: Int): Flow<List<CommentEntity>> {
         return commentDao.getComments(reviewId).flatMapMerge {
@@ -148,9 +150,16 @@ class CommentRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getCommentsWithOneReply(reviewId: Int): CommentListApiModel {
-            val result = apiComment.getCommentsWithOneReply(sessionClientService.getToken()?:"", reviewId)
-            commentDao.insertComments(result.list.toCommentEntityList())
-            return result
+        val result =
+            apiComment.getCommentsWithOneReply(sessionClientService.getToken() ?: "", reviewId)
+
+        Log.d(
+            TAG,
+            "getCommentsWithOneReply. reviewId: ${reviewId}, result size: ${result.list.size}"
+        )
+
+        commentDao.insertComments(result.list.toCommentEntityList())
+        return result
     }
 
     override suspend fun getSubComments(commentId: Int): List<RemoteComment> {
