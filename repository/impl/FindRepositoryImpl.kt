@@ -4,12 +4,12 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.location.LocationManager
-import com.sarang.torang.data.Restaurant
+import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.Distances
 import com.sarang.torang.data.Prices
+import com.sarang.torang.data.Restaurant
 import com.sarang.torang.data.SearchType
 import com.sarang.torang.data.dao.RestaurantDao
-import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.remote.response.RestaurantApiModel
 import com.sarang.torang.repository.FindRepository
 import com.sarang.torang.repository.RequestLocationResult

@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
-import java.util.ArrayList
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton

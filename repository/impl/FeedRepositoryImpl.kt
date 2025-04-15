@@ -5,7 +5,6 @@ import androidx.room.Transaction
 import com.google.gson.Gson
 import com.sarang.torang.api.feed.ApiFeed
 import com.sarang.torang.api.handle
-import com.sarang.torang.data.remote.response.LikeApiModel
 import com.sarang.torang.data.dao.FavoriteDao
 import com.sarang.torang.data.dao.FeedDao
 import com.sarang.torang.data.dao.LikeDao
@@ -19,6 +18,7 @@ import com.sarang.torang.data.entity.ReviewAndImageEntity
 import com.sarang.torang.data.entity.UserEntity
 import com.sarang.torang.data.remote.response.FavoriteApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
+import com.sarang.torang.data.remote.response.LikeApiModel
 import com.sarang.torang.data.remote.response.toReviewImage
 import com.sarang.torang.repository.FeedRepository
 import com.sarang.torang.session.SessionClientService

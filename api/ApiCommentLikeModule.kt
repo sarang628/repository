@@ -1,6 +1,5 @@
 package com.sarang.torang.di.repository.api
 
-import com.sarang.torang.api.ApiAlarm
 import com.sarang.torang.api.ApiCommentLike
 import dagger.Module
 import dagger.Provides
