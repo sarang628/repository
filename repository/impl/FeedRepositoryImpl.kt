@@ -23,8 +23,10 @@ import com.sarang.torang.data.remote.response.toReviewImage
 import com.sarang.torang.repository.FeedRepository
 import com.sarang.torang.session.SessionClientService
 import kotlinx.coroutines.flow.Flow
+import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.math.exp
 
 @Singleton
 class FeedRepositoryImpl @Inject constructor(
@@ -37,17 +39,24 @@ class FeedRepositoryImpl @Inject constructor(
     private val favoriteDao: FavoriteDao,
     private val sessionClientService: SessionClientService,
 ) : FeedRepository {
+    private val tag: String = "__FeedRepositoryImpl"
     override val feeds: Flow<List<ReviewAndImageEntity>> = feedDao.getAllFeedWithUser()
     override fun getMyFeed(reviewId: Int): Flow<List<ReviewAndImageEntity>> {
         return myFeedDao.getMyFeedByReviewId(reviewId)
     }
 
     override suspend fun getFeedByReviewId(reviewId: Int): ReviewAndImageEntity {
-
         try {
             val result: FeedApiModel =
                 apiFeed.getFeedByReviewId(sessionClientService.getToken(), reviewId)
+            Log.i(
+                tag,
+                "getFeedByReviewId(API) reviewId:${reviewId} result contents:${result.contents}"
+            )
             insertFeed(listOf(result))
+        } catch (e: UnknownHostException) {
+            Log.e(tag, e.message.toString())
+            throw Exception("서버에 접속할 수 없습니다.")
         } catch (e: Exception) {
             throw Exception(e.handle())
         }
@@ -90,7 +99,6 @@ class FeedRepositoryImpl @Inject constructor(
     }
 
     private suspend fun insertFeed(feedList: List<FeedApiModel>) {
-        //feedDao.insertAll(feedList.map { it.toFeedEntity() })
         val list = feedList
             .map { it.pictures }
             .flatMap { it }
@@ -186,6 +194,7 @@ class FeedRepositoryImpl @Inject constructor(
 
     override suspend fun loadMyAllFeedsByReviewId(reviewId: Int) {
         val feedList = apiFeed.loadUserAllFeedsByReviewId(sessionClientService.getToken(), reviewId)
+        Log.i(tag, "loadUserAllFeedsByReviewId(API) reviewId: $reviewId, result:${feedList.size}")
         try {
             insertFeed(feedList)
         } catch (e: Exception) {
