@@ -19,7 +19,7 @@ class PicturesRepositoryImpl @Inject constructor(
     private val pictureDao: PictureDao,
 ) :
     PicturesRepository {
-    override suspend fun getPictures(restaurantId: Int): ArrayList<Picture> {
+    override suspend fun getPictures(restaurantId: Int): List<Picture> {
         return restaurantService.getPictures(HashMap<String, String>().apply {
             put("restaurant_id", restaurantId.toString())
         })

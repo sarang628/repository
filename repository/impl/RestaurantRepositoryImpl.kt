@@ -32,13 +32,13 @@ class RestaurantRepositoryImpl @Inject constructor(
         return apiRestaurant.getRestaurantById(restaurantId)
     }
 
-    override suspend fun loadMenus(restaurantId: Int): ArrayList<Menu> {
+    override suspend fun loadMenus(restaurantId: Int): List<Menu> {
         return apiRestaurant.getMenus(HashMap<String, String>().apply {
             put("restaurant_id", restaurantId.toString())
         })
     }
 
-    override suspend fun loadHours(restaurantId: Int): ArrayList<HoursOfOperation> {
+    override suspend fun loadHours(restaurantId: Int): List<HoursOfOperation> {
         return apiRestaurant.getHoursOfOperation(HashMap<String, String>().apply {
             put("restaurant_id", restaurantId.toString())
         })
