@@ -7,21 +7,79 @@ import com.sarang.torang.data.remote.response.RestaurantApiModel
 import com.sarang.torang.repository.FindRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
 import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.text.contains
 
 @Singleton
 class FindRepositoryImpl @Inject constructor(
     val apiRestaurant: ApiRestaurant
 ) : FindRepository {
     private var _restaurants : MutableStateFlow<List<RestaurantApiModel>> = MutableStateFlow(listOf())
+    private var _foodType: MutableStateFlow<List<String>> = MutableStateFlow(listOf())
+    private var _price: MutableStateFlow<List<String>> = MutableStateFlow(listOf())
+    private var _rating: MutableStateFlow<List<String>> = MutableStateFlow(listOf())
+    private var _distance: MutableStateFlow<String> = MutableStateFlow("")
+    private var _keyword: MutableStateFlow<String> = MutableStateFlow("")
     override var restaurants : StateFlow<List<RestaurantApiModel>> = _restaurants
-    private var foodType: List<String> = arrayListOf()
-    private var price: List<String> = arrayListOf()
-    private var rating: List<String> = arrayListOf()
-    private var distance: String = ""
-    private var keyword: String = ""
+    private val foodType: StateFlow<List<String>> = _foodType
+    private val price: StateFlow<List<String>> = _price
+    private val rating: StateFlow<List<String>> = _rating
+    private val distance: StateFlow<String> = _distance
+    private val keyword: StateFlow<String> = _keyword
+
+    suspend fun setFoodType(foodType : String){
+            if(this.foodType.value.contains(foodType)) {
+                this._foodType.emit(this.foodType.value.filter { it != foodType }.toList())
+            }
+            else {
+                this._foodType.emit(ArrayList(this.foodType.value).apply { add(foodType) })
+            }
+    }
+    suspend fun setPrice(price : String){
+        if(this.price.value.contains(price)) {
+            this._price.emit(this.price.value.filter { it != price }.toList())
+        }
+        else {
+            this._price.emit(ArrayList(this.price.value).apply { add(price) })
+        }
+    }
+    suspend fun setRating(rating : String){
+        if(this.rating.value.contains(rating)) {
+            this._rating.emit(this.rating.value.filter { it != rating }.toList())
+        }
+        else {
+            this._rating.emit(ArrayList(this.rating.value).apply { add(rating) })
+        }
+    }
+    suspend fun setDistance(distance : String){ this._distance.emit(distance)}
+    suspend fun setKeyword(keyword : String){ this._keyword.emit(keyword) }
+
+    suspend fun findThisArea() {
+        val filter = Filter()
+        filter.prices = price.value
+        filter.ratings = rating.value
+        filter.distances = distance.value
+        if(distance.value == "")
+            filter.distances = null
+        filter.keyword = keyword.value
+        filter.restaurantTypes = foodType.value
+        search(filter)
+    }
+
+    suspend fun findFilter() {
+        val filter = Filter()
+        filter.prices = price.value
+        filter.ratings = rating.value
+        filter.distances = distance.value
+        if(distance.value == "")
+            filter.distances = null
+        filter.keyword = keyword.value
+        filter.restaurantTypes = foodType.value
+        search(filter)
+    }
 
     override suspend fun search(filter: Filter) {
         try {
@@ -36,32 +94,20 @@ class FindRepositoryImpl @Inject constructor(
         }
     }
 
-    fun setFoodtye(foodType : List<String>){ this.foodType = foodType }
-    fun setPrice(price : List<String>){ this.price = price }
-    fun setRating(rating : List<String>){ this.rating = rating }
-    fun setDistance(distance : String){ this.distance = distance }
-    fun setKeyword(keyword : String){ this.keyword = keyword }
-
-
-    suspend fun findThisArea() {
-        val filter = Filter()
-        filter.prices = price
-        filter.ratings = rating
-        filter.distances = distance
-        filter.keyword = keyword
-        filter.restaurantTypes = foodType
-        search(filter)
+    fun getFoodType(): StateFlow<List<String>> {
+        return foodType
     }
 
-    suspend fun findFilter() {
-        val filter = Filter()
-        filter.prices = price
-        filter.ratings = rating
-        filter.distances = distance
-        filter.keyword = keyword
-        filter.restaurantTypes = foodType
-        search(filter)
+    fun getPrices(): StateFlow<List<String>> {
+        return price
     }
 
+    fun getRatings(): StateFlow<List<String>> {
+        return rating
+    }
+
+    fun getDistances(): StateFlow<String> {
+        return distance
+    }
 
 }
