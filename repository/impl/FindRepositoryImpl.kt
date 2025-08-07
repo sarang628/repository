@@ -9,6 +9,7 @@ import com.sarang.torang.data.Filter
 import com.sarang.torang.data.remote.response.RestaurantApiModel
 import com.sarang.torang.repository.FindRepository
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -16,12 +17,12 @@ import javax.inject.Singleton
 class FindRepositoryImpl @Inject constructor(
     val apiRestaurant: ApiRestaurant
 ) : FindRepository {
-    override var restaurants : List<RestaurantApiModel> by mutableStateOf(listOf())
-        private set
+    private var _restaurants : MutableStateFlow<List<RestaurantApiModel>> = MutableStateFlow(listOf())
+    override var restaurants : StateFlow<List<RestaurantApiModel>> = _restaurants
 
     override suspend fun search(filter: Filter) {
         try {
-            restaurants = apiRestaurant.getFilterRestaurant(filter)
+            _restaurants.emit(apiRestaurant.getFilterRestaurant(filter))
         }catch (e : Exception){
             Log.e("__FindRepositoryImpl", e.toString())
         }
