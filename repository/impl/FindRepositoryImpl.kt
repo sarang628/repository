@@ -22,6 +22,7 @@ class FindRepositoryImpl @Inject constructor(
 
     override suspend fun search(filter: Filter) {
         try {
+            Log.d("__FindRepositoryImpl", filter.toString())
             _restaurants.emit(apiRestaurant.getFilterRestaurant(filter))
         }catch (e : Exception){
             Log.e("__FindRepositoryImpl", e.toString())
