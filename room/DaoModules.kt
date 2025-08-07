@@ -11,6 +11,7 @@ import com.sarang.torang.data.dao.MyFeedDao
 import com.sarang.torang.data.dao.PictureDao
 import com.sarang.torang.data.dao.RestaurantDao
 import com.sarang.torang.data.dao.ReviewDao
+import com.sarang.torang.data.dao.SearchedRestaurantDao
 import com.sarang.torang.data.dao.UserDao
 import dagger.Module
 import dagger.Provides
@@ -73,5 +74,10 @@ class DaoModules {
     @Provides
     fun provideChatDao(appDatabase: AppDatabase): ChatDao {
         return appDatabase.chatDao()
+    }
+
+    @Provides
+    fun searchedRestaurantDao(appDatabase: AppDatabase): SearchedRestaurantDao {
+        return appDatabase.searchedRestaurantDao()
     }
 }
