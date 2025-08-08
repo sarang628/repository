@@ -4,20 +4,21 @@ import android.util.Log
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.Filter
 import com.sarang.torang.data.Restaurant
+import com.sarang.torang.data.SearchType
 import com.sarang.torang.data.remote.response.RestaurantResponseDto
 import com.sarang.torang.data.remote.response.toEntity
 import com.sarang.torang.repository.FindRepository
+import com.sarang.torang.repository.MapRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filter
 import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.text.contains
 
 @Singleton
 class FindRepositoryImpl @Inject constructor(
-    val apiRestaurant: ApiRestaurant
+    val apiRestaurant: ApiRestaurant,
+    val mapRepository: MapRepository
 ) : FindRepository {
     private var _restaurants : MutableStateFlow<List<RestaurantResponseDto>> = MutableStateFlow(listOf())
     private var _foodType: MutableStateFlow<List<String>> = MutableStateFlow(listOf())
@@ -69,12 +70,17 @@ class FindRepositoryImpl @Inject constructor(
 
     override suspend fun findThisArea() {
         val filter = Filter()
+        filter.searchType = SearchType.BOUND
         filter.prices = price.value
         filter.ratings = rating.value
         filter.distances = distance.value
         if(distance.value == "") filter.distances = null
         filter.keyword = keyword.value
         filter.restaurantTypes = foodType.value
+        filter.north = mapRepository.getNElon()
+        filter.east = mapRepository.getNElat()
+        filter.south = mapRepository.getSWlon()
+        filter.west = mapRepository.getSWlat()
         search(filter)
     }
 
