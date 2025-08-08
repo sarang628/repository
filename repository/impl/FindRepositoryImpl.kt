@@ -34,6 +34,13 @@ class FindRepositoryImpl @Inject constructor(
     private val distance: StateFlow<String> = _distance
     private val keyword: StateFlow<String> = _keyword
 
+    suspend fun setDistance(distance : String){ this._distance.emit(distance)}
+    suspend fun setKeyword(keyword : String){ this._keyword.emit(keyword) }
+    fun getFoodType(): StateFlow<List<String>> { return foodType }
+    fun getPrices(): StateFlow<List<String>> { return price }
+    fun getRatings(): StateFlow<List<String>> { return rating }
+    fun getDistances(): StateFlow<String> { return distance }
+
     suspend fun setFoodType(foodType : String){
             if(this.foodType.value.contains(foodType)) {
                 this._foodType.emit(this.foodType.value.filter { it != foodType }.toList())
@@ -58,8 +65,7 @@ class FindRepositoryImpl @Inject constructor(
             this._rating.emit(ArrayList(this.rating.value).apply { add(rating) })
         }
     }
-    suspend fun setDistance(distance : String){ this._distance.emit(distance)}
-    suspend fun setKeyword(keyword : String){ this._keyword.emit(keyword) }
+
 
     override suspend fun findThisArea() {
         val filter = Filter()
@@ -77,8 +83,7 @@ class FindRepositoryImpl @Inject constructor(
         filter.prices = price.value
         filter.ratings = rating.value
         filter.distances = distance.value
-        if(distance.value == "")
-            filter.distances = null
+        if(distance.value == "") filter.distances = null
         filter.keyword = keyword.value
         filter.restaurantTypes = foodType.value
         search(filter)
@@ -97,21 +102,6 @@ class FindRepositoryImpl @Inject constructor(
         }
     }
 
-    fun getFoodType(): StateFlow<List<String>> {
-        return foodType
-    }
-
-    fun getPrices(): StateFlow<List<String>> {
-        return price
-    }
-
-    fun getRatings(): StateFlow<List<String>> {
-        return rating
-    }
-
-    fun getDistances(): StateFlow<String> {
-        return distance
-    }
 
     suspend fun selectRestaurant(restaurantId: Int) {
         _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let {
