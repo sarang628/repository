@@ -3,7 +3,9 @@ package com.sarang.torang.di.repository.repository.impl
 import android.util.Log
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.Filter
+import com.sarang.torang.data.Restaurant
 import com.sarang.torang.data.remote.response.RestaurantResponseDto
+import com.sarang.torang.data.remote.response.toEntity
 import com.sarang.torang.repository.FindRepository
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -24,6 +26,8 @@ class FindRepositoryImpl @Inject constructor(
     private var _distance: MutableStateFlow<String> = MutableStateFlow("")
     private var _keyword: MutableStateFlow<String> = MutableStateFlow("")
     override var restaurants : StateFlow<List<RestaurantResponseDto>> = _restaurants
+    private var _selectedRestaurant : MutableStateFlow<Restaurant> = MutableStateFlow(Restaurant())
+    var selectedRestaurant : StateFlow<Restaurant> = _selectedRestaurant
     private val foodType: StateFlow<List<String>> = _foodType
     private val price: StateFlow<List<String>> = _price
     private val rating: StateFlow<List<String>> = _rating
@@ -107,6 +111,12 @@ class FindRepositoryImpl @Inject constructor(
 
     fun getDistances(): StateFlow<String> {
         return distance
+    }
+
+    suspend fun selectRestaurant(restaurantId: Int) {
+        _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let {
+            _selectedRestaurant.emit(it.toEntity())
+        }
     }
 
 }
