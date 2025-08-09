@@ -20,13 +20,13 @@ class FindRepositoryImpl @Inject constructor(
     val apiRestaurant: ApiRestaurant,
     val mapRepository: MapRepository
 ) : FindRepository {
-    private var _restaurants : MutableStateFlow<List<RestaurantResponseDto>> = MutableStateFlow(listOf())
+    private var _restaurants : MutableStateFlow<List<Restaurant>> = MutableStateFlow(listOf())
     private var _foodType: MutableStateFlow<List<String>> = MutableStateFlow(listOf())
     private var _price: MutableStateFlow<List<String>> = MutableStateFlow(listOf())
     private var _rating: MutableStateFlow<List<String>> = MutableStateFlow(listOf())
     private var _distance: MutableStateFlow<String> = MutableStateFlow("")
     private var _keyword: MutableStateFlow<String> = MutableStateFlow("")
-    override var restaurants : StateFlow<List<RestaurantResponseDto>> = _restaurants
+    override var restaurants : StateFlow<List<Restaurant>> = _restaurants
     private var _selectedRestaurant : MutableStateFlow<Restaurant> = MutableStateFlow(Restaurant())
     var selectedRestaurant : StateFlow<Restaurant> = _selectedRestaurant
     private val foodType: StateFlow<List<String>> = _foodType
@@ -98,7 +98,9 @@ class FindRepositoryImpl @Inject constructor(
     override suspend fun search(filter: Filter) {
         try {
             Log.d("__FindRepositoryImpl", filter.toString())
-            _restaurants.emit(apiRestaurant.getFilterRestaurant(filter))
+            _restaurants.emit(apiRestaurant.getFilterRestaurant(filter).map {
+                it.toEntity()
+            })
         }
         catch (e : HttpException){
             Log.e("__FindRepositoryImpl", e.response()?.errorBody()?.string().toString())
@@ -111,7 +113,7 @@ class FindRepositoryImpl @Inject constructor(
 
     suspend fun selectRestaurant(restaurantId: Int) {
         _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let {
-            _selectedRestaurant.emit(it.toEntity())
+            _selectedRestaurant.emit(it)
         }
     }
 
