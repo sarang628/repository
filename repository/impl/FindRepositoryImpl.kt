@@ -97,7 +97,7 @@ class FindRepositoryImpl @Inject constructor(
 
     override suspend fun search(filter: Filter) {
         try {
-            Log.d("__FindRepositoryImpl", filter.toString())
+            Log.d("__FindRepositoryImpl", "restaurant filter search: $filter")
             _restaurants.emit(apiRestaurant.getFilterRestaurant(filter).map {
                 it.toEntity()
             })
