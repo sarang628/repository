@@ -9,6 +9,7 @@ import com.sarang.torang.data.remote.response.RestaurantResponseDto
 import com.sarang.torang.data.remote.response.toEntity
 import com.sarang.torang.repository.FindRepository
 import com.sarang.torang.repository.MapRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import retrofit2.HttpException
@@ -41,6 +42,14 @@ class FindRepositoryImpl @Inject constructor(
     fun getPrices(): StateFlow<List<String>> { return price }
     fun getRatings(): StateFlow<List<String>> { return rating }
     fun getDistances(): StateFlow<String> { return distance }
+
+    /**
+     * 맵에서 포인트 클릭 시 카드 스와이프 발생하여 중복 선택
+     * 중복 선택은 문제가 안되는데
+     * 카드가 가려저 있는 상태에서 클릭하면
+     * 카드가 한 장씩 이벤트 발생해서맵 포인터가 다른 음식점으로 계속 이동 함.
+     */
+    var blockCardSwipeEvent = false
 
     suspend fun setFoodType(foodType : String){
             if(this.foodType.value.contains(foodType)) {
@@ -110,8 +119,30 @@ class FindRepositoryImpl @Inject constructor(
         }
     }
 
+    suspend fun selectRestaurantFromMarker(restaurantId: Int) {
+        Log.d("__FindRepositoryImpl", "selectRestaurantFromMarker: ${restaurantId}")
+        _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let {
+            _selectedRestaurant.emit(it)
+        }
+        blockCardSwipeEvent = true
+        delay(1000)
+        blockCardSwipeEvent = false
+    }
+
+    suspend fun selectRestaurantFromSwipe(restaurantId: Int) {
+        if(blockCardSwipeEvent){
+            Log.w("__FindRepositoryImpl", "block card swipe event restaurantId : ${restaurantId}")
+            return
+        }
+        Log.d("__FindRepositoryImpl", "selectRestaurantFromSwipe: ${restaurantId}")
+        _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let {
+            _selectedRestaurant.emit(it)
+        }
+    }
+
 
     suspend fun selectRestaurant(restaurantId: Int) {
+        Log.d("__FindRepositoryImpl", "selectRestaurant: ${restaurantId}")
         _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let {
             _selectedRestaurant.emit(it)
         }
