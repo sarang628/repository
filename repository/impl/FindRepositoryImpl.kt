@@ -36,7 +36,7 @@ class FindRepositoryImpl @Inject constructor(
     private val distance: StateFlow<String> = _distance
     private val keyword: StateFlow<String> = _keyword
 
-    suspend fun setDistance(distance : String){ this._distance.emit(distance)}
+    suspend fun setDistance(distance : String){ if(distance == this.distance.value) this._distance.emit("") else this._distance.emit(distance)}
     suspend fun setKeyword(keyword : String){ this._keyword.emit(keyword) }
     fun getFoodType(): StateFlow<List<String>> { return foodType }
     fun getPrices(): StateFlow<List<String>> { return price }
