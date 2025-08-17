@@ -1,7 +1,6 @@
 package com.sarang.torang.di.repository.repository.impl
 
 import android.content.Context
-import android.view.Menu
 import com.google.gson.Gson
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.HoursOfOperation
@@ -10,6 +9,7 @@ import com.sarang.torang.data.dao.PictureDao
 import com.sarang.torang.data.dao.RestaurantDao
 import com.sarang.torang.data.entity.ReviewImageEntity
 import com.sarang.torang.data.remote.response.HoursOfOperationApiModel
+import com.sarang.torang.data.remote.response.MenuApiModel
 import com.sarang.torang.data.remote.response.PictureApiModel
 import com.sarang.torang.data.remote.response.RestaurantDetailApiModel
 import com.sarang.torang.data.remote.response.RestaurantResponseDto
@@ -35,10 +35,12 @@ class RestaurantRepositoryImpl @Inject constructor(
         return apiRestaurant.getRestaurantById(restaurantId)
     }
 
-    override suspend fun loadMenus(restaurantId: Int): List<Menu> {
+    override suspend fun loadMenus(restaurantId: Int): List<MenuApiModel> {
         return apiRestaurant.getMenus(HashMap<String, String>().apply {
             put("restaurant_id", restaurantId.toString())
-        })
+        }).map {
+            Gson().fromJson<MenuApiModel>(Gson().toJson(this), MenuApiModel::class.java)
+        }
     }
 
     override suspend fun loadHours(restaurantId: Int): List<HoursOfOperation> {
