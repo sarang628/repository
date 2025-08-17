@@ -13,9 +13,10 @@ import com.sarang.torang.data.dao.MyFeedDao
 import com.sarang.torang.data.dao.PictureDao
 import com.sarang.torang.data.dao.UserDao
 import com.sarang.torang.data.entity.FavoriteEntity
+import com.sarang.torang.data.entity.MyFeedEntity
 import com.sarang.torang.data.entity.ReviewAndImageEntity
 import com.sarang.torang.data.entity.ReviewImageEntity
-import com.sarang.torang.data.entity.toMyFeedEntity
+import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.data.remote.response.UserApiModel
 import com.sarang.torang.data.remote.response.toReviewImage
 import com.sarang.torang.repository.ProfileRepository
@@ -115,4 +116,21 @@ class ProfileRepositoryImpl @Inject constructor(
     override fun getReviewImages(reviewId: Int): Flow<List<ReviewImageEntity>> {
         return myFeedDao.getReviewImages(reviewId)
     }
+}
+
+
+fun FeedApiModel.toMyFeedEntity(): MyFeedEntity {
+    return MyFeedEntity(
+        reviewId = reviewId,
+        userId = user.userId,
+        contents = contents,
+        rating = rating,
+        userName = user.userName,
+        likeAmount = like_amount,
+        commentAmount = comment_amount,
+        restaurantName = restaurant.restaurantName,
+        restaurantId = restaurant.restaurantId,
+        createDate = this.create_date,
+        profilePicUrl = this.user.profilePicUrl
+    )
 }

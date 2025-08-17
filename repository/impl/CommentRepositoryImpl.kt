@@ -2,13 +2,11 @@ package com.sarang.torang.di.repository.repository.impl
 
 import android.util.Log
 import com.sarang.torang.api.ApiComment
-import com.sarang.torang.data.remote.response.RemoteComment
-import com.sarang.torang.data.remote.response.CommentListApiModel
 import com.sarang.torang.data.dao.CommentDao
 import com.sarang.torang.data.dao.LoggedInUserDao
 import com.sarang.torang.data.entity.CommentEntity
-import com.sarang.torang.data.entity.toCommentEntity
-import com.sarang.torang.data.entity.toCommentEntityList
+import com.sarang.torang.data.remote.response.CommentListApiModel
+import com.sarang.torang.data.remote.response.RemoteComment
 import com.sarang.torang.repository.comment.CommentRepository
 import com.sarang.torang.session.SessionClientService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -16,7 +14,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
-import java.text.SimpleDateFormat
 import javax.inject.Inject
 
 class CommentRepositoryImpl @Inject constructor(
@@ -165,5 +162,45 @@ class CommentRepositoryImpl @Inject constructor(
         } else {
             throw Exception("로그인을 해주세요")
         }
+    }
+
+    fun List<RemoteComment>.toCommentEntityList(): List<CommentEntity> {
+        return this.flatMap { comment ->
+            val list = mutableListOf<CommentEntity>()
+            list.add(comment.toCommentEntity())
+            comment.childComment?.let { list.add(it.toCommentEntity()) }
+            list
+        }
+    }
+
+    fun RemoteComment.toCommentEntity(): CommentEntity {
+        return CommentEntity(
+            commentId = this.comment_id,
+            comment = this.comment,
+            parentCommentId = this.parent_comment_id,
+            commentLikeId = this.comment_like_id,
+            commentLikeCount = this.comment_like_count,
+            subCommentCount = this.sub_comment_count,
+            createDate = this.create_date,
+            tagUserId = this.tagUser?.userId,
+            profilePicUrl = this.user.profilePicUrl,
+            reviewId = this.review_id,
+            userName = this.user.userName,
+            userId = this.user.userId
+        )
+    }
+
+    fun testCommentEntity(): CommentEntity {
+        return CommentEntity(
+            commentId = 0,
+            comment = "",
+            commentLikeCount = 0,
+            commentLikeId = 0,
+            createDate = "",
+            profilePicUrl = "",
+            reviewId = 0,
+            userId = 0,
+            userName = ""
+        )
     }
 }

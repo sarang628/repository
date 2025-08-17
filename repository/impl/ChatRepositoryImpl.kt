@@ -13,6 +13,7 @@ import com.sarang.torang.data.entity.ChatRoomEntity
 import com.sarang.torang.data.entity.ChatRoomWithParticipantsAndUsers
 import com.sarang.torang.data.entity.ChatRoomWithParticipantsEntity
 import com.sarang.torang.data.entity.ParticipantsWithUser
+import com.sarang.torang.data.entity.ParticipantsWithUserEntity
 import com.sarang.torang.data.entity.toParticipantsWithUser
 import com.sarang.torang.data.remote.response.ChatApiModel
 import com.sarang.torang.data.remote.response.toChatRoomEntity
@@ -55,7 +56,8 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun loadChatRoom() {
         Log.d("__ChatRepositoryImpl", "loadChatRoom")
         val token = sessionService.getToken() ?: throw Exception("채팅방 로딩에 실패하였습니다. 로그인을 해주세요.")
-        chatDao.loadChatRoom(userDao, apiChat.getChatRoom(token))
+        //TODO::데이터 변환하기
+        chatDao.loadChatRoom(userDao/*, apiChat.getChatRoom(token)*/)
     }
 
     override suspend fun loadContents(roomId: Int) {
@@ -83,8 +85,10 @@ class ChatRepositoryImpl @Inject constructor(
         if (chatRoom == null) {
             val result = apiChat.createChatRoom(sessionService.getToken() ?: "", userId)
             chatDao.addAll(listOf(result.toChatRoomEntity()))
-            userDao.insertOrUpdateUser(result.users)
-            chatDao.insertParticipants(listOf(result))
+            //TODO::데이터 변환하기
+            userDao.insertOrUpdateUser(/*result.users*/)
+            //TODO::데이터 변환하기
+            chatDao.insertParticipants(/*listOf(result)*/)
         }
 
         chatRoom = chatDao.getChatRoomByUserId(userId)
@@ -235,4 +239,11 @@ fun ChatApiModel.toChatEntity(): ChatEntity = ChatEntity(
     userId = userId,
     uuid = uuid,
     sending = false // 전송 완료
+)
+
+fun ParticipantsWithUserEntity.toParticipantsWithUser(): ParticipantsWithUser = ParticipantsWithUser(
+    roomId = this.participantsEntity.roomId,
+    userId = this.userEntity.userId,
+    userName = this.userEntity.userName,
+    profilePicUrl = this.userEntity.profilePicUrl,
 )
