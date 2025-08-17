@@ -4,6 +4,7 @@ import android.content.Context
 import com.google.gson.Gson
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.HoursOfOperation
+import com.sarang.torang.data.Menu
 import com.sarang.torang.data.RestaurantDetail
 import com.sarang.torang.data.dao.PictureDao
 import com.sarang.torang.data.dao.RestaurantDao
@@ -35,11 +36,11 @@ class RestaurantRepositoryImpl @Inject constructor(
         return apiRestaurant.getRestaurantById(restaurantId)
     }
 
-    override suspend fun loadMenus(restaurantId: Int): List<MenuApiModel> {
+    override suspend fun loadMenus(restaurantId: Int): List<Menu> {
         return apiRestaurant.getMenus(HashMap<String, String>().apply {
             put("restaurant_id", restaurantId.toString())
         }).map {
-            Gson().fromJson<MenuApiModel>(Gson().toJson(this), MenuApiModel::class.java)
+            Gson().fromJson<Menu>(Gson().toJson(it), Menu::class.java)
         }
     }
 
@@ -47,7 +48,7 @@ class RestaurantRepositoryImpl @Inject constructor(
         return apiRestaurant.getHoursOfOperation(HashMap<String, String>().apply {
             put("restaurant_id", restaurantId.toString())
         }).map {
-            Gson().fromJson<HoursOfOperation>(Gson().toJson(this), HoursOfOperationApiModel::class.java)
+            Gson().fromJson<HoursOfOperation>(Gson().toJson(it), HoursOfOperation::class.java)
         }
     }
 
@@ -67,8 +68,8 @@ fun PictureApiModel.toReviewImageEntity(): ReviewImageEntity {
         pictureId = picture_id,
         restaurantId = restaurant_id,
         reviewId = restaurant_id,
-        pictureUrl = picture_url,
-        createDate = create_date,
+        pictureUrl = picture_url ?: "",
+        createDate = create_date ?: "",
         userId = user_id,
         menuId = menu_id,
         menu = 0,
