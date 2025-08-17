@@ -16,7 +16,7 @@ import com.sarang.torang.data.entity.ParticipantsWithUser
 import com.sarang.torang.data.entity.ParticipantsWithUserEntity
 import com.sarang.torang.data.entity.toParticipantsWithUser
 import com.sarang.torang.data.remote.response.ChatApiModel
-import com.sarang.torang.data.remote.response.toChatRoomEntity
+import com.sarang.torang.di.repository.toChatRoomEntity
 import com.sarang.torang.repository.ChatRepository
 import com.sarang.torang.session.SessionService
 import com.sarang.torang.util.WebSocketClient

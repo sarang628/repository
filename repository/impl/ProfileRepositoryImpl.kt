@@ -18,7 +18,7 @@ import com.sarang.torang.data.entity.ReviewAndImageEntity
 import com.sarang.torang.data.entity.ReviewImageEntity
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.data.remote.response.UserApiModel
-import com.sarang.torang.data.remote.response.toReviewImage
+import com.sarang.torang.di.repository.toReviewImage
 import com.sarang.torang.repository.ProfileRepository
 import com.sarang.torang.session.SessionClientService
 import kotlinx.coroutines.flow.Flow

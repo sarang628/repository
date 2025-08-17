@@ -1,6 +1,7 @@
 package com.sarang.torang.di.repository.api
 
 import com.sarang.torang.api.ApiLogin
+import com.sarang.torang.data.User
 import com.sarang.torang.data.remote.response.LoginApiModel
 import com.sarang.torang.data.remote.response.UserApiModel
 import dagger.Module
@@ -59,7 +60,7 @@ class FakeApiLogin @Inject constructor() {
                 )
             }
 
-            override suspend fun facebook_login(accessToken: String): Response<com.sarang.torang.data.User> {
+            override suspend fun facebook_login(accessToken: String): Response<String> {
                 TODO("Not yet implemented")
             }
 

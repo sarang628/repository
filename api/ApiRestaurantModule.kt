@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.google.gson.GsonBuilder
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.Filter
+import com.sarang.torang.data.remote.response.FilterApiModel
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -94,7 +95,7 @@ fun ApiRestaurantTest(apiRestaurant: ApiRestaurant) {
         Button(onClick = {
             coroutine.launch {
                 val result = apiRestaurant.getFilterRestaurant(
-                    Filter(keyword = "Pho")
+                    FilterApiModel(keyword = "Pho")
                 )
                 text = GsonBuilder().setPrettyPrinting().create().toJson(result)
             }

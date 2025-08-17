@@ -2,11 +2,9 @@ package com.sarang.torang.di.repository.repository.impl
 
 import android.util.Log
 import com.sarang.torang.api.ApiRestaurant
-import com.sarang.torang.data.Filter
 import com.sarang.torang.data.Restaurant
-import com.sarang.torang.data.SearchType
+import com.sarang.torang.data.remote.response.FilterApiModel
 import com.sarang.torang.data.remote.response.RestaurantResponseDto
-import com.sarang.torang.data.remote.response.toEntity
 import com.sarang.torang.repository.FindRepository
 import com.sarang.torang.repository.MapRepository
 import kotlinx.coroutines.delay
@@ -78,8 +76,8 @@ class FindRepositoryImpl @Inject constructor(
 
 
     override suspend fun findThisArea() {
-        val filter = Filter()
-        filter.searchType = SearchType.BOUND
+        val filter = FilterApiModel()
+        filter.searchType = "BOUND"
         filter.prices = price.value
         filter.ratings = rating.value
         filter.distances = distance.value
@@ -94,7 +92,7 @@ class FindRepositoryImpl @Inject constructor(
     }
 
     override suspend fun findFilter() {
-        val filter = Filter()
+        val filter = FilterApiModel()
         filter.prices = price.value
         filter.ratings = rating.value
         filter.distances = distance.value
@@ -104,7 +102,7 @@ class FindRepositoryImpl @Inject constructor(
         search(filter)
     }
 
-    override suspend fun search(filter: Filter) {
+    override suspend fun search(filter: FilterApiModel) {
         try {
             Log.d("__FindRepositoryImpl", "restaurant filter search: $filter")
             _restaurants.emit(apiRestaurant.getFilterRestaurant(filter).map {
@@ -148,4 +146,7 @@ class FindRepositoryImpl @Inject constructor(
         }
     }
 
+    fun RestaurantResponseDto.toEntity() : Restaurant{
+        return Restaurant(restaurantId = restaurantId ?: -1, restaurantName = restaurantName ?: "null", address = address ?: "null", lat = lat ?: 0.0, lon = lon ?: 0.0, rating = rating ?: 0f, tel = tel ?:"null", prices = prices ?: "null", restaurantType = restaurantType ?: "null", regionCode = regionCode ?: 0, reviewCount = reviewCount ?: 0, site = site ?: "null", website = website ?: "null", imgUrl1 = imgUrl1 ?: "null", restaurantTypeCd = restaurantTypeCd ?: "null")
+    }
 }

@@ -1,6 +1,7 @@
 package com.sarang.torang.di.repository.repository.impl
 
-import com.sarang.torang.Picture
+import com.google.gson.Gson
+import com.sarang.torang.data.Picture
 import com.sarang.torang.data.dao.PictureDao
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.entity.ReviewImageEntity
@@ -22,7 +23,9 @@ class PicturesRepositoryImpl @Inject constructor(
     override suspend fun getPictures(restaurantId: Int): List<Picture> {
         return restaurantService.getPictures(HashMap<String, String>().apply {
             put("restaurant_id", restaurantId.toString())
-        })
+        }).map {
+            Gson().fromJson<Picture>(Gson().toJson(this), Picture::class.java)
+        }.toList()
     }
 
     override fun getFeedPictureFlow(reviewId: Int): Flow<List<ReviewImageEntity>> {

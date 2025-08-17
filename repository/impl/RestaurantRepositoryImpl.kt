@@ -2,13 +2,16 @@ package com.sarang.torang.di.repository.repository.impl
 
 import android.content.Context
 import android.view.Menu
-import com.sarang.torang.Picture
+import com.google.gson.Gson
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.HoursOfOperation
 import com.sarang.torang.data.RestaurantDetail
 import com.sarang.torang.data.dao.PictureDao
 import com.sarang.torang.data.dao.RestaurantDao
 import com.sarang.torang.data.entity.ReviewImageEntity
+import com.sarang.torang.data.remote.response.HoursOfOperationApiModel
+import com.sarang.torang.data.remote.response.PictureApiModel
+import com.sarang.torang.data.remote.response.RestaurantDetailApiModel
 import com.sarang.torang.data.remote.response.RestaurantResponseDto
 import com.sarang.torang.repository.RestaurantRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -41,21 +44,23 @@ class RestaurantRepositoryImpl @Inject constructor(
     override suspend fun loadHours(restaurantId: Int): List<HoursOfOperation> {
         return apiRestaurant.getHoursOfOperation(HashMap<String, String>().apply {
             put("restaurant_id", restaurantId.toString())
-        })
+        }).map {
+            Gson().fromJson<HoursOfOperation>(Gson().toJson(this), HoursOfOperationApiModel::class.java)
+        }
     }
 
     override suspend fun loadRestaurantDetail(restaurantId: Int): RestaurantDetail {
-        val result = apiRestaurant.getRestaurantDetail(restaurantId)
+        val result : RestaurantDetailApiModel = apiRestaurant.getRestaurantDetail(restaurantId)
         pictureDao.insertPictures(result.pictures.toReviewImageList())
-        return result
+        return Gson().fromJson<RestaurantDetail>(Gson().toJson(result), RestaurantDetail::class.java)
     }
 }
 
-fun List<Picture>.toReviewImageList(): List<ReviewImageEntity> {
+fun List<PictureApiModel>.toReviewImageList(): List<ReviewImageEntity> {
     return this.map { it.toReviewImageEntity() }
 }
 
-fun Picture.toReviewImageEntity(): ReviewImageEntity {
+fun PictureApiModel.toReviewImageEntity(): ReviewImageEntity {
     return ReviewImageEntity(
         pictureId = picture_id,
         restaurantId = restaurant_id,
