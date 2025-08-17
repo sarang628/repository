@@ -20,7 +20,9 @@ import com.sarang.torang.util.CountingFileRequestBody
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -215,4 +217,17 @@ class MyReviewRepositoryImpl @Inject constructor(
 
         return userId
     }
+}
+
+
+fun ReviewAndImageEntity.toMap(): HashMap<String, RequestBody> {
+    val params: HashMap<String, RequestBody> = HashMap()
+    params["review_id"] =
+        RequestBody.create("text/plain".toMediaTypeOrNull(), "" + review.reviewId)
+    params["torang_id"] =
+        RequestBody.create("text/plain".toMediaTypeOrNull(), "" + review.restaurantId)
+    params["contents"] =
+        RequestBody.create("text/plain".toMediaTypeOrNull(), "" + review.contents)
+    params["rating"] = RequestBody.create("text/plain".toMediaTypeOrNull(), "" + review.rating)
+    return params
 }

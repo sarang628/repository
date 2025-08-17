@@ -2,8 +2,8 @@ package com.sarang.torang.di.repository.repository.impl
 
 import com.sarang.torang.Picture
 import com.sarang.torang.data.dao.PictureDao
-import com.sarang.torang.data.entity.ReviewImageEntity
 import com.sarang.torang.api.ApiRestaurant
+import com.sarang.torang.data.entity.ReviewImageEntity
 import com.sarang.torang.repository.PicturesRepository
 import dagger.Binds
 import dagger.Module
