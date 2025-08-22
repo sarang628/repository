@@ -23,6 +23,7 @@ import com.sarang.torang.di.repository.toReviewImage
 import com.sarang.torang.repository.FeedRepository
 import com.sarang.torang.session.SessionClientService
 import kotlinx.coroutines.flow.Flow
+import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -119,17 +120,16 @@ class FeedRepositoryImpl @Inject constructor(
     }
 
     override suspend fun loadFeedWithPage(page: Int) {
-        val feedList = apiFeed.getFeedsWithPage(sessionClientService.getToken(), page)
         try {
-            if (page == 0)
-                deleteFeedAll()
+            val feedList = apiFeed.getFeedsWithPage(sessionClientService.getToken(), page)
+            if (page == 0) deleteFeedAll()
             insertFeed(feedList)
-        } catch (e: Exception) {
+        }
+        catch (e : ConnectException){
+            throw ConnectException("피드를 가져오는데 실패하였습니다. 서버 접속에 실패 하였습니다.")
+        }
+        catch (e: Exception) {
             Log.e("__FeedRepositoryImpl", e.toString())
-            Log.e(
-                "__FeedRepositoryImpl",
-                Gson().newBuilder().setPrettyPrinting().create().toJson(feedList)
-            )
             throw Exception("피드를 가져오는데 실패하였습니다.")
         }
     }
