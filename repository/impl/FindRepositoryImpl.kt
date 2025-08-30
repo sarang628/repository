@@ -1,6 +1,7 @@
 package com.sarang.torang.di.repository.repository.impl
 
 import android.util.Log
+import com.sarang.torang.api.ApiFilter
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.Restaurant
 import com.sarang.torang.data.remote.response.FilterApiModel
@@ -19,20 +20,21 @@ class FindRepositoryImpl @Inject constructor(
     val apiRestaurant: ApiRestaurant,
     val mapRepository: MapRepository
 ) : FindRepository {
-    private var _restaurants : MutableStateFlow<List<Restaurant>> = MutableStateFlow(listOf())
-    private var _foodType: MutableStateFlow<List<String>> = MutableStateFlow(listOf())
-    private var _price: MutableStateFlow<List<String>> = MutableStateFlow(listOf())
-    private var _rating: MutableStateFlow<List<String>> = MutableStateFlow(listOf())
-    private var _distance: MutableStateFlow<String> = MutableStateFlow("")
-    private var _keyword: MutableStateFlow<String> = MutableStateFlow("")
-    override var restaurants : StateFlow<List<Restaurant>> = _restaurants
-    private var _selectedRestaurant : MutableStateFlow<Restaurant> = MutableStateFlow(Restaurant())
-    var selectedRestaurant : StateFlow<Restaurant> = _selectedRestaurant
-    private val foodType: StateFlow<List<String>> = _foodType
-    private val price: StateFlow<List<String>> = _price
-    private val rating: StateFlow<List<String>> = _rating
-    private val distance: StateFlow<String> = _distance
-    private val keyword: StateFlow<String> = _keyword
+    val tag = "__FindRepositoryImpl"
+    private var _restaurants        : MutableStateFlow<List<Restaurant>>    = MutableStateFlow(listOf())
+    private var _foodType           : MutableStateFlow<List<String>>        = MutableStateFlow(listOf())
+    private var _price              : MutableStateFlow<List<String>>        = MutableStateFlow(listOf())
+    private var _rating             : MutableStateFlow<List<String>>        = MutableStateFlow(listOf())
+    private var _distance           : MutableStateFlow<String>              = MutableStateFlow("")
+    private var _keyword            : MutableStateFlow<String>              = MutableStateFlow("")
+    private var _selectedRestaurant : MutableStateFlow<Restaurant>          = MutableStateFlow(Restaurant())
+    override var restaurants        : StateFlow<List<Restaurant>>           = _restaurants
+    var selectedRestaurant          : StateFlow<Restaurant>                 = _selectedRestaurant
+    private val foodType            : StateFlow<List<String>>               = _foodType
+    private val price               : StateFlow<List<String>>               = _price
+    private val rating              : StateFlow<List<String>>               = _rating
+    private val distance            : StateFlow<String>                     = _distance
+    private val keyword             : StateFlow<String>                     = _keyword
 
     suspend fun setDistance(distance : String){ if(distance == this.distance.value) this._distance.emit("") else this._distance.emit(distance)}
     suspend fun setKeyword(keyword : String){ this._keyword.emit(keyword) }
@@ -50,28 +52,16 @@ class FindRepositoryImpl @Inject constructor(
     var blockCardSwipeEvent = false
 
     suspend fun setFoodType(foodType : String){
-            if(this.foodType.value.contains(foodType)) {
-                this._foodType.emit(this.foodType.value.filter { it != foodType }.toList())
-            }
-            else {
-                this._foodType.emit(ArrayList(this.foodType.value).apply { add(foodType) })
-            }
+        if(this.foodType.value.contains(foodType)) { this._foodType.emit(this.foodType.value.filter { it != foodType }.toList()) }
+        else { this._foodType.emit(ArrayList(this.foodType.value).apply { add(foodType) }) }
     }
     suspend fun setPrice(price : String){
-        if(this.price.value.contains(price)) {
-            this._price.emit(this.price.value.filter { it != price }.toList())
-        }
-        else {
-            this._price.emit(ArrayList(this.price.value).apply { add(price) })
-        }
+        if(this.price.value.contains(price)) { this._price.emit(this.price.value.filter { it != price }.toList()) }
+        else { this._price.emit(ArrayList(this.price.value).apply { add(price) }) }
     }
     suspend fun setRating(rating : String){
-        if(this.rating.value.contains(rating)) {
-            this._rating.emit(this.rating.value.filter { it != rating }.toList())
-        }
-        else {
-            this._rating.emit(ArrayList(this.rating.value).apply { add(rating) })
-        }
+        if(this.rating.value.contains(rating)) { this._rating.emit(this.rating.value.filter { it != rating }.toList()) }
+        else { this._rating.emit(ArrayList(this.rating.value).apply { add(rating) }) }
     }
 
 
@@ -81,13 +71,13 @@ class FindRepositoryImpl @Inject constructor(
         filter.prices = price.value
         filter.ratings = rating.value
         filter.distances = distance.value
-        if(distance.value == "") filter.distances = null
         filter.keyword = keyword.value
         filter.restaurantTypes = foodType.value
         filter.north = mapRepository.getNElon()
         filter.east = mapRepository.getNElat()
         filter.south = mapRepository.getSWlon()
         filter.west = mapRepository.getSWlat()
+        if(distance.value == "") filter.distances = null
         search(filter)
     }
 
@@ -96,54 +86,39 @@ class FindRepositoryImpl @Inject constructor(
         filter.prices = price.value
         filter.ratings = rating.value
         filter.distances = distance.value
-        if(distance.value == "") filter.distances = null
         filter.keyword = keyword.value
         filter.restaurantTypes = foodType.value
+        if(distance.value == "") filter.distances = null
         search(filter)
     }
 
     override suspend fun search(filter: FilterApiModel) {
         try {
-            Log.d("__FindRepositoryImpl", "restaurant filter search: $filter")
-            _restaurants.emit(apiRestaurant.getFilterRestaurant(filter).map {
-                it.toEntity()
-            })
+            Log.d(tag, "restaurant filter search: $filter")
+            _restaurants.emit(apiRestaurant.getFilterRestaurant(filter).map { it.toEntity() })
         }
-        catch (e : HttpException){
-            Log.e("__FindRepositoryImpl", e.response()?.errorBody()?.string().toString())
-        }
-        catch (e : Exception){
-            Log.e("__FindRepositoryImpl", e.toString())
-        }
+        catch (e : HttpException)   { Log.e(tag, e.response()?.errorBody()?.string().toString()) }
+        catch (e : Exception)       { Log.e(tag, e.toString()) }
     }
 
     suspend fun selectRestaurantFromMarker(restaurantId: Int) {
-        Log.d("__FindRepositoryImpl", "selectRestaurantFromMarker: ${restaurantId}")
-        _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let {
-            _selectedRestaurant.emit(it)
-        }
+        Log.d(tag, "selectRestaurantFromMarker: $restaurantId")
+        _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
         blockCardSwipeEvent = true
         delay(1000)
         blockCardSwipeEvent = false
     }
 
     suspend fun selectRestaurantFromSwipe(restaurantId: Int) {
-        if(blockCardSwipeEvent){
-            Log.w("__FindRepositoryImpl", "block card swipe event restaurantId : ${restaurantId}")
-            return
-        }
-        Log.d("__FindRepositoryImpl", "selectRestaurantFromSwipe: ${restaurantId}")
-        _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let {
-            _selectedRestaurant.emit(it)
-        }
+        if(blockCardSwipeEvent){ Log.w(tag, "block card swipe event restaurantId : ${restaurantId}"); return }
+        Log.d(tag, "selectRestaurantFromSwipe: $restaurantId")
+        _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
     }
 
 
     suspend fun selectRestaurant(restaurantId: Int) {
-        Log.d("__FindRepositoryImpl", "selectRestaurant: ${restaurantId}")
-        _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let {
-            _selectedRestaurant.emit(it)
-        }
+        Log.d(tag, "selectRestaurant: $restaurantId")
+        _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
     }
 
     fun RestaurantResponseDto.toEntity() : Restaurant{
