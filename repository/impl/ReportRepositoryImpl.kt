@@ -1,6 +1,6 @@
 package com.sarang.torang.di.repository.repository.impl
 
-import com.sarang.torang.data.dao.FeedDao
+import com.sarang.torang.core.database.dao.FeedDao
 import com.sarang.torang.api.ApiReport
 import com.sarang.torang.repository.ReportAfterSupport
 import com.sarang.torang.repository.ReportReason

@@ -2,9 +2,9 @@ package com.sarang.torang.di.repository.repository.impl
 
 import com.google.gson.Gson
 import com.sarang.torang.data.Picture
-import com.sarang.torang.data.dao.PictureDao
+import com.sarang.torang.core.database.dao.PictureDao
 import com.sarang.torang.api.ApiRestaurant
-import com.sarang.torang.data.entity.ReviewImageEntity
+import com.sarang.torang.core.database.model.image.ReviewImageEntity
 import com.sarang.torang.repository.PicturesRepository
 import dagger.Binds
 import dagger.Module

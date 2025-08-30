@@ -1,8 +1,8 @@
 package com.sarang.torang.di.repository.repository.impl
 
 import android.content.Context
-import com.sarang.torang.data.dao.SearchDao
-import com.sarang.torang.data.entity.SearchEntity
+import com.sarang.torang.core.database.dao.SearchDao
+import com.sarang.torang.core.database.model.search.SearchEntity
 import com.sarang.torang.repository.SearchRepository
 import dagger.Binds
 import dagger.Module

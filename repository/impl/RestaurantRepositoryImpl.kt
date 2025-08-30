@@ -6,9 +6,9 @@ import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.HoursOfOperation
 import com.sarang.torang.data.Menu
 import com.sarang.torang.data.RestaurantDetail
-import com.sarang.torang.data.dao.PictureDao
-import com.sarang.torang.data.dao.RestaurantDao
-import com.sarang.torang.data.entity.ReviewImageEntity
+import com.sarang.torang.core.database.dao.PictureDao
+import com.sarang.torang.core.database.dao.RestaurantDao
+import com.sarang.torang.core.database.model.image.ReviewImageEntity
 import com.sarang.torang.data.remote.response.HoursOfOperationApiModel
 import com.sarang.torang.data.remote.response.MenuApiModel
 import com.sarang.torang.data.remote.response.PictureApiModel

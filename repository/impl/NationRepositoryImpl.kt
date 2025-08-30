@@ -2,7 +2,7 @@ package com.sarang.torang.di.repository.repository.impl
 
 import com.sarang.torang.data.Restaurant
 import com.sarang.torang.data.NationItem
-import com.sarang.torang.data.dao.RestaurantDao
+import com.sarang.torang.core.database.dao.RestaurantDao
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.repository.NationRepository
 import kotlinx.coroutines.flow.MutableStateFlow
