@@ -2,11 +2,11 @@ package com.sarang.torang.di.repository
 
 import com.google.gson.Gson
 import com.sarang.torang.data.Restaurant
-import com.sarang.torang.data.entity.ChatRoomEntity
-import com.sarang.torang.data.entity.FeedEntity
-import com.sarang.torang.data.entity.RestaurantEntity
-import com.sarang.torang.data.entity.ReviewImageEntity
-import com.sarang.torang.data.entity.SearchedRestaurantEntity
+import com.sarang.torang.core.database.model.chat.ChatRoomEntity
+import com.sarang.torang.core.database.model.feed.FeedEntity
+import com.sarang.torang.core.database.model.restaurant.RestaurantEntity
+import com.sarang.torang.core.database.model.image.ReviewImageEntity
+import com.sarang.torang.core.database.model.restaurant.SearchedRestaurantEntity
 import com.sarang.torang.data.remote.response.ChatRoomApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.data.remote.response.RemotePicture
@@ -16,31 +16,33 @@ fun RestaurantEntity.toEntity() : Restaurant{
     return Restaurant(restaurantId = restaurantId, restaurantName = restaurantName, address = address, lat = lat, lon = lon, rating = rating, tel = tel, prices = prices, restaurantType = restaurantType, regionCode = regionCode, reviewCount = reviewCount, site = site, website = website, imgUrl1 = imgUrl1)
 }
 
+/*
 fun SearchedRestaurantEntity.Companion.fromRestaurantEntity(restaurantEntity: RestaurantEntity): SearchedRestaurantEntity {
     val gson = Gson()
     val json = gson.toJson(restaurantEntity)
     return gson.fromJson(json, SearchedRestaurantEntity::class.java)
 }
+*/
 
-fun SearchedRestaurantEntity.Companion.fromRestaurantEntity(models: List<RestaurantEntity>): List<SearchedRestaurantEntity> {
+/*fun SearchedRestaurantEntity.Companion.fromRestaurantEntity(models: List<RestaurantEntity>): List<SearchedRestaurantEntity> {
     return models.map { it ->
         SearchedRestaurantEntity.fromRestaurantEntity(it)
     }
-}
+}*/
 
-fun SearchedRestaurantEntity.Companion.fromRestaurantApiModel(restaurantEntity: RestaurantResponseDto): SearchedRestaurantEntity {
+/*fun SearchedRestaurantEntity.Companion.fromRestaurantApiModel(restaurantEntity: RestaurantResponseDto): SearchedRestaurantEntity {
     val gson = Gson()
     val json = gson.toJson(restaurantEntity)
     val result = gson.fromJson(json, SearchedRestaurantEntity::class.java)
     return result.copy(restaurantName = restaurantEntity.restaurantName ?: "null", restaurantId = restaurantEntity.restaurantId ?: -1, imgUrl1 = restaurantEntity.imgUrl1 ?: "null", regionCode = restaurantEntity.regionCode.toString(), restaurantType = restaurantEntity.restaurantType ?: "null", reviewCount = restaurantEntity.reviewCount.toString(), website = restaurantEntity.website ?: "null")
-}
+}*/
 
-fun SearchedRestaurantEntity.Companion.fromRestaurantApiModel(models: List<RestaurantResponseDto>): List<SearchedRestaurantEntity> {
+/*fun SearchedRestaurantEntity.Companion.fromRestaurantApiModel(models: List<RestaurantResponseDto>): List<SearchedRestaurantEntity> {
     return models
         .map { it ->
             SearchedRestaurantEntity.fromRestaurantApiModel(it)
         }
-}
+}*/
 
 fun ChatRoomApiModel.toChatRoomEntity(): ChatRoomEntity = ChatRoomEntity(
     roomId = roomId,

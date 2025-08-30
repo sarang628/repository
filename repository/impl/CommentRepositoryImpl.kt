@@ -2,9 +2,9 @@ package com.sarang.torang.di.repository.repository.impl
 
 import android.util.Log
 import com.sarang.torang.api.ApiComment
-import com.sarang.torang.data.dao.CommentDao
-import com.sarang.torang.data.dao.LoggedInUserDao
-import com.sarang.torang.data.entity.CommentEntity
+import com.sarang.torang.core.database.dao.CommentDao
+import com.sarang.torang.core.database.dao.LoggedInUserDao
+import com.sarang.torang.core.database.model.comment.CommentEntity
 import com.sarang.torang.data.remote.response.CommentListApiModel
 import com.sarang.torang.data.remote.response.RemoteComment
 import com.sarang.torang.repository.comment.CommentRepository

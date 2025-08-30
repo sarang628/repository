@@ -4,8 +4,8 @@ import android.util.Log
 import com.sarang.torang.api.ApiJoin
 import com.sarang.torang.api.ApiLogin
 import com.sarang.torang.api.handle
-import com.sarang.torang.data.dao.LoggedInUserDao
-import com.sarang.torang.data.entity.LoggedInUserEntity
+import com.sarang.torang.core.database.dao.LoggedInUserDao
+import com.sarang.torang.core.database.model.user.LoggedInUserEntity
 import com.sarang.torang.data.remote.response.UserApiModel
 import com.sarang.torang.repository.ChatRepository
 import com.sarang.torang.repository.LoginRepository
