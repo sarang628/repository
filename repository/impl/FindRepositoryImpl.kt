@@ -4,8 +4,10 @@ import android.util.Log
 import com.sarang.torang.api.ApiFilter
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.Restaurant
+import com.sarang.torang.data.RestaurantWithFiveImages
 import com.sarang.torang.data.remote.response.FilterApiModel
 import com.sarang.torang.data.remote.response.RestaurantResponseDto
+import com.sarang.torang.data.remote.response.RestaurantV1WithFiveImagesResponseModel
 import com.sarang.torang.repository.FindRepository
 import com.sarang.torang.repository.MapRepository
 import kotlinx.coroutines.delay
@@ -18,23 +20,24 @@ import javax.inject.Singleton
 @Singleton
 class FindRepositoryImpl @Inject constructor(
     val apiRestaurant: ApiRestaurant,
-    val mapRepository: MapRepository
+    val mapRepository: MapRepository,
+    val apiFilter: ApiFilter
 ) : FindRepository {
     val tag = "__FindRepositoryImpl"
-    private var _restaurants        : MutableStateFlow<List<Restaurant>>    = MutableStateFlow(listOf())
-    private var _foodType           : MutableStateFlow<List<String>>        = MutableStateFlow(listOf())
-    private var _price              : MutableStateFlow<List<String>>        = MutableStateFlow(listOf())
-    private var _rating             : MutableStateFlow<List<String>>        = MutableStateFlow(listOf())
-    private var _distance           : MutableStateFlow<String>              = MutableStateFlow("")
-    private var _keyword            : MutableStateFlow<String>              = MutableStateFlow("")
-    private var _selectedRestaurant : MutableStateFlow<Restaurant>          = MutableStateFlow(Restaurant())
-    override var restaurants        : StateFlow<List<Restaurant>>           = _restaurants
-    var selectedRestaurant          : StateFlow<Restaurant>                 = _selectedRestaurant
-    private val foodType            : StateFlow<List<String>>               = _foodType
-    private val price               : StateFlow<List<String>>               = _price
-    private val rating              : StateFlow<List<String>>               = _rating
-    private val distance            : StateFlow<String>                     = _distance
-    private val keyword             : StateFlow<String>                     = _keyword
+    private var _restaurants        : MutableStateFlow<List<RestaurantWithFiveImages>>  = MutableStateFlow(listOf())
+    private var _foodType           : MutableStateFlow<List<String>>                    = MutableStateFlow(listOf())
+    private var _price              : MutableStateFlow<List<String>>                    = MutableStateFlow(listOf())
+    private var _rating             : MutableStateFlow<List<String>>                    = MutableStateFlow(listOf())
+    private var _distance           : MutableStateFlow<String>                          = MutableStateFlow("")
+    private var _keyword            : MutableStateFlow<String>                          = MutableStateFlow("")
+    private var _selectedRestaurant : MutableStateFlow<RestaurantWithFiveImages>        = MutableStateFlow(RestaurantWithFiveImages())
+    override var restaurants        : StateFlow<List<RestaurantWithFiveImages>>         = _restaurants
+    var selectedRestaurant          : StateFlow<RestaurantWithFiveImages>               = _selectedRestaurant
+    private val foodType            : StateFlow<List<String>>                           = _foodType
+    private val price               : StateFlow<List<String>>                           = _price
+    private val rating              : StateFlow<List<String>>                           = _rating
+    private val distance            : StateFlow<String>                                 = _distance
+    private val keyword             : StateFlow<String>                                 = _keyword
 
     suspend fun setDistance(distance : String){ if(distance == this.distance.value) this._distance.emit("") else this._distance.emit(distance)}
     suspend fun setKeyword(keyword : String){ this._keyword.emit(keyword) }
@@ -95,15 +98,40 @@ class FindRepositoryImpl @Inject constructor(
     override suspend fun search(filter: FilterApiModel) {
         try {
             Log.d(tag, "restaurant filter search: $filter")
-            _restaurants.emit(apiRestaurant.getFilterRestaurant(filter).map { it.toEntity() })
+            //_restaurants.emit(apiRestaurant.getFilterRestaurant(filter).map { it.toEntity() })
+            _restaurants.emit(apiFilter.aroundRestaurant(filter).restaurants.map {
+                if(it != null) RestaurantWithFiveImages.from(it) else RestaurantWithFiveImages()
+            })
         }
         catch (e : HttpException)   { Log.e(tag, e.response()?.errorBody()?.string().toString()) }
         catch (e : Exception)       { Log.e(tag, e.toString()) }
     }
 
+    fun RestaurantWithFiveImages.Companion.from(restaurant: RestaurantV1WithFiveImagesResponseModel) : RestaurantWithFiveImages {
+        return RestaurantWithFiveImages(
+            restaurant = Restaurant(
+            restaurantId = restaurant.restaurant?.restaurantId ?: 0,
+            restaurantName = restaurant.restaurant?.restaurantName ?: "",
+            address = restaurant.restaurant?.address ?: "",
+            lat = restaurant.restaurant?.latitude ?: 0.0,
+            lon = restaurant.restaurant?.longitude ?: 0.0,
+            rating = restaurant.restaurant?.rating ?: 0f,
+            tel = restaurant.restaurant?.tel ?: "",
+            prices = restaurant.restaurant?.prices ?: "",
+            restaurantType = restaurant.restaurant?.restaurantType ?: "",
+            regionCode = restaurant.restaurant?.regionCode ?: 0,
+            reviewCount = restaurant.restaurant?.reviewCount ?: 0,
+            site = restaurant.restaurant?.website ?: "",
+            imgUrl1 = restaurant.restaurant?.image ?: "",
+            restaurantTypeCd = restaurant.restaurant?.restaurantTypeCd ?: "",
+            ),
+            images = restaurant.images ?: listOf()
+        )
+    }
+
     suspend fun selectRestaurantFromMarker(restaurantId: Int) {
         Log.d(tag, "selectRestaurantFromMarker: $restaurantId")
-        _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
+        _restaurants.value.firstOrNull { it.restaurant.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
         blockCardSwipeEvent = true
         delay(1000)
         blockCardSwipeEvent = false
@@ -112,13 +140,13 @@ class FindRepositoryImpl @Inject constructor(
     suspend fun selectRestaurantFromSwipe(restaurantId: Int) {
         if(blockCardSwipeEvent){ Log.w(tag, "block card swipe event restaurantId : ${restaurantId}"); return }
         Log.d(tag, "selectRestaurantFromSwipe: $restaurantId")
-        _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
+        _restaurants.value.firstOrNull { it.restaurant.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
     }
 
 
     suspend fun selectRestaurant(restaurantId: Int) {
         Log.d(tag, "selectRestaurant: $restaurantId")
-        _restaurants.value.firstOrNull { it.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
+        _restaurants.value.firstOrNull { it.restaurant.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
     }
 
     fun RestaurantResponseDto.toEntity() : Restaurant{
