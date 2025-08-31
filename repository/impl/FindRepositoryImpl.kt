@@ -69,29 +69,29 @@ class FindRepositoryImpl @Inject constructor(
 
 
     override suspend fun findThisArea() {
-        val filter = FilterApiModel()
-        filter.searchType = "BOUND"
-        filter.prices = price.value
-        filter.ratings = rating.value
-        filter.distances = distance.value
-        filter.keyword = keyword.value
-        filter.restaurantTypes = foodType.value
-        filter.north = mapRepository.getNElon()
-        filter.east = mapRepository.getNElat()
-        filter.south = mapRepository.getSWlon()
-        filter.west = mapRepository.getSWlat()
-        if(distance.value == "") filter.distances = null
+        val filter = FilterApiModel(
+            searchType = "BOUND",
+            prices = price.value,
+            ratings = rating.value,
+            distances = distance.value,
+            keyword = keyword.value,
+            restaurantTypes = foodType.value,
+            northEastLon = mapRepository.getNElon(),
+            northEastLat = mapRepository.getNElat(),
+            southWestLon = mapRepository.getSWlon(),
+            southWestLat = mapRepository.getSWlat(),
+        )
         search(filter)
     }
 
     override suspend fun findFilter() {
-        val filter = FilterApiModel()
-        filter.prices = price.value
-        filter.ratings = rating.value
-        filter.distances = distance.value
-        filter.keyword = keyword.value
-        filter.restaurantTypes = foodType.value
-        if(distance.value == "") filter.distances = null
+        val filter = FilterApiModel(
+            prices = price.value,
+            ratings = rating.value,
+            distances = distance.value,
+            keyword = keyword.value,
+            restaurantTypes = foodType.value,
+        )
         search(filter)
     }
 
