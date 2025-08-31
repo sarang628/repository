@@ -99,7 +99,8 @@ class FindRepositoryImpl @Inject constructor(
         try {
             Log.d(tag, "restaurant filter search: $filter")
             //_restaurants.emit(apiRestaurant.getFilterRestaurant(filter).map { it.toEntity() })
-            _restaurants.emit(apiFilter.aroundRestaurant(filter).restaurants.map {
+            val result = if(filter.searchType == "BOUND") apiFilter.boundRestaurant(filter) else apiFilter.aroundRestaurant(filter)
+            _restaurants.emit(result.restaurants.map {
                 if(it != null) RestaurantWithFiveImages.from(it) else RestaurantWithFiveImages()
             })
         }
