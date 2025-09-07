@@ -30,7 +30,6 @@ class RestaurantRepositoryImpl @Inject constructor(
     RestaurantRepository {
 
     private val mapClick = MutableStateFlow<Boolean>(false)
-//    private val location = MutableStateFlow(Location(0.0, 0.0))
 
     override suspend fun loadRestaurant(restaurantId: Int): RestaurantResponseDto {
         return apiRestaurant.getRestaurantById(restaurantId)
