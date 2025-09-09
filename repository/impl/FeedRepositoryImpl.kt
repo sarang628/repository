@@ -35,11 +35,11 @@ class FeedRepositoryImpl @Inject constructor(
 ) : FeedRepository {
     private val tag: String = "__FeedRepositoryImpl"
     override val feeds: Flow<List<ReviewAndImageEntity>> = feedDao.getAllFeedWithUser()
-    override fun getMyFeed(reviewId: Int): Flow<List<ReviewAndImageEntity>> {
+    override fun findMyFeedById(reviewId: Int): Flow<List<ReviewAndImageEntity>> {
         return myFeedDao.getMyFeedByReviewId(reviewId)
     }
 
-    override suspend fun getFeedByReviewId(reviewId: Int): ReviewAndImageEntity {
+    override suspend fun findById(reviewId: Int): ReviewAndImageEntity {
         try {
             val result: FeedApiModel =
                 apiFeed.getFeedByReviewId(sessionClientService.getToken(), reviewId)
@@ -58,11 +58,11 @@ class FeedRepositoryImpl @Inject constructor(
         return feedDao.getFeed(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
     }
 
-    override fun getFeedByRestaurantId(restaurantId: Int): Flow<List<ReviewAndImageEntity>> {
+    override fun findByRestaurantId(restaurantId: Int): Flow<List<ReviewAndImageEntity>> {
         return feedDao.getFeedByRestaurantId(restaurantId)
     }
 
-    override suspend fun deleteFeed(reviewId: Int) {
+    override suspend fun deleteById(reviewId: Int) {
         //원격 저장소 요청
         apiFeed.deleteReview(reviewId)
         //로컬 저장소에서 삭제
@@ -70,17 +70,17 @@ class FeedRepositoryImpl @Inject constructor(
     }
 
     @Transaction
-    override suspend fun deleteFeedAll() {
+    override suspend fun deleteAll() {
         feedDao.deleteAll()
         likeDao.deleteAll()
         favoriteDao.deleteAll()
         pictureDao.deleteAll()
     }
 
-    override suspend fun loadFeed() {
+    override suspend fun findAll() {
         val feedList = apiFeed.getFeeds(sessionClientService.getToken())
         try {
-            deleteFeedAll()
+            deleteAll()
             insertFeed(feedList)
         } catch (e: Exception) {
             Log.e("__FeedRepositoryImpl", e.toString())
@@ -112,10 +112,10 @@ class FeedRepositoryImpl @Inject constructor(
         )
     }
 
-    override suspend fun loadFeedWithPage(page: Int) {
+    override suspend fun findByPage(page: Int) {
         try {
             val feedList = apiFeed.getFeedsWithPage(sessionClientService.getToken(), page)
-            if (page == 0) deleteFeedAll()
+            if (page == 0) deleteAll()
             insertFeed(feedList)
         }
         catch (e : ConnectException){
@@ -127,67 +127,8 @@ class FeedRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun addLike(reviewId: Int) {
-        val token = sessionClientService.getToken()
-        if (token != null) {
-            val result = apiFeed.addLike(token, reviewId)
-//            val result = apiFeed.addLike(it, reviewId)
-            likeDao.insertLike(result.toLikeEntity())
-            feedDao.addLikeCount(reviewId)
-        } else {
-            throw java.lang.Exception("로그인을 해주세요.")
-        }
-    }
-
-    override suspend fun deleteLike(reviewId: Int) {
-        val like = likeDao.getLike1(reviewId = reviewId)
-        val remoteLike = apiFeed.deleteLike(like.likeId)
-        likeDao.deleteLike(
-            remoteLike.toLikeEntity()
-        )
-        feedDao.subTractLikeCount(reviewId)
-    }
-
-    override suspend fun addFavorite(reviewId: Int) {
-        val token = sessionClientService.getToken()
-        if (token != null) {
-            val result = apiFeed.addFavorite(token, reviewId)
-            favoriteDao.insertFavorite(result.toFavoriteEntity())
-        } else {
-            throw Exception("로그인을 해주세요.")
-        }
-    }
-
-    override suspend fun deleteFavorite(reviewId: Int) {
-        val token = sessionClientService.getToken()
-        if (token != null) {
-            val favorite = favoriteDao.getFavorite1(reviewId = reviewId)
-            val remoteFavorite = apiFeed.deleteFavorite(favorite.favoriteId)
-            favoriteDao.deleteFavorite(
-                remoteFavorite.toFavoriteEntity()
-            )
-        } else {
-            throw Exception("로그인을 해주세요.")
-        }
-    }
-
-    override suspend fun loadUserAllFeedsByReviewId(reviewId: Int) {
+    override suspend fun findAllUserFeedById(reviewId: Int) {
         val feedList = apiFeed.loadUserAllFeedsByReviewId(sessionClientService.getToken(), reviewId)
-        try {
-            insertFeed(feedList)
-        } catch (e: Exception) {
-            Log.e("__FeedRepositoryImpl", e.toString())
-            Log.e(
-                "__FeedRepositoryImpl",
-                Gson().newBuilder().setPrettyPrinting().create().toJson(feedList)
-            )
-            throw Exception("피드를 가져오는데 실패하였습니다.")
-        }
-    }
-
-    override suspend fun loadMyAllFeedsByReviewId(reviewId: Int) {
-        val feedList = apiFeed.loadUserAllFeedsByReviewId(sessionClientService.getToken(), reviewId)
-        Log.i(tag, "loadUserAllFeedsByReviewId(API) reviewId: $reviewId, result:${feedList.size}")
         try {
             insertFeed(feedList)
         } catch (e: Exception) {
@@ -205,7 +146,7 @@ class FeedRepositoryImpl @Inject constructor(
      * @param reviewId 리스트의 마지막 피드 ID
      * @param count 가져올 다음 피드 갯수
      */
-    override suspend fun loadNextFeedByReivewId(reviewId: Int, count: Int) {
+    override suspend fun findById(reviewId: Int, count: Int) {
         val feedList = apiFeed.getNextReviewsByReviewId(
             auth = sessionClientService.getToken(),
             reviewId = reviewId,
