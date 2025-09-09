@@ -35,11 +35,21 @@ class FeedRepositoryImpl @Inject constructor(
 ) : FeedRepository {
     private val tag: String = "__FeedRepositoryImpl"
     override val feeds: Flow<List<ReviewAndImageEntity>> = feedDao.getAllFeedWithUser()
-    override fun findMyFeedById(reviewId: Int): Flow<List<ReviewAndImageEntity>> {
-        return myFeedDao.getMyFeedByReviewId(reviewId)
+    override suspend    fun findAll() {
+        val feedList = apiFeed.getFeeds(sessionClientService.getToken())
+        try {
+            deleteAll()
+            insertFeed(feedList)
+        } catch (e: Exception) {
+            Log.e("__FeedRepositoryImpl", e.toString())
+            Log.e(
+                "__FeedRepositoryImpl",
+                Gson().newBuilder().setPrettyPrinting().create().toJson(feedList)
+            )
+            throw Exception("피드를 가져오는데 실패하였습니다.")
+        }
     }
-
-    override suspend fun findById(reviewId: Int): ReviewAndImageEntity {
+    override suspend    fun findById(reviewId: Int): ReviewAndImageEntity {
         try {
             val result: FeedApiModel =
                 apiFeed.getFeedByReviewId(sessionClientService.getToken(), reviewId)
@@ -57,30 +67,45 @@ class FeedRepositoryImpl @Inject constructor(
 
         return feedDao.getFeed(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
     }
-
-    override fun findByRestaurantId(restaurantId: Int): Flow<List<ReviewAndImageEntity>> {
+    override suspend    fun findById(reviewId: Int, count: Int) {
+        val feedList = apiFeed.getNextReviewsByReviewId(
+            auth = sessionClientService.getToken(),
+            reviewId = reviewId,
+            count = count
+        )
+        try {
+            insertFeed(feedList)
+        } catch (e: Exception) {
+            Log.e(
+                "__FeedRepositoryImpl",
+                Gson().newBuilder().setPrettyPrinting().create().toJson(feedList)
+            )
+            throw Exception("피드를 가져오는데 실패하였습니다.")
+        }
+    }
+    override suspend    fun findByPage(page: Int) {
+        try {
+            val feedList = apiFeed.getFeedsWithPage(sessionClientService.getToken(), page)
+            if (page == 0) deleteAll()
+            insertFeed(feedList)
+        }
+        catch (e : ConnectException){
+            throw ConnectException("피드를 가져오는데 실패하였습니다. 서버 접속에 실패 하였습니다.")
+        }
+        catch (e: Exception) {
+            Log.e("__FeedRepositoryImpl", e.toString())
+            throw Exception("피드를 가져오는데 실패하였습니다.")
+        }
+    }
+    override            fun findMyFeedById(reviewId: Int): Flow<List<ReviewAndImageEntity>> {
+        return myFeedDao.getMyFeedByReviewId(reviewId)
+    }
+    override            fun findByRestaurantId(restaurantId: Int): Flow<List<ReviewAndImageEntity>> {
         return feedDao.getFeedByRestaurantId(restaurantId)
     }
-
-    override suspend fun deleteById(reviewId: Int) {
-        //원격 저장소 요청
-        apiFeed.deleteReview(reviewId)
-        //로컬 저장소에서 삭제
-        feedDao.deleteFeed(reviewId)
-    }
-
-    @Transaction
-    override suspend fun deleteAll() {
-        feedDao.deleteAll()
-        likeDao.deleteAll()
-        favoriteDao.deleteAll()
-        pictureDao.deleteAll()
-    }
-
-    override suspend fun findAll() {
-        val feedList = apiFeed.getFeeds(sessionClientService.getToken())
+    override suspend    fun findAllUserFeedById(reviewId: Int) {
+        val feedList = apiFeed.loadUserAllFeedsByReviewId(sessionClientService.getToken(), reviewId)
         try {
-            deleteAll()
             insertFeed(feedList)
         } catch (e: Exception) {
             Log.e("__FeedRepositoryImpl", e.toString())
@@ -91,8 +116,20 @@ class FeedRepositoryImpl @Inject constructor(
             throw Exception("피드를 가져오는데 실패하였습니다.")
         }
     }
-
-    private suspend fun insertFeed(feedList: List<FeedApiModel>) {
+    override suspend    fun deleteById(reviewId: Int) {
+        //원격 저장소 요청
+        apiFeed.deleteReview(reviewId)
+        //로컬 저장소에서 삭제
+        feedDao.deleteFeed(reviewId)
+    }
+    @Transaction
+    override suspend    fun deleteAll() {
+        feedDao.deleteAll()
+        likeDao.deleteAll()
+        favoriteDao.deleteAll()
+        pictureDao.deleteAll()
+    }
+    private suspend     fun insertFeed(feedList: List<FeedApiModel>) {
         val list = feedList
             .map { it.pictures }
             .flatMap { it }
@@ -110,56 +147,5 @@ class FeedRepositoryImpl @Inject constructor(
             favorites = feedList.filter { it.favorite != null }
                 .map { it.favorite!!.toFavoriteEntity() }
         )
-    }
-
-    override suspend fun findByPage(page: Int) {
-        try {
-            val feedList = apiFeed.getFeedsWithPage(sessionClientService.getToken(), page)
-            if (page == 0) deleteAll()
-            insertFeed(feedList)
-        }
-        catch (e : ConnectException){
-            throw ConnectException("피드를 가져오는데 실패하였습니다. 서버 접속에 실패 하였습니다.")
-        }
-        catch (e: Exception) {
-            Log.e("__FeedRepositoryImpl", e.toString())
-            throw Exception("피드를 가져오는데 실패하였습니다.")
-        }
-    }
-
-    override suspend fun findAllUserFeedById(reviewId: Int) {
-        val feedList = apiFeed.loadUserAllFeedsByReviewId(sessionClientService.getToken(), reviewId)
-        try {
-            insertFeed(feedList)
-        } catch (e: Exception) {
-            Log.e("__FeedRepositoryImpl", e.toString())
-            Log.e(
-                "__FeedRepositoryImpl",
-                Gson().newBuilder().setPrettyPrinting().create().toJson(feedList)
-            )
-            throw Exception("피드를 가져오는데 실패하였습니다.")
-        }
-    }
-
-    /**
-     * 리뷰 ID 다음 피드 가져오기
-     * @param reviewId 리스트의 마지막 피드 ID
-     * @param count 가져올 다음 피드 갯수
-     */
-    override suspend fun findById(reviewId: Int, count: Int) {
-        val feedList = apiFeed.getNextReviewsByReviewId(
-            auth = sessionClientService.getToken(),
-            reviewId = reviewId,
-            count = count
-        )
-        try {
-            insertFeed(feedList)
-        } catch (e: Exception) {
-            Log.e(
-                "__FeedRepositoryImpl",
-                Gson().newBuilder().setPrettyPrinting().create().toJson(feedList)
-            )
-            throw Exception("피드를 가져오는데 실패하였습니다.")
-        }
     }
 }
