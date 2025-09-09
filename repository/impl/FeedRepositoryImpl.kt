@@ -11,14 +11,8 @@ import com.sarang.torang.core.database.dao.LikeDao
 import com.sarang.torang.core.database.dao.MyFeedDao
 import com.sarang.torang.core.database.dao.PictureDao
 import com.sarang.torang.core.database.dao.UserDao
-import com.sarang.torang.core.database.model.favorite.FavoriteEntity
-import com.sarang.torang.core.database.model.feed.FeedEntity
-import com.sarang.torang.core.database.model.like.LikeEntity
 import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
-import com.sarang.torang.core.database.model.user.UserEntity
-import com.sarang.torang.data.remote.response.FavoriteApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
-import com.sarang.torang.data.remote.response.LikeApiModel
 import com.sarang.torang.di.repository.toReviewImage
 import com.sarang.torang.repository.FeedRepository
 import com.sarang.torang.session.SessionClientService
@@ -27,7 +21,6 @@ import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.exp
 
 @Singleton
 class FeedRepositoryImpl @Inject constructor(
@@ -228,54 +221,4 @@ class FeedRepositoryImpl @Inject constructor(
             throw Exception("피드를 가져오는데 실패하였습니다.")
         }
     }
-}
-
-fun FeedApiModel.toUserEntity(): UserEntity {
-    return UserEntity(
-        userId = this.user.userId,
-        email = this.user.email ?: "",
-        loginPlatform = this.user.loginPlatform ?: "",
-        createDate = this.user.createDate ?: "",
-        accessToken = "",
-        profilePicUrl = this.user.profilePicUrl,
-        point = 0,
-        reviewCount = "0",
-        following = "0",
-        followers = "0",
-        userName = this.user.userName
-    )
-}
-
-fun FeedApiModel.toFeedEntity(): FeedEntity {
-    return FeedEntity(
-        reviewId = this.reviewId,
-        userId = this.user.userId,
-        rating = this.rating,
-        userName = this.user.userName,
-        profilePicUrl = this.user.profilePicUrl,
-        likeAmount = this.like_amount,
-        commentAmount = this.comment_amount,
-        restaurantName = this.restaurant.restaurantName,
-        restaurantId = this.restaurant.restaurantId,
-        contents = this.contents,
-        createDate = this.create_date
-    )
-}
-
-fun FavoriteApiModel.toFavoriteEntity(): FavoriteEntity {
-    return FavoriteEntity(
-        reviewId = this.review_id,
-        favoriteId = this.favorite_id,
-        userId = this.user_id,
-        createDate = this.create_date
-    )
-}
-
-fun LikeApiModel.toLikeEntity(): LikeEntity {
-    return LikeEntity(
-        likeId = likeId,
-        userId = userId,
-        createDate = createDate,
-        reviewId = reviewId
-    )
 }
