@@ -1,4 +1,4 @@
-package com.sarang.torang.di.repository.repository.impl
+package com.sarang.torang.di.repository
 
 import android.util.Log
 import com.sarang.torang.api.ApiComment

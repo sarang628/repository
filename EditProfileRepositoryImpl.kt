@@ -1,4 +1,4 @@
-package com.sarang.torang.di.repository.repository.impl
+package com.sarang.torang.di.repository
 
 import android.content.Context
 import com.sarang.torang.api.ApiProfile
@@ -14,7 +14,6 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.collections.set
 
 @Singleton
 class EditProfileRepositoryImpl @Inject constructor(

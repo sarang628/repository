@@ -1,8 +1,7 @@
-package com.sarang.torang.di.repository.repository.impl
+package com.sarang.torang.di.repository
 
 import android.content.Context
 import com.sarang.torang.api.ApiReview
-import com.sarang.torang.data.MyReview
 import com.sarang.torang.core.database.dao.FeedDao
 import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.MyReviewDao
@@ -10,10 +9,11 @@ import com.sarang.torang.core.database.dao.PictureDao
 import com.sarang.torang.core.database.model.feed.FeedEntity
 import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
+import com.sarang.torang.data.MyReview
 import com.sarang.torang.datasource.MyReviewsLocalDataSource
 import com.sarang.torang.datasource.MyReviewsRemoteDataSource
-import com.sarang.torang.repository.MyReviewsRepository
 import com.sarang.torang.preference.TorangPreference
+import com.sarang.torang.repository.MyReviewsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

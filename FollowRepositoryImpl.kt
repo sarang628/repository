@@ -1,4 +1,4 @@
-package com.sarang.torang.di.repository.repository.impl
+package com.sarang.torang.di.repository
 
 import com.google.gson.JsonSyntaxException
 import com.sarang.torang.api.ApiProfile

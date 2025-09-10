@@ -1,4 +1,4 @@
-package com.sarang.torang.di.repository.repository.impl
+package com.sarang.torang.di.repository
 
 import android.content.Context
 import com.google.gson.Gson
@@ -9,8 +9,6 @@ import com.sarang.torang.data.RestaurantDetail
 import com.sarang.torang.core.database.dao.PictureDao
 import com.sarang.torang.core.database.dao.RestaurantDao
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
-import com.sarang.torang.data.remote.response.HoursOfOperationApiModel
-import com.sarang.torang.data.remote.response.MenuApiModel
 import com.sarang.torang.data.remote.response.PictureApiModel
 import com.sarang.torang.data.remote.response.RestaurantDetailApiModel
 import com.sarang.torang.data.remote.response.RestaurantResponseDto

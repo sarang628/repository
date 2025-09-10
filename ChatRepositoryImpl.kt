@@ -1,4 +1,4 @@
-package com.sarang.torang.di.repository.repository.impl
+package com.sarang.torang.di.repository
 
 import android.util.Log
 import com.gmail.bishoybasily.stomp.lib.Message
@@ -15,7 +15,6 @@ import com.sarang.torang.core.database.model.chat.ChatRoomWithParticipantsEntity
 import com.sarang.torang.core.database.model.chat.ParticipantsWithUser
 import com.sarang.torang.core.database.model.chat.ParticipantsWithUserEntity
 import com.sarang.torang.data.remote.response.ChatApiModel
-import com.sarang.torang.di.repository.toChatRoomEntity
 import com.sarang.torang.repository.ChatRepository
 import com.sarang.torang.session.SessionService
 import com.sarang.torang.util.WebSocketClient

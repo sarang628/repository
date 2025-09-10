@@ -1,17 +1,5 @@
-package com.sarang.torang.di.repository.repository
+package com.sarang.torang.di.repository
 
-import com.sarang.torang.di.repository.repository.impl.ChatRepositoryImpl
-import com.sarang.torang.di.repository.repository.impl.CommentRepositoryImpl
-import com.sarang.torang.di.repository.repository.impl.EditProfileRepositoryImpl
-import com.sarang.torang.di.repository.repository.impl.FeedRepositoryImpl
-import com.sarang.torang.di.repository.repository.impl.FindRepositoryImpl
-import com.sarang.torang.di.repository.repository.impl.FollowRepositoryImpl
-import com.sarang.torang.di.repository.repository.impl.LikeRepositoryImpl
-import com.sarang.torang.di.repository.repository.impl.LoginRepositoryImpl
-import com.sarang.torang.di.repository.repository.impl.MapRepositoryImpl
-import com.sarang.torang.di.repository.repository.impl.ProfileRepositoryImpl
-import com.sarang.torang.di.repository.repository.impl.RestaurantRepositoryImpl
-import com.sarang.torang.di.repository.repository.impl.ReviewRepositoryImpl
 import com.sarang.torang.repository.ChatRepository
 import com.sarang.torang.repository.EditProfileRepository
 import com.sarang.torang.repository.FeedRepository

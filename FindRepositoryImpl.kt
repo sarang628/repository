@@ -1,4 +1,4 @@
-package com.sarang.torang.di.repository.repository.impl
+package com.sarang.torang.di.repository
 
 import android.util.Log
 import com.sarang.torang.api.ApiFilter
@@ -24,20 +24,22 @@ class FindRepositoryImpl @Inject constructor(
     val apiFilter: ApiFilter
 ) : FindRepository {
     val tag = "__FindRepositoryImpl"
-    private var _restaurants        : MutableStateFlow<List<RestaurantWithFiveImages>>  = MutableStateFlow(listOf())
-    private var _foodType           : MutableStateFlow<List<String>>                    = MutableStateFlow(listOf())
-    private var _price              : MutableStateFlow<List<String>>                    = MutableStateFlow(listOf())
-    private var _rating             : MutableStateFlow<List<String>>                    = MutableStateFlow(listOf())
-    private var _distance           : MutableStateFlow<String>                          = MutableStateFlow("")
-    private var _keyword            : MutableStateFlow<String>                          = MutableStateFlow("")
-    private var _selectedRestaurant : MutableStateFlow<RestaurantWithFiveImages>        = MutableStateFlow(RestaurantWithFiveImages())
-    override var restaurants        : StateFlow<List<RestaurantWithFiveImages>>         = _restaurants
-    var selectedRestaurant          : StateFlow<RestaurantWithFiveImages>               = _selectedRestaurant
-    private val foodType            : StateFlow<List<String>>                           = _foodType
-    private val price               : StateFlow<List<String>>                           = _price
-    private val rating              : StateFlow<List<String>>                           = _rating
-    private val distance            : StateFlow<String>                                 = _distance
-    private val keyword             : StateFlow<String>                                 = _keyword
+    private var _restaurants        : MutableStateFlow<List<RestaurantWithFiveImages>> =
+        MutableStateFlow(listOf())
+    private var _foodType           : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
+    private var _price              : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
+    private var _rating             : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
+    private var _distance           : MutableStateFlow<String> = MutableStateFlow("")
+    private var _keyword            : MutableStateFlow<String> = MutableStateFlow("")
+    private var _selectedRestaurant : MutableStateFlow<RestaurantWithFiveImages> =
+        MutableStateFlow(RestaurantWithFiveImages())
+    override var restaurants        : StateFlow<List<RestaurantWithFiveImages>> = _restaurants
+    var selectedRestaurant          : StateFlow<RestaurantWithFiveImages> = _selectedRestaurant
+    private val foodType            : StateFlow<List<String>> = _foodType
+    private val price               : StateFlow<List<String>> = _price
+    private val rating              : StateFlow<List<String>> = _rating
+    private val distance            : StateFlow<String> = _distance
+    private val keyword             : StateFlow<String> = _keyword
 
     suspend fun setDistance(distance : String){ if(distance == this.distance.value) this._distance.emit("") else this._distance.emit(distance)}
     suspend fun setKeyword(keyword : String){ this._keyword.emit(keyword) }
@@ -101,7 +103,7 @@ class FindRepositoryImpl @Inject constructor(
             //_restaurants.emit(apiRestaurant.getFilterRestaurant(filter).map { it.toEntity() })
             val result = if(filter.searchType == "BOUND") apiFilter.boundRestaurant(filter) else apiFilter.aroundRestaurant(filter)
             _restaurants.emit(result.restaurants.map {
-                if(it != null) RestaurantWithFiveImages.from(it) else RestaurantWithFiveImages()
+                if(it != null) RestaurantWithFiveImages.Companion.from(it) else RestaurantWithFiveImages()
             })
         }
         catch (e : HttpException)   { Log.e(tag, e.response()?.errorBody()?.string().toString()) }
@@ -111,20 +113,20 @@ class FindRepositoryImpl @Inject constructor(
     fun RestaurantWithFiveImages.Companion.from(restaurant: RestaurantV1WithFiveImagesResponseModel) : RestaurantWithFiveImages {
         return RestaurantWithFiveImages(
             restaurant = Restaurant(
-            restaurantId = restaurant.restaurant?.restaurantId ?: 0,
-            restaurantName = restaurant.restaurant?.restaurantName ?: "",
-            address = restaurant.restaurant?.address ?: "",
-            lat = restaurant.restaurant?.latitude ?: 0.0,
-            lon = restaurant.restaurant?.longitude ?: 0.0,
-            rating = restaurant.restaurant?.rating ?: 0f,
-            tel = restaurant.restaurant?.tel ?: "",
-            prices = restaurant.restaurant?.prices ?: "",
-            restaurantType = restaurant.restaurant?.restaurantType ?: "",
-            regionCode = restaurant.restaurant?.regionCode ?: 0,
-            reviewCount = restaurant.restaurant?.reviewCount ?: 0,
-            site = restaurant.restaurant?.website ?: "",
-            imgUrl1 = restaurant.restaurant?.image ?: "",
-            restaurantTypeCd = restaurant.restaurant?.restaurantTypeCd ?: "",
+                restaurantId = restaurant.restaurant?.restaurantId ?: 0,
+                restaurantName = restaurant.restaurant?.restaurantName ?: "",
+                address = restaurant.restaurant?.address ?: "",
+                lat = restaurant.restaurant?.latitude ?: 0.0,
+                lon = restaurant.restaurant?.longitude ?: 0.0,
+                rating = restaurant.restaurant?.rating ?: 0f,
+                tel = restaurant.restaurant?.tel ?: "",
+                prices = restaurant.restaurant?.prices ?: "",
+                restaurantType = restaurant.restaurant?.restaurantType ?: "",
+                regionCode = restaurant.restaurant?.regionCode ?: 0,
+                reviewCount = restaurant.restaurant?.reviewCount ?: 0,
+                site = restaurant.restaurant?.website ?: "",
+                imgUrl1 = restaurant.restaurant?.image ?: "",
+                restaurantTypeCd = restaurant.restaurant?.restaurantTypeCd ?: "",
             ),
             images = restaurant.images ?: listOf()
         )
@@ -150,7 +152,23 @@ class FindRepositoryImpl @Inject constructor(
         _restaurants.value.firstOrNull { it.restaurant.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
     }
 
-    fun RestaurantResponseDto.toEntity() : Restaurant{
-        return Restaurant(restaurantId = restaurantId ?: -1, restaurantName = restaurantName ?: "null", address = address ?: "null", lat = lat ?: 0.0, lon = lon ?: 0.0, rating = rating ?: 0f, tel = tel ?:"null", prices = prices ?: "null", restaurantType = restaurantType ?: "null", regionCode = regionCode ?: 0, reviewCount = reviewCount ?: 0, site = site ?: "null", website = website ?: "null", imgUrl1 = imgUrl1 ?: "null", restaurantTypeCd = restaurantTypeCd ?: "null")
+    fun RestaurantResponseDto.toEntity() : Restaurant {
+        return Restaurant(
+            restaurantId = restaurantId ?: -1,
+            restaurantName = restaurantName ?: "null",
+            address = address ?: "null",
+            lat = lat ?: 0.0,
+            lon = lon ?: 0.0,
+            rating = rating ?: 0f,
+            tel = tel ?: "null",
+            prices = prices ?: "null",
+            restaurantType = restaurantType ?: "null",
+            regionCode = regionCode ?: 0,
+            reviewCount = reviewCount ?: 0,
+            site = site ?: "null",
+            website = website ?: "null",
+            imgUrl1 = imgUrl1 ?: "null",
+            restaurantTypeCd = restaurantTypeCd ?: "null"
+        )
     }
 }

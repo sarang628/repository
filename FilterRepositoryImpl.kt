@@ -1,4 +1,4 @@
-package com.sarang.torang.di.repository.repository.impl
+package com.sarang.torang.di.repository
 
 import com.sarang.torang.data.Distances
 import com.sarang.torang.data.Filter

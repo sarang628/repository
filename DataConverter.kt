@@ -1,4 +1,4 @@
-package com.sarang.torang.di.repository.repository.impl
+package com.sarang.torang.di.repository
 
 import com.sarang.torang.core.database.model.favorite.FavoriteEntity
 import com.sarang.torang.core.database.model.feed.FeedEntity
@@ -39,21 +39,5 @@ fun LikeApiModel.toLikeEntity(): LikeEntity {
         userId = userId,
         createDate = createDate,
         reviewId = reviewId
-    )
-}
-
-fun FeedApiModel.toFeedEntity(): FeedEntity {
-    return FeedEntity(
-        reviewId = this.reviewId,
-        userId = this.user.userId,
-        rating = this.rating,
-        userName = this.user.userName,
-        profilePicUrl = this.user.profilePicUrl,
-        likeAmount = this.like_amount,
-        commentAmount = this.comment_amount,
-        restaurantName = this.restaurant.restaurantName,
-        restaurantId = this.restaurant.restaurantId,
-        contents = this.contents,
-        createDate = this.create_date
     )
 }

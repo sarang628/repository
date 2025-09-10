@@ -1,4 +1,4 @@
-package com.sarang.torang.di.repository.repository.impl
+package com.sarang.torang.di.repository
 
 import android.content.Context
 import com.sarang.torang.api.ApiRestaurant

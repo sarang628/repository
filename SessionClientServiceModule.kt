@@ -1,4 +1,4 @@
-package com.sarang.torang.di.repository.service
+package com.sarang.torang.di.repository
 
 import com.sarang.torang.session.SessionClientService
 import com.sarang.torang.session.SessionService

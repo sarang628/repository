@@ -1,4 +1,4 @@
-package com.sarang.torang.di.repository.repository.impl
+package com.sarang.torang.di.repository
 
 import com.sarang.torang.api.ApiLike
 import com.sarang.torang.api.feed.ApiFeed
@@ -9,6 +9,7 @@ import com.sarang.torang.exception.NotLoggedInException
 import com.sarang.torang.repository.LikeRepository
 import com.sarang.torang.session.SessionClientService
 import com.sarang.torang.session.SessionService
+import java.lang.Exception
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,7 +39,7 @@ class LikeRepositoryImpl @Inject constructor(
             likeDao.insertLike(result.toLikeEntity())
             feedDao.addLikeCount(reviewId)
         } else {
-            throw java.lang.Exception("로그인을 해주세요.")
+            throw Exception("로그인을 해주세요.")
         }
     }
 

@@ -1,12 +1,12 @@
-package com.sarang.torang.di.repository.repository.impl
+package com.sarang.torang.di.repository
 
-import com.sarang.torang.data.Restaurant
-import com.sarang.torang.data.NationItem
-import com.sarang.torang.core.database.dao.RestaurantDao
 import com.sarang.torang.api.ApiRestaurant
+import com.sarang.torang.core.database.dao.RestaurantDao
+import com.sarang.torang.data.NationItem
+import com.sarang.torang.data.Restaurant
 import com.sarang.torang.repository.NationRepository
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,4 +35,3 @@ class NationRepositoryImpl @Inject constructor(
     }
 
 }
-

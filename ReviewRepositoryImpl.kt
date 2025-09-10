@@ -1,4 +1,4 @@
-package com.sarang.torang.di.repository.repository.impl
+package com.sarang.torang.di.repository
 
 import android.content.Context
 import com.sarang.torang.api.ApiReview
@@ -10,12 +10,12 @@ import com.sarang.torang.core.database.dao.RestaurantDao
 import com.sarang.torang.core.database.dao.ReviewDao
 import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
 import com.sarang.torang.data.remote.response.FeedApiModel
-import com.sarang.torang.di.repository.toReviewImage
 import com.sarang.torang.repository.review.ReviewRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.HttpException
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -58,7 +58,7 @@ class ReviewRepositoryImpl @Inject constructor(
             reviewDao.insert(review.toFeedEntity())
 
             return review
-        } catch (e: retrofit2.HttpException) {
+        } catch (e: HttpException) {
             throw Exception(e.handle())
         }
     }
