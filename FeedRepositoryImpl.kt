@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
 import com.sarang.torang.api.feed.ApiFeed
+import com.sarang.torang.api.feed.ApiFeedV1
 import com.sarang.torang.api.handle
 import com.sarang.torang.core.database.dao.FavoriteDao
 import com.sarang.torang.core.database.dao.FeedDao
@@ -24,6 +25,7 @@ import javax.inject.Singleton
 @Singleton
 class FeedRepositoryImpl @Inject constructor(
     private val apiFeed: ApiFeed,
+    private val apiFeedV1: ApiFeedV1,
     private val feedDao: FeedDao,
     private val myFeedDao: MyFeedDao,
     private val pictureDao: PictureDao,
@@ -34,6 +36,9 @@ class FeedRepositoryImpl @Inject constructor(
 ) : FeedRepository {
     private val tag: String = "__FeedRepositoryImpl"
     override val feeds: Flow<List<ReviewAndImageEntity>> = feedDao.getAllFeedWithUser()
+    override            fun restaurantFeedsFlow(restaurantId: Int): Flow<List<ReviewAndImageEntity>> {
+        return feedDao.getFeedByRestaurantId(restaurantId)
+    }
     override suspend    fun findAll() {
         val feedList = apiFeed.getFeeds(sessionClientService.getToken())
         try {
@@ -99,8 +104,9 @@ class FeedRepositoryImpl @Inject constructor(
     override            fun findMyFeedById(reviewId: Int): Flow<List<ReviewAndImageEntity>> {
         return myFeedDao.getMyFeedByReviewId(reviewId)
     }
-    override            fun findByRestaurantId(restaurantId: Int): Flow<List<ReviewAndImageEntity>> {
-        return feedDao.getFeedByRestaurantId(restaurantId)
+    override suspend    fun findByRestaurantId(restaurantId: Int) {
+        val result = apiFeedV1.findByRestaurantId(sessionClientService.getToken(), restaurantId)
+        insertFeed(result)
     }
     override suspend    fun findAllUserFeedById(reviewId: Int) {
         val feedList = apiFeed.loadUserAllFeedsByReviewId(sessionClientService.getToken(), reviewId)
