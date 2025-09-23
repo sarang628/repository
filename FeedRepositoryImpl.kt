@@ -16,7 +16,11 @@ import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.repository.FeedRepository
 import com.sarang.torang.session.SessionClientService
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
@@ -35,15 +39,31 @@ class FeedRepositoryImpl @Inject constructor(
     private val sessionClientService: SessionClientService,
 ) : FeedRepository {
     private val tag: String = "__FeedRepositoryImpl"
-    override val feeds: Flow<List<ReviewAndImageEntity>> = feedDao.getAllFeedWithUser()
+    private val loadTrigger = MutableStateFlow(false)
+    @OptIn(ExperimentalCoroutinesApi::class)
+    override val feeds: Flow<List<ReviewAndImageEntity>?> =
+        loadTrigger.flatMapLatest { shouldLoad ->
+            if (shouldLoad) {
+                feedDao.getAllFeedWithUser()
+            } else {
+                flowOf(null)
+            }
+        }
     override            fun restaurantFeedsFlow(restaurantId: Int): Flow<List<ReviewAndImageEntity>> {
         return feedDao.getFeedByRestaurantId(restaurantId)
     }
+
+    suspend fun initLoaded(){
+        if (loadTrigger.value != true)
+            loadTrigger.emit(true)
+    }
+
     override suspend    fun findAll() {
         val feedList = apiFeed.getFeeds(sessionClientService.getToken())
         try {
             deleteAll()
             insertFeed(feedList)
+            initLoaded()
         } catch (e: Exception) {
             Log.e("__FeedRepositoryImpl", e.toString())
             Log.e(
@@ -62,6 +82,7 @@ class FeedRepositoryImpl @Inject constructor(
                 "getFeedByReviewId(API) reviewId:${reviewId} result contents:${result.contents}"
             )
             insertFeed(listOf(result))
+            initLoaded()
         } catch (e: UnknownHostException) {
             Log.e(tag, e.message.toString())
             throw Exception("서버에 접속할 수 없습니다.")
@@ -92,6 +113,7 @@ class FeedRepositoryImpl @Inject constructor(
             val feedList = apiFeed.getFeedsWithPage(sessionClientService.getToken(), page)
             if (page == 0) deleteAll()
             insertFeed(feedList)
+            initLoaded()
         }
         catch (e : ConnectException){
             throw ConnectException("피드를 가져오는데 실패하였습니다. 서버 접속에 실패 하였습니다.")
