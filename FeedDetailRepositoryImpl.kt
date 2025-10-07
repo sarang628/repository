@@ -20,6 +20,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -50,31 +51,19 @@ class FeedDetailRepositoryImpl @Inject constructor(
     }
 
     override fun getReview(): Flow<FeedEntity> {
-        TODO("Not yet implemented")
+        throw Exception("")
     }
 
     override fun getRestaurant(reviewId: Int): Flow<Restaurant> {
-        //return restaurantDao.getRestaurantByReviewId(reviewId)
-        TODO()
+        throw Exception("")
     }
 
     override fun getFeed(reviewId: Int): Flow<FeedEntity> {
-        //return reviewDao.getFeedbyReviewId(reviewId)
-        TODO()
+        throw Exception("")
     }
 
     override suspend fun addComment(reviewId: Int, value: String): RemoteComment {
-
-        /*val comment = restaurantService.addComment(Comment().apply {
-            user = User().apply { userId = loggedInUserDao.getLoggedInUserEntity1()!!.userId!! }
-            comment = value
-            review_id = reviewId
-        })
-
-        commentDao.insertComment(Comment.parse(comment))
-
-        return comment*/
-        TODO()
+        throw Exception("")
     }
 }
 
@@ -96,21 +85,19 @@ class TimeLineDetailRepositoryTestImpl @Inject constructor(
     }
 
     override fun getCommentsFlow(reviewId: Int): Flow<List<CommentEntity>> {
-        TODO("Not yet implemented")
+        throw Exception("")
     }
 
     override fun getReview(): Flow<FeedEntity> {
-        TODO("Not yet implemented")
+        throw Exception("")
     }
 
     override fun getRestaurant(reviewId: Int): Flow<Restaurant> {
-        //return restaurantDao.getRestaurantByReviewId(reviewId)
-        TODO()
+        throw Exception("")
     }
 
     override fun getFeed(reviewId: Int): Flow<FeedEntity> {
-        //return reviewDao.getFeedbyReviewId(reviewId)
-        TODO()
+        throw Exception("")
     }
 
     fun userId(): Int {
@@ -118,7 +105,7 @@ class TimeLineDetailRepositoryTestImpl @Inject constructor(
     }
 
     override suspend fun addComment(reviewId: Int, value: String): RemoteComment {
-        TODO("not yet implemented")
+        throw Exception("")
     }
 }
 
