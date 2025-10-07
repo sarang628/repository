@@ -77,10 +77,6 @@ class FeedRepositoryImpl @Inject constructor(
         try {
             val result: FeedApiModel =
                 apiFeed.getFeedByReviewId(sessionClientService.getToken(), reviewId)
-            Log.i(
-                tag,
-                "getFeedByReviewId(API) reviewId:${reviewId} result contents:${result.contents}"
-            )
             insertFeed(listOf(result))
             initLoaded()
         } catch (e: UnknownHostException) {
@@ -112,7 +108,6 @@ class FeedRepositoryImpl @Inject constructor(
         try {
             val feedList = apiFeed.getFeedsWithPage(sessionClientService.getToken(), page)
             if (page == 0) {
-                Log.d(tag, "findByPage : ${page}. delete all feed")
                 deleteAll()
             }
             insertFeed(feedList)
@@ -131,7 +126,6 @@ class FeedRepositoryImpl @Inject constructor(
     }
     override suspend    fun findByRestaurantId(restaurantId: Int) {
         val result = apiFeedV1.findByRestaurantId(sessionClientService.getToken(), restaurantId)
-        Log.d(tag, "findByRestaurantId : $restaurantId, result: ${result.size}")
         insertFeed(result)
     }
     override suspend    fun findAllUserFeedById(reviewId: Int) {
@@ -155,7 +149,6 @@ class FeedRepositoryImpl @Inject constructor(
     }
     @Transaction
     override suspend    fun deleteAll() {
-        Log.d(tag, "delete all feed in DB")
         feedDao.deleteAll()
         likeDao.deleteAll()
         favoriteDao.deleteAll()
