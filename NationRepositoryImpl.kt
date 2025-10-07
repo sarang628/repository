@@ -19,11 +19,11 @@ class NationRepositoryImpl @Inject constructor(
     private val selectNationItem: MutableStateFlow<NationItem> = MutableStateFlow(NationItem(0))
 
     override suspend fun getNationItems(): List<NationItem> {
-        TODO("Not yet implemented")
+        return listOf()
     }
 
     override suspend fun findRestaurant(): List<Restaurant> {
-        TODO("Not yet implemented")
+        return listOf()
     }
 
     override fun getSelectNationItem(): Flow<NationItem> {
