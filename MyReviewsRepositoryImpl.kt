@@ -82,7 +82,7 @@ class MyReviewsRepositoryImpl @Inject constructor(
         })
         val list1 = ArrayList<MyReview>()
         for (review in list) {
-            TODO()
+
         }
         return list1
     }
