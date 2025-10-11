@@ -106,10 +106,10 @@ class FeedRepositoryImpl @Inject constructor(
     }
     override suspend    fun findByPage(page: Int) {
         try {
-            val feedList = apiFeed.getFeedsWithPage(sessionClientService.getToken(), page)
             if (page == 0) {
                 deleteAll()
             }
+            val feedList = apiFeed.getFeedsWithPage(sessionClientService.getToken(), page)
             insertFeed(feedList)
             initLoaded()
         }
