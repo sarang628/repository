@@ -1,6 +1,9 @@
 package com.sarang.torang.di.repository
 
+import android.text.TextUtils
 import android.util.Log
+import androidx.compose.material3.Divider
+import androidx.compose.ui.unit.TextUnit
 import com.sarang.torang.api.ApiFilter
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.Restaurant
@@ -17,6 +20,15 @@ import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
 
+enum class Distances {
+    NONE,
+    _100M,
+    _300M,
+    _500M,
+    _1KM,
+    _3KM;
+}
+
 @Singleton
 class FindRepositoryImpl @Inject constructor(
     val apiRestaurant: ApiRestaurant,
@@ -28,7 +40,7 @@ class FindRepositoryImpl @Inject constructor(
     private var _foodType           : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
     private var _price              : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
     private var _rating             : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
-    private var _distance           : MutableStateFlow<String> = MutableStateFlow("")
+    private var _distance           : MutableStateFlow<Distances> = MutableStateFlow(Distances.NONE)
     private var _keyword            : MutableStateFlow<String> = MutableStateFlow("")
     private var _selectedRestaurant : MutableStateFlow<RestaurantWithFiveImages> = MutableStateFlow(RestaurantWithFiveImages())
     override var restaurants        : StateFlow<List<RestaurantWithFiveImages>> = _restaurants
@@ -36,15 +48,15 @@ class FindRepositoryImpl @Inject constructor(
     private val foodType            : StateFlow<List<String>> = _foodType
     private val price               : StateFlow<List<String>> = _price
     private val rating              : StateFlow<List<String>> = _rating
-    private val distance            : StateFlow<String> = _distance
+    private val distance            : StateFlow<Distances> = _distance
     private val keyword             : StateFlow<String> = _keyword
 
-    suspend fun setDistance(distance : String){ if(distance == this.distance.value) this._distance.emit("") else this._distance.emit(distance)}
+    suspend fun setDistance(distance : String){ _distance.emit(Distances.NONE) }
     suspend fun setKeyword(keyword : String){ this._keyword.emit(keyword) }
     fun getFoodType(): StateFlow<List<String>> { return foodType }
     fun getPrices(): StateFlow<List<String>> { return price }
     fun getRatings(): StateFlow<List<String>> { return rating }
-    fun getDistances(): StateFlow<String> { return distance }
+    fun getDistances(): StateFlow<Distances> { return distance }
 
     /**
      * 맵에서 포인트 클릭 시 카드 스와이프 발생하여 중복 선택
@@ -73,7 +85,7 @@ class FindRepositoryImpl @Inject constructor(
             searchType = "BOUND",
             prices = price.value,
             ratings = rating.value,
-            distances = distance.value,
+            distances = TextUtils.join(",", listOf(Distances.NONE)),
             keyword = keyword.value,
             restaurantTypes = foodType.value,
             northEastLon = mapRepository.getNElon(),
@@ -88,7 +100,7 @@ class FindRepositoryImpl @Inject constructor(
         val filter = FilterApiModel(
             prices = price.value,
             ratings = rating.value,
-            distances = distance.value,
+            distances = distance.value.name,
             keyword = keyword.value,
             restaurantTypes = foodType.value,
         )
