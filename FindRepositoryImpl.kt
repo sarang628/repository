@@ -24,15 +24,13 @@ class FindRepositoryImpl @Inject constructor(
     val apiFilter: ApiFilter
 ) : FindRepository {
     val tag = "__FindRepositoryImpl"
-    private var _restaurants        : MutableStateFlow<List<RestaurantWithFiveImages>> =
-        MutableStateFlow(listOf())
+    private var _restaurants        : MutableStateFlow<List<RestaurantWithFiveImages>> = MutableStateFlow(listOf())
     private var _foodType           : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
     private var _price              : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
     private var _rating             : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
     private var _distance           : MutableStateFlow<String> = MutableStateFlow("")
     private var _keyword            : MutableStateFlow<String> = MutableStateFlow("")
-    private var _selectedRestaurant : MutableStateFlow<RestaurantWithFiveImages> =
-        MutableStateFlow(RestaurantWithFiveImages())
+    private var _selectedRestaurant : MutableStateFlow<RestaurantWithFiveImages> = MutableStateFlow(RestaurantWithFiveImages())
     override var restaurants        : StateFlow<List<RestaurantWithFiveImages>> = _restaurants
     var selectedRestaurant          : StateFlow<RestaurantWithFiveImages> = _selectedRestaurant
     private val foodType            : StateFlow<List<String>> = _foodType
@@ -133,8 +131,12 @@ class FindRepositoryImpl @Inject constructor(
     }
 
     suspend fun selectRestaurantFromMarker(restaurantId: Int) {
-        Log.d(tag, "selectRestaurantFromMarker: $restaurantId")
-        _restaurants.value.firstOrNull { it.restaurant.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
+        _restaurants.value.firstOrNull { it.restaurant.restaurantId == restaurantId }?.let {
+            Log.d(tag, "selectRestaurantFromMarker: $restaurantId")
+            _selectedRestaurant.emit(it)
+        } ?: run {
+            Log.e(tag, "failed select restaurant from select marker restaurantId : $restaurantId")
+        }
         blockCardSwipeEvent = true
         delay(1000)
         blockCardSwipeEvent = false
