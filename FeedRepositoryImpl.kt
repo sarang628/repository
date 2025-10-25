@@ -52,12 +52,10 @@ class FeedRepositoryImpl @Inject constructor(
     override            fun restaurantFeedsFlow(restaurantId: Int): Flow<List<ReviewAndImageEntity>> {
         return feedDao.getFeedByRestaurantId(restaurantId)
     }
-
     suspend fun initLoaded(){
         if (loadTrigger.value != true)
             loadTrigger.emit(true)
     }
-
     override suspend    fun findAll() {
         val feedList = apiFeed.getFeeds(sessionClientService.getToken())
         try {
@@ -154,7 +152,7 @@ class FeedRepositoryImpl @Inject constructor(
         favoriteDao.deleteAll()
         pictureDao.deleteAll()
     }
-    private suspend     fun insertFeed(feedList: List<FeedApiModel>) {
+    private  suspend    fun insertFeed(feedList: List<FeedApiModel>) {
         val list = feedList
             .map { it.pictures }
             .flatMap { it }
@@ -172,5 +170,11 @@ class FeedRepositoryImpl @Inject constructor(
             favorites = feedList.filter { it.favorite != null }
                 .map { it.favorite!!.toFavoriteEntity() }
         )
+    }
+    override suspend    fun findByPictureId(pictureId: Int) {
+        TODO("Not yet implemented")
+    }
+    override            fun feedByPictureIdFlow(pictureId: Int): Flow<List<ReviewAndImageEntity>> {
+        TODO("Not yet implemented")
     }
 }
