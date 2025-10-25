@@ -3,9 +3,9 @@ package com.sarang.torang.di.repository
 import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
-import com.sarang.torang.api.feed.ApiFeed
 import com.sarang.torang.api.ApiProfile
 import com.sarang.torang.api.ApiReview
+import com.sarang.torang.api.feed.ApiFeed
 import com.sarang.torang.api.handle
 import com.sarang.torang.core.database.dao.FavoriteDao
 import com.sarang.torang.core.database.dao.LikeDao
@@ -20,6 +20,7 @@ import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.data.remote.response.UserApiModel
 import com.sarang.torang.di.torang_database_di.toFavoriteEntity
 import com.sarang.torang.di.torang_database_di.toLikeEntity
+import com.sarang.torang.di.torang_database_di.toReviewImage
 import com.sarang.torang.di.torang_database_di.toUserEntity
 import com.sarang.torang.repository.ProfileRepository
 import com.sarang.torang.session.SessionClientService

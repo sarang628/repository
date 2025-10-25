@@ -17,6 +17,7 @@ import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.di.torang_database_di.toFavoriteEntity
 import com.sarang.torang.di.torang_database_di.toFeedEntity
 import com.sarang.torang.di.torang_database_di.toLikeEntity
+import com.sarang.torang.di.torang_database_di.toReviewImage
 import com.sarang.torang.di.torang_database_di.toUserEntity
 import com.sarang.torang.repository.FeedRepository
 import com.sarang.torang.session.SessionClientService
@@ -157,22 +158,16 @@ class FeedRepositoryImpl @Inject constructor(
         pictureDao.deleteAll()
     }
     private  suspend    fun insertFeed(feedList: List<FeedApiModel>) {
-        val list = feedList
-            .map { it.pictures }
-            .flatMap { it }
-            .map { it.toReviewImage() }
-
         feedDao.insertAllFeed(
-            feedList = feedList.map { it.toFeedEntity() },
-            userDao = userDao,
-            pictureDao = pictureDao,
-            reviewImages = list,
-            userList = feedList.map { it.toUserEntity() },
-            likeDao = likeDao,
-            likeList = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
-            favoriteDao = favoriteDao,
-            favorites = feedList.filter { it.favorite != null }
-                .map { it.favorite!!.toFavoriteEntity() }
+            userDao         = userDao,
+            likeDao         = likeDao,
+            pictureDao      = pictureDao,
+            favoriteDao     = favoriteDao,
+            feedList        = feedList.map { it.toFeedEntity() },
+            reviewImages    = feedList.map { it.pictures }.flatMap { it }.map { it.toReviewImage() },
+            userList        = feedList.map { it.toUserEntity() },
+            likeList        = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
+            favorites       = feedList.filter { it.favorite != null }.map { it.favorite!!.toFavoriteEntity() }
         )
     }
     override suspend    fun findByPictureId(pictureId: Int) {

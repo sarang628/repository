@@ -11,6 +11,7 @@ import com.sarang.torang.core.database.dao.ReviewDao
 import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.di.torang_database_di.toFeedEntity
+import com.sarang.torang.di.torang_database_di.toReviewImage
 import com.sarang.torang.repository.review.ReviewRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MultipartBody
