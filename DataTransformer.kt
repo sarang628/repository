@@ -49,22 +49,6 @@ fun ChatRoomApiModel.toChatRoomEntity(): ChatRoomEntity = ChatRoomEntity(
     createDate = createDate,
 )
 
-fun FeedApiModel.toFeedEntity(): FeedEntity {
-    return FeedEntity(
-        reviewId = reviewId,
-        userId = user.userId,
-        contents = contents,
-        rating = rating,
-        userName = user.userName,
-        likeAmount = like_amount,
-        commentAmount = comment_amount,
-        restaurantName = restaurant.restaurantName,
-        restaurantId = restaurant.restaurantId,
-        createDate = this.create_date,
-        profilePicUrl = this.user.profilePicUrl
-    )
-}
-
 fun RemotePicture.toReviewImage(): ReviewImageEntity {
     return ReviewImageEntity(
         pictureId = this.picture_id,

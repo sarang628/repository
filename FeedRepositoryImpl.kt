@@ -14,6 +14,10 @@ import com.sarang.torang.core.database.dao.PictureDao
 import com.sarang.torang.core.database.dao.UserDao
 import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
 import com.sarang.torang.data.remote.response.FeedApiModel
+import com.sarang.torang.di.torang_database_di.toFavoriteEntity
+import com.sarang.torang.di.torang_database_di.toFeedEntity
+import com.sarang.torang.di.torang_database_di.toLikeEntity
+import com.sarang.torang.di.torang_database_di.toUserEntity
 import com.sarang.torang.repository.FeedRepository
 import com.sarang.torang.session.SessionClientService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
