@@ -173,7 +173,7 @@ class FeedRepositoryImpl @Inject constructor(
     override suspend    fun findByPictureId(pictureId: Int) {
         TODO("Not yet implemented")
     }
-    override            fun findByPictureIdFlow(pictureId: Int): Flow<ReviewAndImageEntity> {
+    override            fun findByPictureIdFlow(pictureId: Int): Flow<ReviewAndImageEntity?> {
         return feedDao.getFeedByPictureId(pictureId)
     }
 }
