@@ -10,6 +10,7 @@ import com.sarang.torang.data.remote.response.UserApiModel
 import com.sarang.torang.repository.ChatRepository
 import com.sarang.torang.repository.LoginRepository
 import com.sarang.torang.session.SessionService
+import com.sarang.torang.util.TorangRepositoryEncrypt
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import retrofit2.HttpException
@@ -28,11 +29,12 @@ class LoginRepositoryImpl @Inject constructor(
     private val apiJoin: ApiJoin,
     private val sessionService: SessionService,
     private val loggedInUserDao: LoggedInUserDao,
-    private val chatRepository: ChatRepository
+    private val chatRepository: ChatRepository,
+    private val encrypt: TorangRepositoryEncrypt
 ) : LoginRepository {
     override suspend fun emailLogin(email: String, password: String) {
         try {
-            val result = apiLogin.emailLogin(email = email, password = password)
+            val result = apiLogin.emailLogin(email = email, password = encrypt.encrypt(password))
             loggedInUserDao.insert(
                 result.profile.toLoggedInUserEntity()
             )
@@ -81,7 +83,7 @@ class LoginRepositoryImpl @Inject constructor(
 
     override suspend fun checkEmail(email: String, password: String): String {
         try {
-            return apiJoin.checkEmail(email, password)
+            return apiJoin.checkEmail(email, encrypt.encrypt(password))
         } catch (e: HttpException) {
             throw Exception(e.handle())
         }
@@ -95,7 +97,7 @@ class LoginRepositoryImpl @Inject constructor(
         password: String,
     ): Boolean {
         try {
-            return apiJoin.confirmCode(token, confirmCode, name, email, password);
+            return apiJoin.confirmCode(token, confirmCode, name, email, encrypt.encrypt(password));
         } catch (e: HttpException) {
             throw Exception(e.handle())
         }
