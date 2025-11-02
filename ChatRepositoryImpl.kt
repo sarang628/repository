@@ -9,14 +9,10 @@ import com.sarang.torang.core.database.dao.UserDao
 import com.sarang.torang.core.database.dao.chat.ChatMessageDao
 import com.sarang.torang.core.database.dao.chat.ChatParticipantsDao
 import com.sarang.torang.core.database.dao.chat.ChatRoomDao
-import com.sarang.torang.core.database.dao.chat.ChatRoomParticipantsJoinDao
-import com.sarang.torang.core.database.model.chat.ChatEntityWithUser
 import com.sarang.torang.core.database.model.chat.ChatMessageEntity
 import com.sarang.torang.core.database.model.chat.ChatRoomEntity
-import com.sarang.torang.core.database.model.chat.ChatRoomWithParticipantsAndUsers
-import com.sarang.torang.core.database.model.chat.ChatRoomWithParticipantsEntity
-import com.sarang.torang.core.database.model.chat.ParticipantsWithUser
-import com.sarang.torang.core.database.model.chat.ParticipantsWithUserEntity
+import com.sarang.torang.core.database.model.chat.embedded.ChatMessageUserImages
+import com.sarang.torang.core.database.model.chat.embedded.ChatRoomParticipants
 import com.sarang.torang.data.remote.response.ChatApiModel
 import com.sarang.torang.di.torang_database_di.chatParticipantsEntityList
 import com.sarang.torang.di.torang_database_di.chatRoomEntityList
@@ -42,7 +38,6 @@ class ChatRepositoryImpl @Inject constructor(
     private val chatMessageDao              : ChatMessageDao,
     private val chatRoomDao                 : ChatRoomDao,
     private val chatParticipantsDao         : ChatParticipantsDao,
-    private val chatRoomParticipantsJoinDao : ChatRoomParticipantsJoinDao,
     private val sessionService              : SessionService,
     private val userDao                     : UserDao,
     private val loggedInUserDao             : LoggedInUserDao,
@@ -83,15 +78,15 @@ class ChatRepositoryImpl @Inject constructor(
         )*/
     }
 
-    override fun getChatRoom(): Flow<List<ChatRoomWithParticipantsEntity>> {
-        return chatRoomParticipantsJoinDao.findAll()
+    override fun getChatRoom(): Flow<List<ChatRoomParticipants>> {
+        return MutableStateFlow(listOf())
     }
 
     override fun getChatRoom1(): Flow<List<ChatRoomEntity>> {
-        return chatRoomDao.findAll()
+        return chatRoomDao.findAllFlow()
     }
 
-    override suspend fun getUserOrCreateRoomByUserId(userId: Int): ChatRoomWithParticipantsAndUsers {
+    override suspend fun getUserOrCreateRoomByUserId(userId: Int): ChatRoomParticipants {
         //var chatRoom = chatDao.getChatRoomByUserId(userId)
 
         /*if (chatRoom == null) {
@@ -112,8 +107,8 @@ class ChatRepositoryImpl @Inject constructor(
             chatDao.getParticipantsWithUsers(chatRoom.chatRoomEntity.roomId)
                 ?: throw throw Exception("참여자 정보를 가져오는데 실패했습니다.")*/
 
-        return ChatRoomWithParticipantsAndUsers(
-            chatRoomEntity = ChatRoomEntity(roomId = 0, createDate = ""), listOf())
+        return ChatRoomParticipants(
+            chatRoom = ChatRoomEntity(roomId = 0, createDate = ""), listOf())
 
         /*return ChatRoomWithParticipantsAndUsers(
             chatRoomEntity = chatRoom.chatRoomEntity,
@@ -128,27 +123,25 @@ class ChatRepositoryImpl @Inject constructor(
         )*/
     }
 
-    override fun getChatRoomsWithParticipantsAndUsers(): Flow<List<ChatRoomWithParticipantsAndUsers>> {
+    override fun getAllChatRooms(): Flow<List<ChatRoomParticipants>> {
         // 첫 번째 Flow: ChatRoomEntity 목록 가져오기
-        /*val chatRoomFlow = chatDao.getChatRoom()
+        val chatRoomFlow = chatRoomDao.findAllFlow()
 
         // 두 번째 Flow: 각 ChatRoomEntity에 대응하는 ParticipantsWithUserEntity 목록 가져오기
         return chatRoomFlow.flatMapLatest { chatRooms ->
             // 각 채팅방에 대한 Participants 정보를 가져와서 결합
             val flows = chatRooms.map { chatRoom ->
-                chatDao.getParticipantsWithUsersFlow(chatRoom.chatRoomEntity.roomId)
+                chatParticipantsDao.findByRoomIdFlow(chatRoom.roomId)
                     .map { participantsWithUsers ->
-                        ChatRoomWithParticipantsAndUsers(
-                            chatRoomEntity = chatRoom.chatRoomEntity,
-                            participantsWithUsers = participantsWithUsers?.map { it.toParticipantsWithUser() }
-                                ?: listOf()
+                        ChatRoomParticipants(
+                            chatRoom = chatRoom,
+                            chatParticipants = listOf()
                         )
                     }
             }
             // 여러 Flow를 결합하여 결과를 반환
             combine(flows) { it.toList() }
-        }*/
-        return MutableStateFlow(listOf())
+        }
     }
 
     override suspend fun addChat(
@@ -243,7 +236,7 @@ class ChatRepositoryImpl @Inject constructor(
 //        chatDao.updateFailedSendImages(uploadingList, roomId)
     }
 
-    override fun getContents(roomId: Int): Flow<List<ChatEntityWithUser>> {
+    override fun getContents(roomId: Int): Flow<List<ChatMessageUserImages>> {
         //return chatDao.getContents(roomId)
         return MutableStateFlow(listOf())
     }
