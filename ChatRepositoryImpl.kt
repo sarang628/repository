@@ -12,10 +12,13 @@ import com.sarang.torang.core.database.dao.chat.ChatRoomDao
 import com.sarang.torang.core.database.model.chat.ChatMessageEntity
 import com.sarang.torang.core.database.model.chat.ChatRoomEntity
 import com.sarang.torang.core.database.model.chat.embedded.ChatMessageUserImages
+import com.sarang.torang.core.database.model.chat.embedded.ChatParticipantUser
 import com.sarang.torang.core.database.model.chat.embedded.ChatRoomParticipants
 import com.sarang.torang.data.remote.response.ChatApiModel
 import com.sarang.torang.di.torang_database_di.chatParticipantsEntityList
 import com.sarang.torang.di.torang_database_di.chatRoomEntityList
+import com.sarang.torang.di.torang_database_di.chats
+import com.sarang.torang.di.torang_database_di.users
 import com.sarang.torang.repository.ChatRepository
 import com.sarang.torang.session.SessionService
 import com.sarang.torang.util.WebSocketClient
@@ -44,16 +47,9 @@ class ChatRepositoryImpl @Inject constructor(
 ) :
     ChatRepository {
     private var webSocketClient = WebSocketClient()
-
-    init {
-        try {
-            webSocketClient.connect()
-        } catch (e: Exception) {
-            Log.e("__ChatRepositoryImpl", "Error connecting to WebSocket: ${e.message}")
-        }
-    }
-
     private val uploadingList: ArrayList<String> = ArrayList()
+
+    init { connectWebSocket() }
 
     override suspend fun refreshAllChatRooms() {
         val token = sessionService.getToken() ?: throw Exception("채팅방 로딩에 실패하였습니다. 로그인을 해주세요.")
@@ -64,26 +60,109 @@ class ChatRepositoryImpl @Inject constructor(
         chatRoomDao.addAll(chatRooms.chatRoomEntityList)
         chatParticipantsDao.deleteAll()
         chatParticipantsDao.addAll(chatRooms.chatParticipantsEntityList)
+        userDao.insertOrUpdateUser(chatRooms.users)
 
     }
 
-    override suspend fun loadContents(roomId: Int) {
+    override fun getAllChatRoomsFlow(): Flow<List<ChatRoomParticipants>> {
+        // 첫 번째 Flow: ChatRoomEntity 목록 가져오기
+        val chatRoomFlow = chatRoomDao.findAllFlow()
+
+        // 두 번째 Flow: 각 ChatRoomEntity에 대응하는 ParticipantsWithUserEntity 목록 가져오기
+        return chatRoomFlow.flatMapLatest { chatRooms ->
+            // 각 채팅방에 대한 Participants 정보를 가져와서 결합
+            val flows = chatRooms.map { chatRoom ->
+                chatParticipantsDao.findByRoomIdFlow(chatRoom.roomId)
+                    .map { participantsUsers ->
+                        ChatRoomParticipants(
+                            chatRoom = chatRoom,
+                            chatParticipants = participantsUsers?.map {
+                                ChatParticipantUser(
+                                    participantsEntity = it.participantsEntity,
+                                    userEntity = it.userEntity
+                                )
+                            } ?: emptyList()
+                        )
+                    }
+            }
+            // 여러 Flow를 결합하여 결과를 반환
+            combine(flows) { it.toList() }
+        }
+    }
+
+    override suspend fun addChat(roomId: Int, message: String, uuid: String, ) {
+        sessionService.getToken()?.let { auth ->
+            loggedInUserDao.getLoggedInUser1()?.userId?.let {
+                val chat = ChatMessageEntity(
+                    uuid = uuid,
+                    roomId = roomId,
+                    userId = it,
+                    message = message,
+                    createDate = SimpleDateFormat(
+                        "yyyy-MM-dd HH:mm:ss",
+                        Locale.KOREA
+                    ).format(System.currentTimeMillis()),
+                    sending = true
+                )
+                //로컬 DB에 우선 추가
+                //chatDao.addChat(chat)
+
+                try {
+                    webSocketClient.sendMessage(auth, chat.uuid, roomId, chat.message)
+                } catch (e: Exception) {
+                    Log.e("__ChatRepositoryImpl", "Error sending message: ${e.message}")
+                    throw Exception("메시지 전송에 실패하였습니다.")
+                }
+            }
+        }
+    }
+
+    override suspend fun addImageChat(roomId: Int, message: List<String>, uuid: String) {
+        Log.d("__ChatRepositoryImpl", "request add image : $message")
+
+        uploadingList.addAll(message)
+
+        //uuid가 외래키가 걸려있어 ChatEntity에 먼저 추가해줘야 함.
+        addChat(roomId, "", uuid)
+
+        //로컬 DB에 추가하기
+        /*loggedInUserDao.getLoggedInUser1()?.userId?.let {
+            chatDao.addImage1(
+                parentUuid = uuid,
+                roomId = roomId,
+                userId = it,
+                createDate = SimpleDateFormat(
+                    "yyyy-MM-dd HH:mm:ss",
+                    Locale.KOREA
+                ).format(System.currentTimeMillis()),
+                uploadedDate = "",
+                sending = true,
+                message = message,
+            )
+        }*/
+    }
+
+    override fun getChatsFlow(roomId: Int): Flow<List<ChatMessageUserImages>> {
+        return chatMessageDao.findByRoomId(roomId = roomId)
+    }
+
+    override suspend fun loadChats(roomId: Int) {
         val token = sessionService.getToken() ?: throw Exception("로그인을 해주세요.")
 
-        val result = apiChat.getContents(token, roomId)
+        val result : List<ChatApiModel> = apiChat.getContents(token, roomId)
         Log.d("__ChatRepositoryImpl", "loaded chat roomId : $roomId, chatSize: ${result.size}")
 
-        /*chatDao.addAllChat(
-            result.map { it.toChatEntity() }
-        )*/
+        chatMessageDao.addAll(result.chats)
     }
 
-    override fun getChatRoom(): Flow<List<ChatRoomParticipants>> {
-        return MutableStateFlow(listOf())
+    override suspend fun removeAll() {
+//        chatDao.deleteAllChatRoom()
+//        chatDao.deleteAllParticipants()
+//        chatDao.deleteAllChat()
     }
 
-    override fun getChatRoom1(): Flow<List<ChatRoomEntity>> {
-        return chatRoomDao.findAllFlow()
+    override suspend fun updateFailedUploadImage(roomId: Int) {
+//        chatDao.updateFailedSendImages(uploadingList, roomId)
     }
 
     override suspend fun getUserOrCreateRoomByUserId(userId: Int): ChatRoomParticipants {
@@ -123,92 +202,12 @@ class ChatRepositoryImpl @Inject constructor(
         )*/
     }
 
-    override fun getAllChatRooms(): Flow<List<ChatRoomParticipants>> {
-        // 첫 번째 Flow: ChatRoomEntity 목록 가져오기
-        val chatRoomFlow = chatRoomDao.findAllFlow()
-
-        // 두 번째 Flow: 각 ChatRoomEntity에 대응하는 ParticipantsWithUserEntity 목록 가져오기
-        return chatRoomFlow.flatMapLatest { chatRooms ->
-            // 각 채팅방에 대한 Participants 정보를 가져와서 결합
-            val flows = chatRooms.map { chatRoom ->
-                chatParticipantsDao.findByRoomIdFlow(chatRoom.roomId)
-                    .map { participantsWithUsers ->
-                        ChatRoomParticipants(
-                            chatRoom = chatRoom,
-                            chatParticipants = listOf()
-                        )
-                    }
-            }
-            // 여러 Flow를 결합하여 결과를 반환
-            combine(flows) { it.toList() }
+    private fun connectWebSocket(){
+        try {
+            webSocketClient.connect()
+        } catch (e: Exception) {
+            Log.e("__ChatRepositoryImpl", "Error connecting to WebSocket: ${e.message}")
         }
-    }
-
-    override suspend fun addChat(
-        roomId: Int,
-        message: String,
-        uuid: String,
-    ) {
-        sessionService.getToken()?.let { auth ->
-            loggedInUserDao.getLoggedInUser1()?.userId?.let {
-                val chat = ChatMessageEntity(
-                    uuid = uuid,
-                    roomId = roomId,
-                    userId = it,
-                    message = message,
-                    createDate = SimpleDateFormat(
-                        "yyyy-MM-dd HH:mm:ss",
-                        Locale.KOREA
-                    ).format(System.currentTimeMillis()),
-                    sending = true
-                )
-                //로컬 DB에 우선 추가
-                //chatDao.addChat(chat)
-
-                try {
-                    webSocketClient.sendMessage(auth, chat.uuid, roomId, chat.message)
-                } catch (e: Exception) {
-                    Log.e("__ChatRepositoryImpl", "Error sending message: ${e.message}")
-                    throw Exception("메시지 전송에 실패하였습니다.")
-                }
-            }
-        }
-    }
-
-    override suspend fun addImage(roomId: Int, message: List<String>, uuid: String) {
-        Log.d("__ChatRepositoryImpl", "request add image : $message")
-
-        uploadingList.addAll(message)
-
-        //uuid가 외래키가 걸려있어 ChatEntity에 먼저 추가해줘야 함.
-        addChat(roomId, "", uuid)
-
-        //로컬 DB에 추가하기
-        /*loggedInUserDao.getLoggedInUser1()?.userId?.let {
-            chatDao.addImage1(
-                parentUuid = uuid,
-                roomId = roomId,
-                userId = it,
-                createDate = SimpleDateFormat(
-                    "yyyy-MM-dd HH:mm:ss",
-                    Locale.KOREA
-                ).format(System.currentTimeMillis()),
-                uploadedDate = "",
-                sending = true,
-                message = message,
-            )
-        }*/
-    }
-
-
-    override suspend fun removeAll() {
-//        chatDao.deleteAllChatRoom()
-//        chatDao.deleteAllParticipants()
-//        chatDao.deleteAllChat()
-    }
-
-    override suspend fun subscribe(roomId: Int) {
-        webSocketClient.subScribe(roomId)
     }
 
     override fun event(coroutineScope: CoroutineScope): Flow<Message> {
@@ -228,17 +227,12 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun subscribe(roomId: Int) {
+        webSocketClient.subScribe(roomId)
+    }
+
     override fun unSubscribe(topic: Int) {
         webSocketClient.unSubscribe(topic)
-    }
-
-    override suspend fun updateFailedUploadImage(roomId: Int) {
-//        chatDao.updateFailedSendImages(uploadingList, roomId)
-    }
-
-    override fun getContents(roomId: Int): Flow<List<ChatMessageUserImages>> {
-        //return chatDao.getContents(roomId)
-        return MutableStateFlow(listOf())
     }
 }
 
