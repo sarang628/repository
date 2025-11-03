@@ -13,6 +13,7 @@ import com.sarang.torang.core.database.model.chat.ChatMessageEntity
 import com.sarang.torang.core.database.model.chat.ChatRoomEntity
 import com.sarang.torang.core.database.model.chat.embedded.ChatParticipantUser
 import com.sarang.torang.core.database.model.chat.embedded.ChatRoomParticipants
+import com.sarang.torang.core.database.model.user.UserEntity
 import com.sarang.torang.data.ChatImage
 import com.sarang.torang.data.ChatMessage
 import com.sarang.torang.data.ChatRoom
@@ -83,11 +84,7 @@ class ChatRepositoryImpl @Inject constructor(
                         chatParticipants = chatParticipants.filter {
                             it.roomId == chatRoom.roomId
                         }.map { user ->
-                            User(
-                                userName = users.first {
-                                    it.userId == user.userId
-                                }.userName
-                            )
+                            users.first { it.userId == user.userId }.user
                         },
                         roomId = chatRoom.roomId,
                         createDate = chatRoom.createDate
@@ -161,7 +158,7 @@ class ChatRepositoryImpl @Inject constructor(
                     message = it.chatMessage.message,
                     createDate = it.chatMessage.createDate,
                     sending = it.chatMessage.sending,
-                    user = User(userName = it.user.userName),
+                    user = it.user.user,
                     images = it.images.map { ChatImage(
                         parentUuid = it.parentUuid,
                         uuid = it.uuid,

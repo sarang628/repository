@@ -8,10 +8,14 @@ import com.sarang.torang.core.database.model.feed.FeedEntity
 import com.sarang.torang.core.database.model.restaurant.RestaurantEntity
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
 import com.sarang.torang.core.database.model.restaurant.SearchedRestaurantEntity
+import com.sarang.torang.core.database.model.user.LoggedInUserEntity
+import com.sarang.torang.core.database.model.user.UserEntity
+import com.sarang.torang.data.User
 import com.sarang.torang.data.remote.response.ChatRoomApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.data.remote.response.RemotePicture
 import com.sarang.torang.data.remote.response.RestaurantResponseDto
+import com.sarang.torang.data.remote.response.UserApiModel
 
 fun RestaurantEntity.toEntity() : Restaurant{
     return Restaurant(restaurantId = restaurantId, restaurantName = restaurantName, address = address, lat = lat, lon = lon, rating = rating, tel = tel, prices = prices, restaurantType = restaurantType, regionCode = regionCode, reviewCount = reviewCount, site = site, website = website, imgUrl1 = imgUrl1)
@@ -49,3 +53,24 @@ fun ChatRoomApiModel.toChatRoomEntity(): ChatRoomEntity = ChatRoomEntity(
     roomId = roomId,
     createDate = createDate,
 )
+
+fun UserApiModel.toLoggedInUserEntity(): LoggedInUserEntity {
+    return LoggedInUserEntity(
+        userId = this.userId,
+        userName = this.userName,
+        email = this.email,
+        loginPlatform = this.loginPlatform,
+        createDate = this.createDate,
+        profilePicUrl = profilePicUrl
+    )
+}
+
+val UserEntity.user : User get() =
+    User(
+        userId = this.userId,
+        userName = this.userName,
+        email = this.email,
+        loginPlatform = this.loginPlatform,
+        createDate = this.createDate,
+        profilePicUrl = this.profilePicUrl
+    )
