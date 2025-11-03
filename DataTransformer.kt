@@ -3,6 +3,7 @@ package com.sarang.torang.di.repository
 import com.google.gson.Gson
 import com.sarang.torang.data.Restaurant
 import com.sarang.torang.core.database.model.chat.ChatRoomEntity
+import com.sarang.torang.core.database.model.chat.embedded.ChatMessageUserImages
 import com.sarang.torang.core.database.model.feed.FeedEntity
 import com.sarang.torang.core.database.model.restaurant.RestaurantEntity
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
