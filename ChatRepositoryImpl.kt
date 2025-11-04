@@ -83,8 +83,17 @@ class ChatRepositoryImpl @Inject constructor(
                     ChatRoom(
                         chatParticipants = chatParticipants.filter {
                             it.roomId == chatRoom.roomId
-                        }.map { user ->
-                            users.first { it.userId == user.userId }.user
+                        }.map { user -> // 채팅방 참여자의 사용자 id 정보만 있음.
+                            // users는 사용자의 전체 정보를 가지고 있는 데이터로
+                            // 여기서 데이터를 찾아 변환한다.
+                            users.firstOrNull { it.userId == user.userId }?.user ?: User(
+                                userId = 0,
+                                userName = "",
+                                email = "",
+                                loginPlatform = "",
+                                createDate = "",
+                                profilePicUrl = ""
+                            )
                         },
                         roomId = chatRoom.roomId,
                         createDate = chatRoom.createDate
