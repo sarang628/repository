@@ -4,6 +4,7 @@ import android.util.Log
 import com.gmail.bishoybasily.stomp.lib.Message
 import com.google.gson.GsonBuilder
 import com.sarang.torang.api.ApiChat
+import com.sarang.torang.core.database.AppDatabase
 import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.UserDao
 import com.sarang.torang.core.database.dao.chat.ChatMessageDao
@@ -40,13 +41,13 @@ import javax.inject.Singleton
 
 @Singleton
 class ChatRepositoryImpl @Inject constructor(
-    private val apiChat                     : ApiChat,
-    private val chatMessageDao              : ChatMessageDao,
-    private val chatRoomDao                 : ChatRoomDao,
-    private val chatParticipantsDao         : ChatParticipantsDao,
-    private val sessionService              : SessionService,
-    private val userDao                     : UserDao,
-    private val loggedInUserDao             : LoggedInUserDao,
+    private val apiChat             : ApiChat,
+    private val chatMessageDao      : ChatMessageDao,
+    private val chatRoomDao         : ChatRoomDao,
+    private val chatParticipantsDao : ChatParticipantsDao,
+    private val sessionService      : SessionService,
+    private val userDao             : UserDao,
+    private val loggedInUserDao     : LoggedInUserDao,
 ) :
     ChatRepository {
     private var webSocketClient = WebSocketClient()
@@ -56,14 +57,16 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun refreshAllChatRooms() {
         val token = sessionService.getToken() ?: throw Exception("채팅방 로딩에 실패하였습니다. 로그인을 해주세요.")
-
-        val chatRooms = apiChat.getChatRoom(token)
-
-        chatRoomDao.deleteAll()
-        chatRoomDao.addAll(chatRooms.chatRoomEntityList)
-        chatParticipantsDao.deleteAll()
-        chatParticipantsDao.addAll(chatRooms.chatParticipantsEntityList)
-        userDao.insertOrUpdateUser(chatRooms.users)
+        loggedInUserDao.getLoggedInUser1()?.let { loginUser ->
+            val chatRooms = apiChat.getChatRoom(token)
+            chatRoomDao.deleteAll()
+            chatRoomDao.addAll(chatRooms.chatRoomEntityList)
+            chatParticipantsDao.deleteAll()
+            chatParticipantsDao.addAll(chatRooms.chatParticipantsEntityList
+                .filter { it.userId != loginUser.userId } // 로그인 사용자는 제외하고 넣기. 나중에 채팅방 불러올 때 처리 까다로움.
+            )
+            userDao.insertOrUpdateUser(chatRooms.users)
+        }
 
     }
 
