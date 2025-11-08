@@ -66,7 +66,7 @@ class ChatRepositoryImpl @Inject constructor(
                 .filter { it.userId != loginUser.userId } // 로그인 사용자는 제외하고 넣기. 나중에 채팅방 불러올 때 처리 까다로움.
             )
             userDao.insertOrUpdateUser(chatRooms.users)
-        }
+        } ?: throw Exception("채팅방 로딩에 실패하였습니다. 로그인을 해주세요.")
 
     }
 
