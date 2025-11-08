@@ -4,16 +4,14 @@ import android.util.Log
 import com.gmail.bishoybasily.stomp.lib.Message
 import com.google.gson.GsonBuilder
 import com.sarang.torang.api.ApiChat
-import com.sarang.torang.core.database.AppDatabase
 import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.UserDao
 import com.sarang.torang.core.database.dao.chat.ChatMessageDao
 import com.sarang.torang.core.database.dao.chat.ChatParticipantsDao
 import com.sarang.torang.core.database.dao.chat.ChatRoomDao
 import com.sarang.torang.core.database.model.chat.ChatMessageEntity
+import com.sarang.torang.core.database.model.chat.ChatParticipantsEntity
 import com.sarang.torang.core.database.model.chat.ChatRoomEntity
-import com.sarang.torang.core.database.model.chat.embedded.ChatParticipantUser
-import com.sarang.torang.core.database.model.chat.embedded.ChatRoomParticipants
 import com.sarang.torang.core.database.model.user.UserEntity
 import com.sarang.torang.data.ChatImage
 import com.sarang.torang.data.ChatMessage
@@ -32,7 +30,6 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -55,28 +52,32 @@ class ChatRepositoryImpl @Inject constructor(
 
     init { connectWebSocket() }
 
-    override suspend fun refreshAllChatRooms() {
-        val token = sessionService.getToken() ?: throw Exception("채팅방 로딩에 실패하였습니다. 로그인을 해주세요.")
-        loggedInUserDao.getLoggedInUser1()?.let { loginUser ->
-            val chatRooms = apiChat.getChatRoom(token)
-            chatRoomDao.deleteAll()
-            chatRoomDao.addAll(chatRooms.chatRoomEntityList)
-            chatParticipantsDao.deleteAll()
-            chatParticipantsDao.addAll(chatRooms.chatParticipantsEntityList
-                .filter { it.userId != loginUser.userId } // 로그인 사용자는 제외하고 넣기. 나중에 채팅방 불러올 때 처리 까다로움.
-            )
-            userDao.insertOrUpdateUser(chatRooms.users)
-        } ?: throw Exception("채팅방 로딩에 실패하였습니다. 로그인을 해주세요.")
+    override suspend fun refreshAllChatRooms(): Result<Unit> {
+        val token = sessionService.getToken() ?: return Result.failure(Exception("채팅방 로딩에 실패하였습니다. 로그인을 해주세요."))
+        val user = loggedInUserDao.getLoggedInUser1() ?: return Result.failure(Exception("채팅방 로딩에 실패하였습니다. 로그인 사용자 정보가 없습니다."))
+        val chatRooms = try {
+            apiChat.getChatRoom(token)
+        }catch (e : Exception){
+            return Result.failure(Exception("채팅방 정보를 가져오는데 실패하였습니다."))
+        }
 
+        chatRoomDao.deleteAll()
+        chatParticipantsDao.deleteAll()
+        chatRoomDao.addAll(chatRooms.chatRoomEntityList)
+        chatParticipantsDao.addAll(chatRooms.chatParticipantsEntityList
+            .filter { it.userId != user.userId } // 로그인 사용자는 제외하고 넣기. 나중에 채팅방 불러올 때 처리 까다로움.
+        )
+        userDao.insertOrUpdateUser(chatRooms.users)
+        return Result.success(Unit)
     }
 
     override fun getAllChatRoomsFlow(): Flow<List<ChatRoom>> {
         // 첫 번째 Flow: ChatRoomEntity 목록 가져오기
-        val chatRooms = chatRoomDao.findAllFlow()
-        val chatParticipants = chatParticipantsDao.findAllFlow()
-        val users = userDao.getAllFlow()
+        val chatRoomsFlow           : Flow<List<ChatRoomEntity>>            = chatRoomDao.findAllFlow()
+        val chatParticipantsFlow    : Flow<List<ChatParticipantsEntity>>    = chatParticipantsDao.findAllFlow()
+        val usersFlow               : Flow<List<UserEntity>>                = userDao.getAllFlow()
 
-        return combine(chatRooms, chatParticipants, users){
+        return combine(chatRoomsFlow, chatParticipantsFlow, usersFlow){
             chatRooms, chatParticipants, users ->
             if (chatRooms.isNotEmpty()
                 && chatParticipants.isNotEmpty()
@@ -87,16 +88,11 @@ class ChatRepositoryImpl @Inject constructor(
                         chatParticipants = chatParticipants.filter {
                             it.roomId == chatRoom.roomId
                         }.map { user -> // 채팅방 참여자의 사용자 id 정보만 있음.
-                            // users는 사용자의 전체 정보를 가지고 있는 데이터로
-                            // 여기서 데이터를 찾아 변환한다.
-                            users.firstOrNull { it.userId == user.userId }?.user ?: User(
-                                userId = 0,
-                                userName = "",
-                                email = "",
-                                loginPlatform = "",
-                                createDate = "",
-                                profilePicUrl = ""
-                            )
+                                        // users는 사용자의 전체 정보를 가지고 있는 데이터로
+                                        // 여기서 사용자 정보를 찾아 부족한 데이터를 채운다.
+                            users.firstOrNull {
+                                it.userId == user.userId
+                            }?.user ?: User(userName = "사용자 정보 없음.")
                         },
                         roomId = chatRoom.roomId,
                         createDate = chatRoom.createDate
