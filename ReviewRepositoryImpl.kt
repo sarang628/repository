@@ -42,7 +42,7 @@ class ReviewRepositoryImpl @Inject constructor(
         rating: Float,
         files: List<String>,
     ): FeedApiModel {
-        val user = loggedInUserDao.getLoggedInUser1() ?: throw Exception("로그인을 해주세요.")
+        val user = loggedInUserDao.getLoggedInUser() ?: throw Exception("로그인을 해주세요.")
         try {
             val review = apiReview.addReview(
                 user_id = user.userId,
@@ -73,7 +73,7 @@ class ReviewRepositoryImpl @Inject constructor(
         files: List<String>,
         uploadedImage: List<Int>,
     ) {
-        val userId = loggedInUserDao.getLoggedInUser1()?.userId
+        val userId = loggedInUserDao.getLoggedInUser()?.userId
         userId ?: throw java.lang.Exception("로그인을 해주세요.")
         val review = apiReview.addReview(
             review_id = reviewId,

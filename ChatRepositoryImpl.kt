@@ -54,7 +54,7 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun refreshAllChatRooms(): Result<Unit> {
         val token = sessionService.getToken() ?: return Result.failure(Exception("채팅방 로딩에 실패하였습니다. 로그인을 해주세요."))
-        val user = loggedInUserDao.getLoggedInUser1() ?: return Result.failure(Exception("채팅방 로딩에 실패하였습니다. 로그인 사용자 정보가 없습니다."))
+        val user = loggedInUserDao.getLoggedInUser() ?: return Result.failure(Exception("채팅방 로딩에 실패하였습니다. 로그인 사용자 정보가 없습니다."))
         val chatRooms = try {
             apiChat.getChatRoom(token)
         }catch (e : Exception){
@@ -75,7 +75,7 @@ class ChatRepositoryImpl @Inject constructor(
         // 첫 번째 Flow: ChatRoomEntity 목록 가져오기
         val chatRoomsFlow           : Flow<List<ChatRoomEntity>>            = chatRoomDao.findAllFlow()
         val chatParticipantsFlow    : Flow<List<ChatParticipantsEntity>>    = chatParticipantsDao.findAllFlow()
-        val usersFlow               : Flow<List<UserEntity>>                = userDao.getAllFlow()
+        val usersFlow               : Flow<List<UserEntity>>                = userDao.findAllFlow()
 
         return combine(chatRoomsFlow, chatParticipantsFlow, usersFlow){
             chatRooms, chatParticipants, users ->
@@ -106,7 +106,7 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun addChat(roomId: Int, message: String, uuid: String, ) {
         sessionService.getToken()?.let { auth ->
-            loggedInUserDao.getLoggedInUser1()?.userId?.let {
+            loggedInUserDao.getLoggedInUser()?.userId?.let {
                 val chat = ChatMessageEntity(
                     uuid = uuid,
                     roomId = roomId,

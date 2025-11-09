@@ -56,12 +56,12 @@ class FakeLoginRepositoryImpl @Inject constructor(
         return false;
     }
 
-    override val isLogin: Flow<Boolean> get() = loggedInUserDao.getLoggedInUser().map { it != null }
+    override val isLogin: Flow<Boolean> get() = loggedInUserDao.getLoggedInUserFlow().map { it != null }
     override val loginUser: Flow<User?>
         get() = TODO("Not yet implemented")
 
     override fun getUserName(): Flow<String> {
-        return loggedInUserDao.getUserName()
+        return loggedInUserDao.getUserNameFlow()
     }
 
     override suspend fun checkEmail(email: String, password: String): String {

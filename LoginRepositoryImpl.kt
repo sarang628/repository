@@ -34,10 +34,10 @@ class LoginRepositoryImpl @Inject constructor(
     private val encrypt: TorangRepositoryEncrypt
 ) : LoginRepository {
     /** 로그인 여부를 관찰하는 Flow */
-    override val isLogin: Flow<Boolean> get() = loggedInUserDao.getLoggedInUser().map { it != null }
+    override val isLogin: Flow<Boolean> get() = loggedInUserDao.getLoggedInUserFlow().map { it != null }
 
     override val loginUser: Flow<User?>
-        get() = loggedInUserDao.getLoggedInUser().map {
+        get() = loggedInUserDao.getLoggedInUserFlow().map {
             it?.let {
                 User(
                     userName = it.userName,
@@ -94,7 +94,7 @@ class LoginRepositoryImpl @Inject constructor(
     }
 
     override fun getUserName(): Flow<String> {
-        return loggedInUserDao.getUserName()
+        return loggedInUserDao.getUserNameFlow()
     }
 
     override suspend fun checkEmail(email: String, password: String): String {

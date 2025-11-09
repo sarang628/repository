@@ -84,7 +84,7 @@ class CommentRepositoryImpl @Inject constructor(
     override suspend fun addComment(reviewId: Int, comment: String, onLocalUpdated: () -> Unit) {
         //로그인 토큰 가져오기
         val token = sessionClientService.getToken()
-        val user = loggedInUserDao.getLoggedInUser1()
+        val user = loggedInUserDao.getLoggedInUser()
         if (token == null || user == null) { // 토큰이 없거나 로그인한 사용자 정보가 없다면
             Log.e(TAG, "로그인 해주세요")
             throw Exception("로그인 해주세요")
@@ -94,7 +94,7 @@ class CommentRepositoryImpl @Inject constructor(
             comment = comment,
             reviewId = reviewId,
             userId = user.userId,
-            profilePicUrl = loggedInUserDao.getLoggedInUser1()?.profilePicUrl ?: "",
+            profilePicUrl = loggedInUserDao.getLoggedInUser()?.profilePicUrl ?: "",
             parentCommentId = 0,
             isUploading = true
         )
@@ -109,7 +109,7 @@ class CommentRepositoryImpl @Inject constructor(
         reviewId: Int, comment: String, parentCommentId: Int, onLocalUpdated: () -> Unit
     ) {
         sessionClientService.getToken()?.let {
-            val user = loggedInUserDao.getLoggedInUser1()
+            val user = loggedInUserDao.getLoggedInUser()
             if (it == null || user == null) { // 토큰이 없거나 로그인한 사용자 정보가 없다면
                 throw Exception("로그인 해주세요")
             }
