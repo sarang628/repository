@@ -3,15 +3,20 @@ package com.sarang.torang.di.repository
 import android.util.Log
 import com.gmail.bishoybasily.stomp.lib.Message
 import com.google.gson.GsonBuilder
+import com.sarang.torang.BuildConfig
 import com.sarang.torang.api.ApiChat
 import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.UserDao
 import com.sarang.torang.core.database.dao.chat.ChatMessageDao
 import com.sarang.torang.core.database.dao.chat.ChatParticipantsDao
 import com.sarang.torang.core.database.dao.chat.ChatRoomDao
+import com.sarang.torang.core.database.model.chat.ChatImageEntity
 import com.sarang.torang.core.database.model.chat.ChatMessageEntity
 import com.sarang.torang.core.database.model.chat.ChatParticipantsEntity
 import com.sarang.torang.core.database.model.chat.ChatRoomEntity
+import com.sarang.torang.core.database.model.chat.embedded.ChatMessageUserImages
+import com.sarang.torang.core.database.model.chat.embedded.ChatParticipantUser
+import com.sarang.torang.core.database.model.chat.embedded.ChatRoomUser
 import com.sarang.torang.core.database.model.user.UserEntity
 import com.sarang.torang.data.ChatImage
 import com.sarang.torang.data.ChatMessage
@@ -35,6 +40,7 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.collections.map
 
 @Singleton
 class ChatRepositoryImpl @Inject constructor(
@@ -72,34 +78,14 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override fun getAllChatRoomsFlow(): Flow<List<ChatRoom>> {
-        // 첫 번째 Flow: ChatRoomEntity 목록 가져오기
-        val chatRoomsFlow           : Flow<List<ChatRoomEntity>>            = chatRoomDao.findAllFlow()
-        val chatParticipantsFlow    : Flow<List<ChatParticipantsEntity>>    = chatParticipantsDao.findAllFlow()
-        val usersFlow               : Flow<List<UserEntity>>                = userDao.findAllFlow()
-
-        return combine(chatRoomsFlow, chatParticipantsFlow, usersFlow){
-            chatRooms, chatParticipants, users ->
-            if (chatRooms.isNotEmpty()
-                && chatParticipants.isNotEmpty()
-                && users.isNotEmpty()
-            ) {
-                chatRooms.map { chatRoom ->
-                    ChatRoom(
-                        chatParticipants = chatParticipants.filter {
-                            it.roomId == chatRoom.roomId
-                        }.map { user -> // 채팅방 참여자의 사용자 id 정보만 있음.
-                                        // users는 사용자의 전체 정보를 가지고 있는 데이터로
-                                        // 여기서 사용자 정보를 찾아 부족한 데이터를 채운다.
-                            users.firstOrNull {
-                                it.userId == user.userId
-                            }?.user ?: User(userName = "사용자 정보 없음.")
-                        },
-                        roomId = chatRoom.roomId,
-                        createDate = chatRoom.createDate
-                    )
-                }
-            } else {
-                emptyList()
+        val chatRoomsFlow : Flow<List<ChatRoomUser>> = chatRoomDao.findAllChatRoom(chatRoomDao, userDao)
+        return chatRoomsFlow.map { chatRooms ->
+            chatRooms.map { chatRoom ->
+                ChatRoom(
+                    chatParticipants = chatRoom.chatParticipants.map { it.user },
+                    roomId = chatRoom.chatRoom.roomId,
+                    createDate = chatRoom.chatRoom.createDate
+                )
             }
         }
     }
@@ -119,7 +105,7 @@ class ChatRepositoryImpl @Inject constructor(
                     sending = true
                 )
                 //로컬 DB에 우선 추가
-                //chatDao.addChat(chat)
+                chatMessageDao.add(chat)
 
                 try {
                     webSocketClient.sendMessage(auth, chat.uuid, roomId, chat.message)
@@ -140,8 +126,8 @@ class ChatRepositoryImpl @Inject constructor(
         addChat(roomId, "", uuid)
 
         //로컬 DB에 추가하기
-        /*loggedInUserDao.getLoggedInUser1()?.userId?.let {
-            chatDao.addImage1(
+        loggedInUserDao.getLoggedInUser()?.userId?.let {
+            /*chatMessageDao.addImage(
                 parentUuid = uuid,
                 roomId = roomId,
                 userId = it,
@@ -152,35 +138,13 @@ class ChatRepositoryImpl @Inject constructor(
                 uploadedDate = "",
                 sending = true,
                 message = message,
-            )
-        }*/
+            )*/
+        }
     }
 
     override fun getChatsFlow(roomId: Int): Flow<List<ChatMessage>> {
-        return chatMessageDao.findByRoomId(roomId = roomId).map {
-            it.map {
-                ChatMessage(
-                    uuid = it.chatMessage.uuid,
-                    roomId = roomId,
-                    userId = it.user.userId,
-                    message = it.chatMessage.message,
-                    createDate = it.chatMessage.createDate,
-                    sending = it.chatMessage.sending,
-                    user = it.user.user,
-                    images = it.images.map { ChatImage(
-                        parentUuid = it.parentUuid,
-                        uuid = it.uuid,
-                        roomId = roomId,
-                        userId = it.userId,
-                        localUri = it.localUri,
-                        url = it.url,
-                        createDate = it.createDate,
-                        uploadedDate = it.uploadedDate,
-                        sending = it.sending,
-                        failed = it.failed
-                    ) }
-                )
-            }
+        return chatMessageDao.findByRoomId(roomId = roomId).map { chatMessageUserImages ->
+            chatMessageUserImages.map { it.chatMessage(roomId) }
         }
     }
 
@@ -194,9 +158,9 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun removeAll() {
-//        chatDao.deleteAllChatRoom()
-//        chatDao.deleteAllParticipants()
-//        chatDao.deleteAllChat()
+        chatRoomDao.deleteAll()
+        chatMessageDao.deleteAll()
+        chatParticipantsDao.deleteAll()
     }
 
     override suspend fun updateFailedUploadImage(roomId: Int) {

@@ -1,15 +1,19 @@
 package com.sarang.torang.di.repository
 
 import com.google.gson.Gson
+import com.sarang.torang.BuildConfig
 import com.sarang.torang.data.Restaurant
 import com.sarang.torang.core.database.model.chat.ChatRoomEntity
 import com.sarang.torang.core.database.model.chat.embedded.ChatMessageUserImages
+import com.sarang.torang.core.database.model.chat.embedded.ChatParticipantUser
 import com.sarang.torang.core.database.model.feed.FeedEntity
 import com.sarang.torang.core.database.model.restaurant.RestaurantEntity
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
 import com.sarang.torang.core.database.model.restaurant.SearchedRestaurantEntity
 import com.sarang.torang.core.database.model.user.LoggedInUserEntity
 import com.sarang.torang.core.database.model.user.UserEntity
+import com.sarang.torang.data.ChatImage
+import com.sarang.torang.data.ChatMessage
 import com.sarang.torang.data.User
 import com.sarang.torang.data.remote.response.ChatRoomApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
@@ -74,3 +78,38 @@ val UserEntity.user : User get() =
         createDate = this.createDate,
         profilePicUrl = this.profilePicUrl
     )
+
+val ChatParticipantUser.user get() = User(
+    userId = this.userEntity?.userId ?: -1,
+    userName = this.userEntity?.userName ?: "사용자 정보 없음.",
+    email = this.userEntity?.email ?: "",
+    loginPlatform = this.userEntity?.loginPlatform ?: "",
+    createDate = this.userEntity?.createDate ?: "",
+    profilePicUrl = BuildConfig.PROFILE_IMAGE_SERVER_URL + (this.userEntity?.createDate ?: "")
+)
+
+fun  ChatMessageUserImages.chatMessage(roomId: Int) : ChatMessage {
+    return ChatMessage(
+        uuid = chatMessage.uuid,
+        roomId = roomId,
+        userId = user.userId,
+        message = chatMessage.message,
+        createDate = chatMessage.createDate,
+        sending = chatMessage.sending,
+        user = user.user,
+        images = images.map {
+            ChatImage(
+                parentUuid = it.parentUuid,
+                uuid = it.uuid,
+                roomId = roomId,
+                userId = it.userId,
+                localUri = it.localUri,
+                url = it.url,
+                createDate = it.createDate,
+                uploadedDate = it.uploadedDate,
+                sending = it.sending,
+                failed = it.failed
+            )
+        }
+    )
+}
