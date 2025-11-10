@@ -7,6 +7,7 @@ import com.sarang.torang.BuildConfig
 import com.sarang.torang.api.ApiChat
 import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.UserDao
+import com.sarang.torang.core.database.dao.chat.ChatImageDao
 import com.sarang.torang.core.database.dao.chat.ChatMessageDao
 import com.sarang.torang.core.database.dao.chat.ChatParticipantsDao
 import com.sarang.torang.core.database.dao.chat.ChatRoomDao
@@ -23,6 +24,7 @@ import com.sarang.torang.data.ChatMessage
 import com.sarang.torang.data.ChatRoom
 import com.sarang.torang.data.User
 import com.sarang.torang.data.remote.response.ChatApiModel
+import com.sarang.torang.data.remote.response.ChatRoomApiModel
 import com.sarang.torang.di.torang_database_di.chatParticipantsEntityList
 import com.sarang.torang.di.torang_database_di.chatRoomEntityList
 import com.sarang.torang.di.torang_database_di.chats
@@ -51,8 +53,9 @@ class ChatRepositoryImpl @Inject constructor(
     private val sessionService      : SessionService,
     private val userDao             : UserDao,
     private val loggedInUserDao     : LoggedInUserDao,
-) :
-    ChatRepository {
+    private val chatImageDao        : ChatImageDao
+) : ChatRepository {
+    val tag = "__ChatRepositoryImpl"
     private var webSocketClient = WebSocketClient()
     private val uploadingList: ArrayList<String> = ArrayList()
 
@@ -67,8 +70,7 @@ class ChatRepositoryImpl @Inject constructor(
             return Result.failure(Exception("채팅방 정보를 가져오는데 실패하였습니다."))
         }
 
-        chatRoomDao.deleteAll()
-        chatParticipantsDao.deleteAll()
+        removeAll()
         chatRoomDao.addAll(chatRooms.chatRoomEntityList)
         chatParticipantsDao.addAll(chatRooms.chatParticipantsEntityList
             .filter { it.userId != user.userId } // 로그인 사용자는 제외하고 넣기. 나중에 채팅방 불러올 때 처리 까다로움.
@@ -82,7 +84,7 @@ class ChatRepositoryImpl @Inject constructor(
         return chatRoomsFlow.map { chatRooms ->
             chatRooms.map { chatRoom ->
                 ChatRoom(
-                    chatParticipants = chatRoom.chatParticipants.map { it.user },
+                    chatParticipants = chatRoom.chatParticipants.map { it.userEntity.user },
                     roomId = chatRoom.chatRoom.roomId,
                     createDate = chatRoom.chatRoom.createDate
                 )
@@ -118,7 +120,7 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun addImageChat(roomId: Int, message: List<String>, uuid: String) {
-        Log.d("__ChatRepositoryImpl", "request add image : $message")
+        Log.d(tag, "request add image : $message")
 
         uploadingList.addAll(message)
 
@@ -127,7 +129,7 @@ class ChatRepositoryImpl @Inject constructor(
 
         //로컬 DB에 추가하기
         loggedInUserDao.getLoggedInUser()?.userId?.let {
-            /*chatMessageDao.addImage(
+            chatImageDao.addAll(
                 parentUuid = uuid,
                 roomId = roomId,
                 userId = it,
@@ -138,7 +140,7 @@ class ChatRepositoryImpl @Inject constructor(
                 uploadedDate = "",
                 sending = true,
                 message = message,
-            )*/
+            )
         }
     }
 
@@ -152,7 +154,7 @@ class ChatRepositoryImpl @Inject constructor(
         val token = sessionService.getToken() ?: throw Exception("로그인을 해주세요.")
 
         val result : List<ChatApiModel> = apiChat.getContents(token, roomId)
-        Log.d("__ChatRepositoryImpl", "loaded chat roomId : $roomId, chatSize: ${result.size}")
+        Log.d(tag, "loaded chat roomId : $roomId, chatSize: ${result.size}")
 
         chatMessageDao.addAll(result.chats)
     }
@@ -164,47 +166,35 @@ class ChatRepositoryImpl @Inject constructor(
     }
 
     override suspend fun updateFailedUploadImage(roomId: Int) {
-//        chatDao.updateFailedSendImages(uploadingList, roomId)
+        chatImageDao.update(uploadingList, roomId)
     }
 
     override suspend fun getUserOrCreateRoomByUserId(userId: Int): ChatRoom {
-        //var chatRoom = chatDao.getChatRoomByUserId(userId)
+        var chatRoom = chatRoomDao.findByUserId(userId)
 
-        /*if (chatRoom == null) {
-            val result = apiChat.createChatRoom(sessionService.getToken() ?: "", userId)
-            chatDao.addAll(listOf(result.toChatRoomEntity()))
-            //TODO::데이터 변환하기
-            userDao.insertOrUpdateUser(*//*result.users*//*)
-            //TODO::데이터 변환하기
-            chatDao.insertParticipants(*//*listOf(result)*//*)
-        }*/
+        if (chatRoom == null) {
+            val result : ChatRoomApiModel = apiChat.createChatRoom(sessionService.getToken() ?: "", userId)
+            chatRoomDao.addAll(listOf(result.toChatRoomEntity()))
+            userDao.insertOrUpdateUser(result.users.map { it.user })
+            chatParticipantsDao.addAll(result.participants)
+        }
 
-        //chatRoom = chatDao.getChatRoomByUserId(userId)
+        chatRoom = chatRoomDao.findByUserId(userId) ?: throw Exception("채팅방 생성에 실패 하였습니다.")
 
-        /*if (chatRoom == null)
-            throw throw Exception("채팅방 생성에 실패 하였습니다.")*/
-
-        /*val participantsWithUserEntity =
-            chatDao.getParticipantsWithUsers(chatRoom.chatRoomEntity.roomId)
-                ?: throw throw Exception("참여자 정보를 가져오는데 실패했습니다.")*/
+        val chatParticipantUserList : List<ChatParticipantUser> =
+            chatParticipantsDao.findByRoomId(chatRoom.roomId)
 
         return ChatRoom(
-            roomId = 0,
-            createDate = "",
-            chatParticipants = listOf()
-        )
-
-        /*return ChatRoomWithParticipantsAndUsers(
-            chatRoomEntity = chatRoom.chatRoomEntity,
-            participantsWithUsers = participantsWithUserEntity.map {
-                ParticipantsWithUser(
-                    roomId = it.participantsEntity.roomId,
+            roomId = chatRoom.roomId,
+            createDate = chatRoom.createDate,
+            chatParticipants = chatParticipantUserList.map {
+                User(
                     userId = it.userEntity.userId,
                     userName = it.userEntity.userName,
                     profilePicUrl = it.userEntity.profilePicUrl,
                 )
             }
-        )*/
+        )
     }
 
     private fun connectWebSocket(){
@@ -223,8 +213,8 @@ class ChatRepositoryImpl @Inject constructor(
                 if (it.command == "MESSAGE") {
                     it.payload?.let {
                         val chat = GsonBuilder().create().fromJson(it, ChatApiModel::class.java)
-//                        chatDao.delete(chat.uuid)
-//                        chatDao.addChat(chat.toChatEntity())
+                        chatMessageDao.delete(chat.uuid)
+                        chatMessageDao.add(chat.chat)
                     }
                 }
             }
@@ -240,20 +230,3 @@ class ChatRepositoryImpl @Inject constructor(
         webSocketClient.unSubscribe(topic)
     }
 }
-
-/*fun ChatApiModel.toChatEntity(): ChatRoomEntity = ChatRoomEntity(
-    roomId = roomId,
-    createDate = createDate,
-    message = message,
-    userId = userId,
-    uuid = uuid,
-    sending = false // 전송 완료
-)*/
-
-/*
-fun ParticipantsWithUserEntity.toParticipantsWithUser(): ParticipantsWithUser = ParticipantsWithUser(
-    roomId = this.participantsEntity.roomId,
-    userId = this.userEntity.userId,
-    userName = this.userEntity.userName,
-    profilePicUrl = this.userEntity.profilePicUrl,
-)*/
