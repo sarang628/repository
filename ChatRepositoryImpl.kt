@@ -40,6 +40,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import java.text.SimpleDateFormat
 import java.util.Locale
+import java.util.UUID
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.collections.map
@@ -92,7 +93,7 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun addChat(roomId: Int, message: String, uuid: String, ) {
+    override suspend fun addChat(roomId: Int, message: String, uuid : String) {
         sessionService.getToken()?.let { auth ->
             loggedInUserDao.getLoggedInUser()?.userId?.let {
                 val chat = ChatMessageEntity(
@@ -119,7 +120,8 @@ class ChatRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun addImageChat(roomId: Int, message: List<String>, uuid: String) {
+    override suspend fun addImageChat(roomId: Int, message: List<String>) {
+        val uuid: String = UUID.randomUUID().toString()
         Log.d(tag, "request add image : $message")
 
         uploadingList.addAll(message)
@@ -167,6 +169,14 @@ class ChatRepositoryImpl @Inject constructor(
 
     override suspend fun updateFailedUploadImage(roomId: Int) {
         chatImageDao.update(uploadingList, roomId)
+    }
+
+    override suspend fun deleteChatRoom(roomId: Int) {
+        chatRoomDao.deleteById(roomId)
+    }
+
+    override suspend fun deleteParticipantsByChatRoomId(roomId: Int) {
+        chatParticipantsDao.deleteByRoomId(roomId)
     }
 
     override suspend fun createChatRoomByUserId(userId: Int): ChatRoom {
