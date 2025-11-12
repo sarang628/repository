@@ -169,7 +169,7 @@ class ChatRepositoryImpl @Inject constructor(
         chatImageDao.update(uploadingList, roomId)
     }
 
-    override suspend fun getUserOrCreateRoomByUserId(userId: Int): ChatRoom {
+    override suspend fun createChatRoomByUserId(userId: Int): ChatRoom {
         var chatRoom = chatRoomDao.findByUserId(userId)
 
         if (chatRoom == null) {
