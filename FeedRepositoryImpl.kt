@@ -9,6 +9,7 @@ import com.sarang.torang.api.handle
 import com.sarang.torang.core.database.dao.FavoriteDao
 import com.sarang.torang.core.database.dao.FeedDao
 import com.sarang.torang.core.database.dao.LikeDao
+import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.MyFeedDao
 import com.sarang.torang.core.database.dao.PictureDao
 import com.sarang.torang.core.database.dao.UserDao
@@ -42,6 +43,7 @@ class FeedRepositoryImpl @Inject constructor(
     private val likeDao: LikeDao,
     private val favoriteDao: FavoriteDao,
     private val sessionClientService: SessionClientService,
+    private val loggedInUserDao: LoggedInUserDao
 ) : FeedRepository {
     private val tag: String = "__FeedRepositoryImpl"
     private val loadTrigger = MutableStateFlow(false)
@@ -150,6 +152,16 @@ class FeedRepositoryImpl @Inject constructor(
         //로컬 저장소에서 삭제
         feedDao.deleteFeed(reviewId)
     }
+
+    override suspend fun loadFeedByRestaurantId(restaurantId: Int) {
+        val feedList = apiFeedV1.findByUserAndRestaurantId(
+            auth = sessionClientService.getToken()?:"",
+            userId = loggedInUserDao.getLoggedInUser()?.userId ?: 0,
+            restaurantId = restaurantId
+        )
+        insertFeed(feedList)
+    }
+
     @Transaction
     override suspend    fun deleteAll() {
         feedDao.deleteAll()
