@@ -2,6 +2,7 @@ package com.sarang.torang.di.repository
 
 import android.content.Context
 import com.sarang.torang.api.ApiReview
+import com.sarang.torang.api.ApiReviewV1
 import com.sarang.torang.api.handle
 import com.sarang.torang.core.database.dao.FeedDao
 import com.sarang.torang.core.database.dao.LoggedInUserDao
@@ -13,6 +14,7 @@ import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.di.torang_database_di.toFeedEntity
 import com.sarang.torang.di.torang_database_di.toReviewImage
 import com.sarang.torang.repository.review.ReviewRepository
+import com.sarang.torang.session.SessionService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -26,14 +28,20 @@ import javax.inject.Singleton
 class ReviewRepositoryImpl @Inject constructor(
     @ApplicationContext context: Context,
     private val apiReview: ApiReview,
+    private val apiReviewV1: ApiReviewV1,
     private val restaurantDao: RestaurantDao,
     private val loggedInUserDao: LoggedInUserDao,
     private val reviewDao: ReviewDao,
     private val pictureDao: PictureDao,
     private val feedDao: FeedDao,
+    private val sessionService: SessionService,
 ) : ReviewRepository {
     override suspend fun getReviews(restaurantId: Int): List<FeedApiModel> {
-        return apiReview.getReviews(restaurantId)
+
+        return apiReviewV1.getReviewsByRestaurantId(
+            auth = sessionService.getToken() ?: "",
+            restaurantId = restaurantId
+        )
     }
 
     override suspend fun addReview(
