@@ -37,7 +37,7 @@ class LikeRepositoryImpl @Inject constructor(
         val token = sessionClientService.getToken()
         if (token != null) {
             val result = apiLike.addLike(token, reviewId)
-            likeDao.insertLike(result.toLikeEntity())
+            likeDao.add(result.toLikeEntity())
             feedDao.addLikeCount(reviewId)
         } else {
             throw Exception("로그인을 해주세요.")
@@ -45,11 +45,9 @@ class LikeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteLike(reviewId: Int) {
-        val like = likeDao.getLike1(reviewId = reviewId)
+        val like = likeDao.getByReviewId(reviewId = reviewId)
         val remoteLike = apiLike.deleteLike(like.likeId)
-        likeDao.deleteLike(
-            remoteLike.toLikeEntity()
-        )
+        likeDao.delete(remoteLike.likeId)
         feedDao.subTractLikeCount(reviewId)
     }
 }

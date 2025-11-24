@@ -93,7 +93,7 @@ class MyReviewRepositoryImpl @Inject constructor(
             }
 
         }
-        feedDao.insertAll(feeds)
+        feedDao.addAll(feeds)
         pictureDao.insertPictures(images)
     }
 
@@ -142,7 +142,7 @@ class MyReviewRepositoryImpl @Inject constructor(
             }
 
         }
-        feedDao.insertAll(feeds)
+        feedDao.addAll(feeds)
         pictureDao.insertPictures(images)
     }
 
@@ -195,7 +195,7 @@ class MyReviewRepositoryImpl @Inject constructor(
                 }
 
             }
-            feedDao.insertAll(feeds)
+            feedDao.addAll(feeds)
             //userDao.deletePicturesByReviewId(review.reviewAndImage.review!!.review_id)
             pictureDao.insertPictures(images)
         } catch (e: Exception) {

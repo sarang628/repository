@@ -26,7 +26,7 @@ class ReportRepositoryImpl @Inject constructor(
 
         if (reportService.reportReason(reviewId = reviewId, reason = reportReason.name)) {
             //신고 성공 후 해당 피드 로컬 데이터에서 삭제하기
-            feedDao.deleteFeed(reviewId)
+            feedDao.deleteByReviewId(reviewId)
             return true
         }
         return false

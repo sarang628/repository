@@ -51,13 +51,13 @@ class FeedRepositoryImpl @Inject constructor(
     override val feeds: Flow<List<ReviewAndImageEntity>?> =
         loadTrigger.flatMapLatest { shouldLoad ->
             if (shouldLoad) {
-                feedDao.getAllFeedWithUser()
+                feedDao.getAllFlow()
             } else {
                 flowOf(null)
             }
         }
     override            fun restaurantFeedsFlow(restaurantId: Int): Flow<List<ReviewAndImageEntity>> {
-        return feedDao.getFeedByRestaurantId(restaurantId)
+        return feedDao.getAllByRestaurantIdFlow(restaurantId)
     }
     suspend fun initLoaded(){
         if (loadTrigger.value != true)
@@ -91,7 +91,7 @@ class FeedRepositoryImpl @Inject constructor(
             throw Exception(e.handle())
         }
 
-        return feedDao.getFeed(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
+        return feedDao.get(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
     }
     override suspend    fun findById(reviewId: Int, count: Int) {
         val feedList = apiFeed.getNextReviewsByReviewId(
@@ -150,7 +150,7 @@ class FeedRepositoryImpl @Inject constructor(
         //원격 저장소 요청
         apiFeed.deleteReview(reviewId)
         //로컬 저장소에서 삭제
-        feedDao.deleteFeed(reviewId)
+        feedDao.deleteByReviewId(reviewId)
     }
 
     override suspend fun loadFeedByRestaurantId(restaurantId: Int) {
@@ -186,6 +186,6 @@ class FeedRepositoryImpl @Inject constructor(
         TODO("Not yet implemented")
     }
     override            fun findByPictureIdFlow(pictureId: Int): Flow<ReviewAndImageEntity?> {
-        return feedDao.getFeedByPictureId(pictureId)
+        return feedDao.getByPictureIdFlow(pictureId)
     }
 }

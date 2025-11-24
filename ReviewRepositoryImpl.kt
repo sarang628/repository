@@ -103,7 +103,7 @@ class ReviewRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getReview(reviewId: Int): ReviewAndImageEntity {
-        return feedDao.getFeed(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
+        return feedDao.get(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
     }
 }
 
