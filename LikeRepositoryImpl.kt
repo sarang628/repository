@@ -1,5 +1,6 @@
 package com.sarang.torang.di.repository
 
+import android.util.Log
 import com.sarang.torang.api.ApiLike
 import com.sarang.torang.api.feed.ApiFeed
 import com.sarang.torang.core.database.dao.FeedDao
@@ -23,6 +24,7 @@ class LikeRepositoryImpl @Inject constructor(
     val apiFeed : ApiFeed,
     val sessionClientService: SessionClientService
 ) : LikeRepository {
+    val tag = "__LikeRepositoryImpl"
     override suspend fun getLikeUserFromReview(reviewId: Int): List<FollowerApiModel> {
         val token = session.getToken()
         if (token != null) {
@@ -45,9 +47,12 @@ class LikeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteLike(reviewId: Int) {
-        val like = likeDao.getByReviewId(reviewId = reviewId)
-        val remoteLike = apiLike.deleteLike(like.likeId)
-        likeDao.delete(remoteLike.likeId)
-        feedDao.subTractLikeCount(reviewId)
+        likeDao.getByReviewId(reviewId = reviewId)?.let {
+            val remoteLike = apiLike.deleteLike(it.likeId)
+            likeDao.delete(remoteLike.likeId)
+            feedDao.subTractLikeCount(reviewId)
+        } ?: run {
+            Log.e(tag, "nothing like reviewId : ${reviewId}")
+        }
     }
 }
