@@ -153,7 +153,7 @@ class FeedRepositoryImpl @Inject constructor(
         feedDao.deleteByReviewId(reviewId)
     }
 
-    override suspend fun loadFeedByRestaurantId(restaurantId: Int) {
+    suspend fun loadFeedByRestaurantId(restaurantId: Int) {
         val feedList = apiFeedV1.findByUserAndRestaurantId(
             auth = sessionClientService.getToken()?:"",
             userId = loggedInUserDao.getLoggedInUser()?.userId ?: 0,
