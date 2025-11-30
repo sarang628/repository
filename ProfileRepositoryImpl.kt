@@ -82,13 +82,14 @@ class ProfileRepositoryImpl @Inject constructor(
     override suspend fun loadMyFeed(userId: Int) {
         val feedList = apiReview.getMyReviewsByUserId(userId)
         try {
-            deleteFeedAll()
             myFeedDao.insertAll(feedList.map { it.toMyFeedEntity() })
 
             val list = feedList
                 .map { it.pictures }
                 .flatMap { it }
                 .map { it.toReviewImage() }
+
+            myFeedDao.insertAll(feedList.map { it.toMyFeedEntity() })
 
             myFeedDao.insertAllFeed(
                 feedList = feedList.map { it.toMyFeedEntity() },
