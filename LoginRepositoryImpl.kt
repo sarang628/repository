@@ -1,11 +1,14 @@
 package com.sarang.torang.di.repository
 
 import android.util.Log
+import com.sarang.torang.BuildConfig
 import com.sarang.torang.api.ApiJoin
 import com.sarang.torang.api.ApiLogin
 import com.sarang.torang.api.handle
 import com.sarang.torang.core.database.dao.LoggedInUserDao
+import com.sarang.torang.core.database.dao.UserDao
 import com.sarang.torang.core.database.model.user.LoggedInUserEntity
+import com.sarang.torang.core.database.model.user.UserEntity
 import com.sarang.torang.data.User
 import com.sarang.torang.data.remote.response.UserApiModel
 import com.sarang.torang.repository.ChatRepository
@@ -31,31 +34,42 @@ class LoginRepositoryImpl @Inject constructor(
     private val sessionService: SessionService,
     private val loggedInUserDao: LoggedInUserDao,
     private val chatRepository: ChatRepository,
-    private val encrypt: TorangRepositoryEncrypt
+    private val encrypt: TorangRepositoryEncrypt,
+    private val userDao : UserDao
 ) : LoginRepository {
     /** 로그인 여부를 관찰하는 Flow */
     override val isLogin: Flow<Boolean> get() = loggedInUserDao.getLoggedInUserFlow().map { it != null }
 
     override val loginUser: Flow<User?>
         get() = loggedInUserDao.getLoggedInUserFlow().map {
-            it?.let {
-                User(
-                    userName = it.userName,
-                    profilePicUrl = it.profilePicUrl,
-                    userId = it.userId,
-                    email = it.email,
-                    loginPlatform = it.loginPlatform,
-                    createDate = it.createDate
-                    )
-            }
+            it?.let { User(userName = it.userName,
+                           profilePicUrl = it.profilePicUrl,
+                           userId = it.userId,
+                           email = it.email,
+                           loginPlatform = it.loginPlatform,
+                           createDate = it.createDate) }
         }
+
+    val UserApiModel.userEntity : UserEntity get() = UserEntity(
+        userId = this.userId,
+        userName = this.userName,
+        email = this.email ?: "",
+        loginPlatform = this.loginPlatform ?: "",
+        createDate = this.createDate ?: "",
+        profilePicUrl = BuildConfig.REVIEW_IMAGE_SERVER_URL + this.profilePicUrl,
+        reviewCount = this.post.toString(),
+        following = this.following.toString(),
+        followers = this.follower.toString()
+    )
 
     override suspend fun emailLogin(email: String, password: String) {
         try {
-            val result = apiLogin.emailLogin(email = email, password = encrypt.encrypt(password))
+            val result = apiLogin.emailLogin(email = email,
+                                             password = encrypt.encrypt(password))
             loggedInUserDao.insert(
                 result.profile.toLoggedInUserEntity()
             )
+            userDao.addUser(result.profile.userEntity)
             sessionService.saveToken(result.token)
         } catch (e: HttpException) {
             Log.e("__LoginRepositoryImpl", "emailLogin: ${e.message()}")
