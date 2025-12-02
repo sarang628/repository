@@ -3,10 +3,12 @@ package com.sarang.torang.di.repository
 import com.sarang.torang.api.feed.ApiFeed
 import com.sarang.torang.core.database.dao.FavoriteDao
 import com.sarang.torang.core.database.dao.FeedDao
+import com.sarang.torang.core.database.model.favorite.FavoriteEntity
 import com.sarang.torang.di.torang_database_di.toFavoriteEntity
 import com.sarang.torang.repository.FavoriteRepository
 import com.sarang.torang.session.SessionClientService
 import com.sarang.torang.session.SessionService
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -39,5 +41,9 @@ class FavoriteRepositoryImpl @Inject constructor(
         } else {
             throw Exception("로그인을 해주세요.")
         }
+    }
+
+    override fun findByReviewIdFlow(reviewId: Int): Flow<FavoriteEntity> {
+        return favoriteDao.getFavorite(reviewId)
     }
 }

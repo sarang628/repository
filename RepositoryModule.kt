@@ -9,7 +9,7 @@ import com.sarang.torang.repository.FollowRepository
 import com.sarang.torang.repository.LikeRepository
 import com.sarang.torang.repository.LoginRepository
 import com.sarang.torang.repository.MapRepository
-import com.sarang.torang.repository.ProfileRepository
+import com.sarang.torang.repository.UserRepository
 import com.sarang.torang.repository.RestaurantRepository
 import com.sarang.torang.repository.comment.CommentRepository
 import com.sarang.torang.repository.review.ReviewRepository
@@ -22,7 +22,7 @@ import dagger.hilt.components.SingletonComponent
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
-    @Binds abstract fun provideProfileRepository    (profileRepository: ProfileRepositoryImpl)      : ProfileRepository
+    @Binds abstract fun provideProfileRepository    (profileRepository: UserRepositoryImpl)      : UserRepository
     @Binds abstract fun provideEditProfileRepository(profileRepository: EditProfileRepositoryImpl)  : EditProfileRepository
     @Binds abstract fun provideInfoRepository       (infoRepositoryImpl: RestaurantRepositoryImpl)  : RestaurantRepository
     @Binds abstract fun provideReviewRepository     (reviewRepositoryImpl: ReviewRepositoryImpl)    : ReviewRepository

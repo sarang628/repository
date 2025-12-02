@@ -3,6 +3,7 @@ package com.sarang.torang.di.repository
 import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
+import com.sarang.torang.api.ApiReview
 import com.sarang.torang.api.feed.ApiFeed
 import com.sarang.torang.api.feed.ApiFeedV1
 import com.sarang.torang.api.handle
@@ -14,6 +15,7 @@ import com.sarang.torang.core.database.dao.MyFeedDao
 import com.sarang.torang.core.database.dao.PictureDao
 import com.sarang.torang.core.database.dao.UserDao
 import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
+import com.sarang.torang.core.database.model.image.ReviewImageEntity
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.di.torang_database_di.toFavoriteEntity
 import com.sarang.torang.di.torang_database_di.toFeedEntity
@@ -43,7 +45,8 @@ class FeedRepositoryImpl @Inject constructor(
     private val likeDao: LikeDao,
     private val favoriteDao: FavoriteDao,
     private val sessionClientService: SessionClientService,
-    private val loggedInUserDao: LoggedInUserDao
+    private val loggedInUserDao: LoggedInUserDao,
+    private val apiReview: ApiReview
 ) : FeedRepository {
     private val tag: String = "__FeedRepositoryImpl"
     private val loadTrigger = MutableStateFlow(false)
@@ -63,7 +66,7 @@ class FeedRepositoryImpl @Inject constructor(
         if (loadTrigger.value != true)
             loadTrigger.emit(true)
     }
-    override suspend    fun findAll() {
+    override suspend    fun loadAll() {
         val feedList = apiFeed.getFeeds(sessionClientService.getToken())
         try {
             deleteAll()
@@ -93,7 +96,7 @@ class FeedRepositoryImpl @Inject constructor(
 
         return feedDao.get(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
     }
-    override suspend    fun findById(reviewId: Int, count: Int) {
+    override suspend    fun loadById(reviewId: Int, count: Int) {
         val feedList = apiFeed.getNextReviewsByReviewId(
             auth = sessionClientService.getToken(),
             reviewId = reviewId,
@@ -109,7 +112,7 @@ class FeedRepositoryImpl @Inject constructor(
             throw Exception("피드를 가져오는데 실패하였습니다.")
         }
     }
-    override suspend    fun findByPage(page: Int) {
+    override suspend    fun loadByPage(page: Int) {
         try {
             if (page == 0) {
                 deleteAll()
@@ -129,7 +132,7 @@ class FeedRepositoryImpl @Inject constructor(
     override            fun findMyFeedById(reviewId: Int): Flow<List<ReviewAndImageEntity>> {
         return myFeedDao.getMyFeedByReviewId(reviewId)
     }
-    override suspend    fun findByRestaurantId(restaurantId: Int) {
+    override suspend    fun loadByRestaurantId(restaurantId: Int) {
         val result = apiFeedV1.findByRestaurantId(sessionClientService.getToken(), restaurantId)
         insertFeed(result)
     }
@@ -153,6 +156,14 @@ class FeedRepositoryImpl @Inject constructor(
         feedDao.deleteByReviewId(reviewId)
     }
 
+    override fun findByUserIdFlow(userId: Int): Flow<List<ReviewAndImageEntity>> {
+        return myFeedDao.getMyFeed(userId)
+    }
+
+    override fun findFavoriteByUserIdFlow(): Flow<List<ReviewAndImageEntity>> {
+        return favoriteDao.getMyFavorite()
+    }
+
     suspend fun loadFeedByRestaurantId(restaurantId: Int) {
         val feedList = apiFeedV1.findByUserAndRestaurantId(
             auth = sessionClientService.getToken()?:"",
@@ -160,6 +171,37 @@ class FeedRepositoryImpl @Inject constructor(
             restaurantId = restaurantId
         )
         insertFeed(feedList)
+    }
+
+    override suspend fun loadByUserId(userId: Int) {
+        val feedList = apiReview.getMyReviewsByUserId(userId)
+        try {
+            myFeedDao.insertAll(feedList.map { it.toMyFeedEntity() })
+
+            val list = feedList.map { it.pictures }
+                .flatMap { it }
+                .map { it.toReviewImage() }
+
+            myFeedDao.insertAll(feedList.map { it.toMyFeedEntity() })
+
+            myFeedDao.insertAllFeed(feedList     = feedList.map { it.toMyFeedEntity() },
+                userDao      = userDao,
+                pictureDao   = pictureDao,
+                likeDao      = likeDao,
+                favoriteDao  = favoriteDao,
+                reviewImages = list,
+                userList     = feedList.map { it.toUserEntity() },
+                likeList     = feedList.filter { it.like != null }
+                    .map { it.like!!.toLikeEntity() },
+                favorites    = feedList.filter { it.favorite != null }
+                    .map { it.favorite!!.toFavoriteEntity() }
+            )
+        } catch (e: Exception) {
+            Log.e("FeedRepositoryImpl", e.toString())
+            Log.e("FeedRepositoryImpl",
+                Gson().newBuilder().setPrettyPrinting().create().toJson(feedList))
+            throw Exception("피드를 가져오는데 실패하였습니다.")
+        }
     }
 
     @Transaction
@@ -187,5 +229,9 @@ class FeedRepositoryImpl @Inject constructor(
     }
     override            fun findByPictureIdFlow(pictureId: Int): Flow<ReviewAndImageEntity?> {
         return feedDao.getByPictureIdFlow(pictureId)
+    }
+
+    override fun getReviewImages(reviewId: Int): Flow<List<ReviewImageEntity>> {
+        return myFeedDao.getReviewImages(reviewId)
     }
 }
