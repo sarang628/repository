@@ -1,12 +1,10 @@
 package com.sarang.torang.di.repository
 
-import android.content.Context
 import com.sarang.torang.api.ApiProfile
+import com.sarang.torang.data.EditProfileResponse
 import com.sarang.torang.repository.EditProfileRepository
-import com.sarang.torang.repository.EditProfileResponse
 import com.sarang.torang.session.SessionClientService
 import com.sarang.torang.util.CountingFileRequestBody
-import dagger.hilt.android.qualifiers.ApplicationContext
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -17,7 +15,6 @@ import javax.inject.Singleton
 
 @Singleton
 class EditProfileRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val apiProfile: ApiProfile,
     private val sessionClientService: SessionClientService
 ) : EditProfileRepository {

@@ -76,7 +76,7 @@ class ChatRepositoryImpl @Inject constructor(
         chatParticipantsDao.addAll(chatRooms.chatParticipantsEntityList
             .filter { it.userId != user.userId } // 로그인 사용자는 제외하고 넣기. 나중에 채팅방 불러올 때 처리 까다로움.
         )
-        userDao.insertOrUpdateUser(chatRooms.users)
+        userDao.insertOrUpdateUsers(chatRooms.users)
         return Result.success(Unit)
     }
 
@@ -185,7 +185,7 @@ class ChatRepositoryImpl @Inject constructor(
         if (chatRoom == null) {
             val result : ChatRoomApiModel = apiChat.createChatRoom(sessionService.getToken() ?: "", userId)
             chatRoomDao.addAll(listOf(result.toChatRoomEntity()))
-            userDao.insertOrUpdateUser(result.users.map { it.user })
+            userDao.insertOrUpdateUsers(result.users.map { it.user })
             chatParticipantsDao.addAll(result.participants)
         }
 

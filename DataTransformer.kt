@@ -6,6 +6,7 @@ import com.sarang.torang.core.database.model.chat.ChatParticipantsEntity
 import com.sarang.torang.core.database.model.chat.ChatRoomEntity
 import com.sarang.torang.core.database.model.chat.embedded.ChatMessageUserImages
 import com.sarang.torang.core.database.model.chat.embedded.ChatParticipantUser
+import com.sarang.torang.core.database.model.feed.MyFeedEntity
 import com.sarang.torang.core.database.model.restaurant.RestaurantEntity
 import com.sarang.torang.core.database.model.user.LoggedInUserEntity
 import com.sarang.torang.core.database.model.user.UserEntity
@@ -16,6 +17,7 @@ import com.sarang.torang.data.User
 import com.sarang.torang.data.remote.response.ChatApiModel
 import com.sarang.torang.data.remote.response.ChatRoomApiModel
 import com.sarang.torang.data.remote.response.ChatUserApiModel
+import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.data.remote.response.UserApiModel
 
 fun RestaurantEntity.toEntity() : Restaurant{
@@ -112,3 +114,19 @@ val ChatApiModel.chat : ChatMessageEntity get() = ChatMessageEntity(
     createDate = createDate,
     sending = false
 )
+
+fun FeedApiModel.toMyFeedEntity(): MyFeedEntity {
+    return MyFeedEntity(
+        reviewId        = reviewId,
+        userId          = user.userId,
+        contents        = contents,
+        rating          = rating,
+        userName        = user.userName,
+        likeAmount      = like_amount,
+        commentAmount   = comment_amount,
+        restaurantName  = restaurant.restaurantName,
+        restaurantId    = restaurant.restaurantId,
+        createDate      = this.create_date,
+        profilePicUrl   = this.user.profilePicUrl
+    )
+}
