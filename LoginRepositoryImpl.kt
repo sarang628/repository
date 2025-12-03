@@ -6,6 +6,7 @@ import com.sarang.torang.api.ApiJoin
 import com.sarang.torang.api.ApiLogin
 import com.sarang.torang.api.handle
 import com.sarang.torang.core.database.dao.LoggedInUserDao
+import com.sarang.torang.core.database.dao.MyFeedDao
 import com.sarang.torang.core.database.dao.UserDao
 import com.sarang.torang.core.database.model.user.LoggedInUserEntity
 import com.sarang.torang.core.database.model.user.UserEntity
@@ -35,7 +36,8 @@ class LoginRepositoryImpl @Inject constructor(
     private val loggedInUserDao: LoggedInUserDao,
     private val chatRepository: ChatRepository,
     private val encrypt: TorangRepositoryEncrypt,
-    private val userDao : UserDao
+    private val userDao : UserDao,
+    private val myFeedDao: MyFeedDao
 ) : LoginRepository {
     /** 로그인 여부를 관찰하는 Flow */
     override val isLogin: Flow<Boolean> get() = loggedInUserDao.getLoggedInUserFlow().map { it != null }
