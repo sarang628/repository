@@ -58,7 +58,7 @@ class MyReviewsRepositoryImpl @Inject constructor(
 
         }
         feedDao.addAll(feeds)
-        pictureDao.insertPictures(images)
+        pictureDao.addAll(images)
         return list1
     }
 

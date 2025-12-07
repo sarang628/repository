@@ -47,7 +47,7 @@ class LikeRepositoryImpl @Inject constructor(
     }
 
     override suspend fun deleteLike(reviewId: Int) {
-        likeDao.getByReviewId(reviewId = reviewId)?.let {
+        likeDao.findByReviewId(reviewId = reviewId)?.let {
             val remoteLike = apiLike.deleteLike(it.likeId)
             likeDao.delete(remoteLike.likeId)
             feedDao.subTractLikeCount(reviewId)

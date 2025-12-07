@@ -60,7 +60,7 @@ class ReviewRepositoryImpl @Inject constructor(
                 file = filesToMultipart(files)
             )
 
-            pictureDao.insertPictures(
+            pictureDao.addAll(
                 review.pictures.map {
                     it.toReviewImage()
                 }
@@ -93,8 +93,8 @@ class ReviewRepositoryImpl @Inject constructor(
             uploadedImage = uploadedImage
         )
 
-        pictureDao.removePicture(reviewId)
-        pictureDao.insertPictures(
+        pictureDao.delete(reviewId)
+        pictureDao.addAll(
             review.pictures.map {
                 it.toReviewImage()
             }
@@ -103,7 +103,7 @@ class ReviewRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getReview(reviewId: Int): ReviewAndImageEntity {
-        return feedDao.get(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
+        return feedDao.find(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
     }
 }
 

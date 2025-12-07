@@ -94,7 +94,7 @@ class MyReviewRepositoryImpl @Inject constructor(
 
         }
         feedDao.addAll(feeds)
-        pictureDao.insertPictures(images)
+        pictureDao.addAll(images)
     }
 
     override suspend fun modifyReview(review: ReviewAndImageEntity) {
@@ -143,7 +143,7 @@ class MyReviewRepositoryImpl @Inject constructor(
 
         }
         feedDao.addAll(feeds)
-        pictureDao.insertPictures(images)
+        pictureDao.addAll(images)
     }
 
     override suspend fun modifyReview(review: ModifyFeedData) {
@@ -197,7 +197,7 @@ class MyReviewRepositoryImpl @Inject constructor(
             }
             feedDao.addAll(feeds)
             //userDao.deletePicturesByReviewId(review.reviewAndImage.review!!.review_id)
-            pictureDao.insertPictures(images)
+            pictureDao.addAll(images)
         } catch (e: Exception) {
 //            Logger.e(e.toString())
         }

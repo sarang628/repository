@@ -29,19 +29,19 @@ class PicturesRepositoryImpl @Inject constructor(
     }
 
     override fun getFeedPictureFlow(reviewId: Int): Flow<List<ReviewImageEntity>> {
-        return pictureDao.getFeedImageFlow(reviewId)
+        return pictureDao.findByIdFlow(reviewId)
     }
 
     override suspend fun getFeedPicture(reviewId: Int): List<ReviewImageEntity> {
-        return pictureDao.getFeedImage(reviewId)
+        return pictureDao.findAllRestaurantById(reviewId)
     }
 
     override suspend fun getImagesByRestaurantId(restaurantId: Int): List<ReviewImageEntity> {
-        return pictureDao.getFeedImageByRestaurantId(restaurantId)
+        return pictureDao.findByRestaurantId(restaurantId)
     }
 
     override suspend fun getImagesByImageId(imageId: Int): List<ReviewImageEntity> {
-        return pictureDao.getFeedImageByImageId(imageId)
+        return pictureDao.findById(imageId)
     }
 }
 

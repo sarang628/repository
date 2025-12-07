@@ -24,7 +24,7 @@ class FavoriteRepositoryImpl @Inject constructor(
         val token = sessionClientService.getToken()
         if (token != null) {
             val result = apiFeed.addFavorite(token, reviewId)
-            favoriteDao.insertFavorite(result.toFavoriteEntity())
+            favoriteDao.add(result.toFavoriteEntity())
         } else {
             throw Exception("로그인을 해주세요.")
         }
@@ -33,10 +33,10 @@ class FavoriteRepositoryImpl @Inject constructor(
     override suspend fun deleteFavorite(reviewId: Int) {
         val token = sessionClientService.getToken()
         if (token != null) {
-            val favorite = favoriteDao.getFavorite1(reviewId = reviewId)
+            val favorite = favoriteDao.findByReviewId(reviewId = reviewId)
             val remoteFavorite = apiFeed.deleteFavorite(favorite.favoriteId)
-            favoriteDao.deleteFavorite(
-                remoteFavorite.toFavoriteEntity()
+            favoriteDao.delete(
+                favoriteId = remoteFavorite.favorite_id
             )
         } else {
             throw Exception("로그인을 해주세요.")
@@ -44,6 +44,6 @@ class FavoriteRepositoryImpl @Inject constructor(
     }
 
     override fun findByReviewIdFlow(reviewId: Int): Flow<FavoriteEntity> {
-        return favoriteDao.getFavorite(reviewId)
+        return favoriteDao.findByReviewIdFlow(reviewId)
     }
 }

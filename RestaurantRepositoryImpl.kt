@@ -51,7 +51,7 @@ class RestaurantRepositoryImpl @Inject constructor(
 
     override suspend fun loadRestaurantDetail(restaurantId: Int): RestaurantDetail {
         val result : RestaurantDetailApiModel = apiRestaurant.getRestaurantDetail(restaurantId)
-        pictureDao.insertPictures(result.pictures.toReviewImageList())
+        pictureDao.addAll(result.pictures.toReviewImageList())
         return Gson().fromJson<RestaurantDetail>(Gson().toJson(result), RestaurantDetail::class.java)
     }
 }
