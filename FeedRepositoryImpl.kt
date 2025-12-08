@@ -141,7 +141,7 @@ class FeedRepositoryImpl @Inject constructor(
                 )
             }
         )
-
+        favoriteDao.deleteAll()
         val favoriteEntities = result.map {
             FavoriteEntity(reviewId = it.reviewId,
                            favoriteId = it.favoriteId,
