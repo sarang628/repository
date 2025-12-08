@@ -14,6 +14,7 @@ import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.MyFeedDao
 import com.sarang.torang.core.database.dao.PictureDao
 import com.sarang.torang.core.database.dao.UserDao
+import com.sarang.torang.core.database.model.favorite.FavoriteAndImageEntity
 import com.sarang.torang.core.database.model.favorite.FavoriteEntity
 import com.sarang.torang.core.database.model.feed.FeedEntity
 import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
@@ -129,12 +130,17 @@ class FeedRepositoryImpl @Inject constructor(
 
         val result : List<FavoriteFeedApiModel> = apiFeedV1.findByFavorite(token)
 
-        result.forEach {
-            val feed = feedDao.find(it.reviewId)
-            if(feed == null){
-                FeedEntity(reviewId = it.reviewId)
+        pictureDao.addAll(
+            result.map {
+                ReviewImageEntity(
+                    pictureId = it.picture.pictureId,
+                    pictureUrl = it.picture.pictureUrl,
+                    width = it.picture.width,
+                    height = it.picture.height,
+                    reviewId = it.reviewId
+                )
             }
-        }
+        )
 
         val favoriteEntities = result.map {
             FavoriteEntity(reviewId = it.reviewId,
@@ -172,7 +178,7 @@ class FeedRepositoryImpl @Inject constructor(
     override            fun findByUserIdFlow(userId: Int): Flow<List<ReviewAndImageEntity>> {
         return myFeedDao.getMyFeed(userId)
     }
-    override            fun findByFavoriteFlow(): Flow<List<ReviewAndImageEntity>> {
+    override            fun findByFavoriteFlow(): Flow<List<FavoriteAndImageEntity>> {
         return feedDao.findAllByFavoriteFlow()
     }
     override            fun findByLikeFlow(): Flow<List<ReviewAndImageEntity>> {
