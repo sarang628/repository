@@ -20,6 +20,7 @@ import com.sarang.torang.core.database.model.feed.FeedEntity
 import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
 import com.sarang.torang.core.database.model.like.LikeAndImageEntity
+import com.sarang.torang.core.database.model.like.LikeEntity
 import com.sarang.torang.data.remote.response.FavoriteFeedApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.di.torang_database_di.toFavoriteEntity
@@ -151,11 +152,27 @@ class FeedRepositoryImpl @Inject constructor(
         favoriteDao.addAll(favoriteEntities)
     }
     override suspend    fun loadByLike() {
-        sessionClientService.getToken()?.let {
-            apiFeedV1.findByLike(it)
-        } ?: run {
-            throw Exception("로그인을 해주세요.")
+        val token = sessionClientService.getToken() ?: throw Exception("로그인을 해주세요.")
+        val result = apiFeedV1.findByLike(auth = token)
+
+        pictureDao.addAll(
+            result.map {
+                ReviewImageEntity(
+                    pictureId = it.picture.pictureId,
+                    pictureUrl = it.picture.pictureUrl,
+                    width = it.picture.width,
+                    height = it.picture.height,
+                    reviewId = it.reviewId
+                )
+            }
+        )
+        likeDao.deleteAll()
+        val likeEntities = result.map {
+            LikeEntity(reviewId = it.reviewId,
+                likeId = it.likeId,
+                createDate = it.createDate)
         }
+        likeDao.addAll(likeEntities)
     }
     override suspend    fun findAllUserFeedById(reviewId: Int) {
         val feedList = apiFeed.loadUserAllFeedsByReviewId(sessionClientService.getToken(), reviewId)
