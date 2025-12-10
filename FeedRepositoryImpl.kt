@@ -19,6 +19,7 @@ import com.sarang.torang.core.database.model.favorite.FavoriteEntity
 import com.sarang.torang.core.database.model.feed.FeedEntity
 import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
+import com.sarang.torang.core.database.model.like.LikeAndImageEntity
 import com.sarang.torang.data.remote.response.FavoriteFeedApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.di.torang_database_di.toFavoriteEntity
@@ -181,7 +182,7 @@ class FeedRepositoryImpl @Inject constructor(
     override            fun findByFavoriteFlow(): Flow<List<FavoriteAndImageEntity>> {
         return feedDao.findAllByFavoriteFlow()
     }
-    override            fun findByLikeFlow(): Flow<List<ReviewAndImageEntity>> {
+    override            fun findByLikeFlow(): Flow<List<LikeAndImageEntity>> {
         return feedDao.findAllByLikeFlow()
     }
              suspend    fun loadFeedByRestaurantId(restaurantId: Int) {
