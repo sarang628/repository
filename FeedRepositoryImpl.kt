@@ -63,7 +63,8 @@ class FeedRepositoryImpl @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     override val feeds: Flow<List<ReviewAndImageEntity>?> = loadTrigger.flatMapLatest { shouldLoad ->
             if (shouldLoad) {
-                myFeedDao.findAllFlow()
+                mainFeedDao.findAllFlow()
+                //feedDao.findAllFlow()
             } else {
                 flowOf(null)
             }
@@ -72,7 +73,7 @@ class FeedRepositoryImpl @Inject constructor(
         return feedDao.findAllByRestaurantIdFlow(restaurantId)
     }
              suspend    fun initLoaded(){
-        if (loadTrigger.value != true)
+        if (!loadTrigger.value)
             loadTrigger.emit(true)
     }
     override suspend    fun loadById(reviewId: Int, count: Int) {
