@@ -4,11 +4,13 @@ import com.sarang.torang.api.feed.ApiFeed
 import com.sarang.torang.core.database.dao.FavoriteDao
 import com.sarang.torang.core.database.dao.FeedDao
 import com.sarang.torang.core.database.model.favorite.FavoriteEntity
+import com.sarang.torang.data.Favorite
 import com.sarang.torang.di.torang_database_di.toFavoriteEntity
 import com.sarang.torang.repository.FavoriteRepository
 import com.sarang.torang.session.SessionClientService
 import com.sarang.torang.session.SessionService
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -43,7 +45,8 @@ class FavoriteRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun findByReviewIdFlow(reviewId: Int): Flow<FavoriteEntity> {
+    override fun findByReviewIdFlow(reviewId: Int): Flow<Favorite> {
         return favoriteDao.findByReviewIdFlow(reviewId)
+                          .map { Favorite.from(it)!! }
     }
 }

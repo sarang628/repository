@@ -9,7 +9,7 @@ import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.PictureDao
 import com.sarang.torang.core.database.dao.RestaurantDao
 import com.sarang.torang.core.database.dao.ReviewDao
-import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
+import com.sarang.torang.data.ReviewAndImage
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.di.torang_database_di.toFeedEntity
 import com.sarang.torang.di.torang_database_di.toReviewImage
@@ -102,8 +102,9 @@ class ReviewRepositoryImpl @Inject constructor(
         reviewDao.insert(review.toFeedEntity())
     }
 
-    override suspend fun getReview(reviewId: Int): ReviewAndImageEntity {
-        return feedDao.find(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
+    override suspend fun getReview(reviewId: Int): ReviewAndImage {
+        val reviewImageEntity = feedDao.find(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
+        return ReviewAndImage.from(reviewImageEntity)
     }
 }
 

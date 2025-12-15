@@ -3,16 +3,16 @@ package com.sarang.torang.di.repository
 import android.content.Context
 import com.sarang.torang.api.ApiComment
 import com.sarang.torang.api.ApiRestaurant
-import com.sarang.torang.data.remote.response.RemoteComment
-import com.sarang.torang.data.Restaurant
 import com.sarang.torang.core.database.dao.CommentDao
 import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.RestaurantDao
 import com.sarang.torang.core.database.dao.ReviewDao
-import com.sarang.torang.core.database.model.comment.CommentEntity
-import com.sarang.torang.core.database.model.feed.FeedEntity
-import com.sarang.torang.repository.FeedDetailRepository
+import com.sarang.torang.data.Comment
+import com.sarang.torang.data.Feed
+import com.sarang.torang.data.Restaurant
+import com.sarang.torang.data.remote.response.RemoteComment
 import com.sarang.torang.preference.TorangPreference
+import com.sarang.torang.repository.FeedDetailRepository
 import com.sarang.torang.session.SessionService
 import dagger.Binds
 import dagger.Module
@@ -20,7 +20,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,11 +46,12 @@ class FeedDetailRepositoryImpl @Inject constructor(
         return list
     }
 
-    override fun getCommentsFlow(reviewId: Int): Flow<List<CommentEntity>> {
+    override fun getCommentsFlow(reviewId: Int): Flow<List<Comment>> {
         return commentDao.getComments(reviewId)
+                         .map { it.map { Comment.from(it) } }
     }
 
-    override fun getReview(): Flow<FeedEntity> {
+    override fun getReview(): Flow<Feed> {
         throw Exception("")
     }
 
@@ -58,7 +59,7 @@ class FeedDetailRepositoryImpl @Inject constructor(
         throw Exception("")
     }
 
-    override fun getFeed(reviewId: Int): Flow<FeedEntity> {
+    override fun getFeed(reviewId: Int): Flow<Feed> {
         throw Exception("")
     }
 
@@ -84,11 +85,11 @@ class TimeLineDetailRepositoryTestImpl @Inject constructor(
         return ArrayList()
     }
 
-    override fun getCommentsFlow(reviewId: Int): Flow<List<CommentEntity>> {
+    override fun getCommentsFlow(reviewId: Int): Flow<List<Comment>> {
         throw Exception("")
     }
 
-    override fun getReview(): Flow<FeedEntity> {
+    override fun getReview(): Flow<Feed> {
         throw Exception("")
     }
 
@@ -96,7 +97,7 @@ class TimeLineDetailRepositoryTestImpl @Inject constructor(
         throw Exception("")
     }
 
-    override fun getFeed(reviewId: Int): Flow<FeedEntity> {
+    override fun getFeed(reviewId: Int): Flow<Feed> {
         throw Exception("")
     }
 

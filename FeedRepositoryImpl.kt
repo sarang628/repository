@@ -23,6 +23,10 @@ import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
 import com.sarang.torang.core.database.model.like.LikeAndImageEntity
 import com.sarang.torang.core.database.model.like.LikeEntity
+import com.sarang.torang.data.FavoriteAndImage
+import com.sarang.torang.data.LikeAndImage
+import com.sarang.torang.data.ReviewAndImage
+import com.sarang.torang.data.ReviewImage
 import com.sarang.torang.data.remote.response.FavoriteFeedApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.di.torang_database_di.toFavoriteEntity
@@ -37,6 +41,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
@@ -61,15 +66,21 @@ class FeedRepositoryImpl @Inject constructor(
     private val tag: String = "__FeedRepositoryImpl"
     private val loadTrigger = MutableStateFlow(false)
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val feeds: Flow<List<ReviewAndImageEntity>?> = loadTrigger.flatMapLatest { shouldLoad ->
+    override val feeds: Flow<List<ReviewAndImage>?> = loadTrigger.flatMapLatest { shouldLoad ->
             if (shouldLoad) {
-                myFeedDao.findAllFlow()
+                myFeedDao.findAllFlow().map {
+                    it.map {
+                        ReviewAndImage.from(it)
+                    }
+                }
             } else {
                 flowOf(null)
             }
         }
-    override            fun findRestaurantFeedsFlow(restaurantId: Int): Flow<List<ReviewAndImageEntity>> {
-        return feedDao.findAllByRestaurantIdFlow(restaurantId)
+    override            fun findRestaurantFeedsFlow(restaurantId: Int): Flow<List<ReviewAndImage>> {
+        return feedDao.findAllByRestaurantIdFlow(restaurantId).map {
+            it.map { ReviewAndImage.from(it) }
+        }
     }
              suspend    fun initLoaded(){
         if (loadTrigger.value != true)
@@ -201,7 +212,7 @@ class FeedRepositoryImpl @Inject constructor(
             throw Exception("피드를 가져오는데 실패하였습니다.")
         }
     }
-    override suspend    fun findById(reviewId: Int): ReviewAndImageEntity {
+    override suspend    fun findById(reviewId: Int): ReviewAndImage {
         try {
             val result: FeedApiModel =
                 apiFeed.getFeedByReviewId(sessionClientService.getToken(), reviewId)
@@ -214,10 +225,13 @@ class FeedRepositoryImpl @Inject constructor(
             throw Exception(e.handle())
         }
 
-        return feedDao.find(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
+        val reviewAndImageEntity = feedDao.find(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
+
+        return ReviewAndImage.from(reviewAndImageEntity)
     }
-    override            fun findMyFeedById(reviewId: Int): Flow<List<ReviewAndImageEntity>> {
+    override            fun findMyFeedById(reviewId: Int): Flow<List<ReviewAndImage>> {
         return myFeedDao.findUserFeedsByReviewId(reviewId)
+                        .map { it.map { ReviewAndImage.from(it) } }
     }
     override suspend    fun findAllUserFeedById(reviewId: Int) {
         val feedList = apiFeed.loadUserAllFeedsByReviewId(sessionClientService.getToken(), reviewId)
@@ -232,23 +246,26 @@ class FeedRepositoryImpl @Inject constructor(
             throw Exception("피드를 가져오는데 실패하였습니다.")
         }
     }
-    override            fun findByUserIdFlow(userId: Int): Flow<List<ReviewAndImageEntity>> {
+    override            fun findByUserIdFlow(userId: Int): Flow<List<ReviewAndImage>> {
         return myFeedDao.findByUserId(userId)
+                        .map { it.map { ReviewAndImage.from(it) } }
     }
-    override            fun findByFavoriteFlow(): Flow<List<FavoriteAndImageEntity>> {
-        return feedDao.findAllByFavoriteFlow()
+    override            fun findByFavoriteFlow(): Flow<List<FavoriteAndImage>> {
+        return feedDao.findAllByFavoriteFlow().map { it.map { FavoriteAndImage.from(it) } }
     }
-    override            fun findByLikeFlow(): Flow<List<LikeAndImageEntity>> {
-        return feedDao.findAllByLikeFlow()
+    override            fun findByLikeFlow(): Flow<List<LikeAndImage>> {
+        return feedDao.findAllByLikeFlow().map { it.map { LikeAndImage.from(it) } }
     }
     override suspend    fun findByPictureId(pictureId: Int) {
         TODO("Not yet implemented")
     }
-    override            fun findByPictureIdFlow(pictureId: Int): Flow<ReviewAndImageEntity?> {
-        return feedDao.findByPictureIdFlow(pictureId)
+    override            fun findByPictureIdFlow(pictureId: Int): Flow<ReviewAndImage?> {
+        return feedDao.findByPictureIdFlow(pictureId).map {
+            it?.let { ReviewAndImage.from(it) }
+        }
     }
-    override            fun findReviewImagesFlow(reviewId: Int): Flow<List<ReviewImageEntity>> {
-        return reviewImageDao.getReviewImages(reviewId)
+    override            fun findReviewImagesFlow(reviewId: Int): Flow<List<ReviewImage>> {
+        return reviewImageDao.getReviewImages(reviewId).map { it.map { ReviewImage.from(it) } }
     }
     override suspend    fun deleteById(reviewId: Int) {
         //원격 저장소 요청

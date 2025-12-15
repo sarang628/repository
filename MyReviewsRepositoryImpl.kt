@@ -9,13 +9,17 @@ import com.sarang.torang.core.database.dao.PictureDao
 import com.sarang.torang.core.database.model.feed.FeedEntity
 import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
+import com.sarang.torang.data.Feed
 import com.sarang.torang.data.MyReview
+import com.sarang.torang.data.ReviewAndImage
+import com.sarang.torang.data.ReviewImage
 import com.sarang.torang.datasource.MyReviewsLocalDataSource
 import com.sarang.torang.datasource.MyReviewsRemoteDataSource
 import com.sarang.torang.preference.TorangPreference
 import com.sarang.torang.repository.MyReviewsRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -33,7 +37,7 @@ class MyReviewsRepositoryImpl @Inject constructor(
 ) :
     MyReviewsRepository {
 
-    override suspend fun getMyReviews(restaurantId: Int): List<ReviewAndImageEntity> {
+    override suspend fun getMyReviews(restaurantId: Int): List<ReviewAndImage> {
         val list = apiReview.getMyReviews(HashMap<String, String>().apply {
             put("restaurant_id", restaurantId.toString())
             put("user_id", torangPreference.getUserId().toString())
@@ -59,20 +63,20 @@ class MyReviewsRepositoryImpl @Inject constructor(
         }
         feedDao.addAll(feeds)
         pictureDao.addAll(images)
-        return list1
+        return list1.map { ReviewAndImage.from(it) }
     }
 
     fun userId(): Int {
         return torangPreference.getUserId()
     }
 
-    suspend fun userId1() : Int?{
+    fun userId1() : Int {
         return 0
     }
 
-    override fun getMyReviews1(restaurantId: Int): Flow<List<FeedEntity>> {
+    override fun getMyReviews1(restaurantId: Int): Flow<List<Feed>> {
 //        Logger.d("${userId()}, $restaurantId")
-        return myReviewDao.getMyReviews(userId(), restaurantId)
+        return myReviewDao.getMyReviews(userId(), restaurantId).map { it.map { Feed.from(it) } }
     }
 
     override suspend fun getMyReviews3(restaurantId: Int): List<MyReview> {

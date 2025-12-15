@@ -13,12 +13,17 @@ import com.sarang.torang.core.database.model.feed.FeedEntity
 import com.sarang.torang.core.database.model.restaurant.RestaurantEntity
 import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
+import com.sarang.torang.data.Feed
+import com.sarang.torang.data.Restaurant
+import com.sarang.torang.data.ReviewAndImage
+import com.sarang.torang.data.ReviewImage
 import com.sarang.torang.repository.MyReviewRepository
 import com.sarang.torang.preference.TorangPreference
 import com.sarang.torang.util.CountingFileRequestBody
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
@@ -39,16 +44,16 @@ class MyReviewRepositoryImpl @Inject constructor(
     private val torangPreference: TorangPreference
 ) :
     MyReviewRepository {
-    override fun getMyReview(reviewId: Int): Flow<FeedEntity?> {
-        return reviewDao.getFeedFlowbyReviewId(reviewId)
+    override fun getMyReview(reviewId: Int): Flow<Feed?> {
+        return reviewDao.getFeedFlowbyReviewId(reviewId).map { it?.let { Feed.from(it) } }
     }
 
-    override fun getUploadedPicture(reviewId: Int): Flow<List<ReviewImageEntity>> {
-        return MutableStateFlow<List<ReviewImageEntity>>(ArrayList())
+    override fun getUploadedPicture(reviewId: Int): Flow<List<ReviewImage>> {
+        return MutableStateFlow<List<ReviewImage>>(ArrayList())
     }
 
 
-    override suspend fun uploadReview(review: ReviewAndImageEntity) {
+    override suspend fun uploadReview(review: ReviewAndImage) {
 
         if (review.review.userId == -1)
             throw IllegalArgumentException("사용자 정보가 없습니다.")
@@ -97,7 +102,7 @@ class MyReviewRepositoryImpl @Inject constructor(
         pictureDao.addAll(images)
     }
 
-    override suspend fun modifyReview(review: ReviewAndImageEntity) {
+    override suspend fun modifyReview(review: ReviewAndImage) {
 
         if (review.review.userId == -1)
             throw IllegalArgumentException("사용자 정보가 없습니다.")
@@ -203,8 +208,10 @@ class MyReviewRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getRestaurant(restaurantId: Int): RestaurantEntity? {
-        return restaurantDao.getRestaurantByRestaurantId(restaurantId)
+    override suspend fun getRestaurant(restaurantId: Int): Restaurant? {
+        return restaurantDao.getRestaurantByRestaurantId(restaurantId)?.let {
+            Restaurant.from(it)
+        }
     }
 
     override fun userId(): Int {
@@ -219,7 +226,7 @@ class MyReviewRepositoryImpl @Inject constructor(
 }
 
 
-fun ReviewAndImageEntity.toMap(): HashMap<String, RequestBody> {
+fun ReviewAndImage.toMap(): HashMap<String, RequestBody> {
     val params: HashMap<String, RequestBody> = HashMap()
     params["review_id"] =
         RequestBody.create("text/plain".toMediaTypeOrNull(), "" + review.reviewId)

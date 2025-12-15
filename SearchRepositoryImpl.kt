@@ -3,6 +3,7 @@ package com.sarang.torang.di.repository
 import android.content.Context
 import com.sarang.torang.core.database.dao.SearchDao
 import com.sarang.torang.core.database.model.search.SearchEntity
+import com.sarang.torang.data.Search
 import com.sarang.torang.repository.SearchRepository
 import dagger.Binds
 import dagger.Module
@@ -10,6 +11,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,8 +21,8 @@ class SearchRepositoryImpl @Inject constructor(
     private val searchDao: SearchDao
 ) :
     SearchRepository {
-    override fun getHistoryKeywords(): Flow<List<SearchEntity>> {
-        return searchDao.getHistoryKeywords()
+    override fun getHistoryKeywords(): Flow<List<Search>> {
+        return searchDao.getHistoryKeywords().map { it.map { Search.from(it) } }
     }
 
     override suspend fun saveHistory(keyword: String) {
@@ -28,8 +30,8 @@ class SearchRepositoryImpl @Inject constructor(
         searchDao.insertAll(search)
     }
 
-    override suspend fun removeKeyword(search: SearchEntity) {
-        searchDao.delete(search)
+    override suspend fun removeKeyword(search: Search) {
+        searchDao.delete(search.entity)
     }
 }
 

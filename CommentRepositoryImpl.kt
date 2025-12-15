@@ -5,6 +5,7 @@ import com.sarang.torang.api.ApiComment
 import com.sarang.torang.core.database.dao.CommentDao
 import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.model.comment.CommentEntity
+import com.sarang.torang.data.Comment
 import com.sarang.torang.data.remote.response.CommentListApiModel
 import com.sarang.torang.data.remote.response.RemoteComment
 import com.sarang.torang.repository.comment.CommentRepository
@@ -14,6 +15,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapMerge
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class CommentRepositoryImpl @Inject constructor(
@@ -26,9 +28,13 @@ class CommentRepositoryImpl @Inject constructor(
     val TAG = "__CommentRepositoryImpl"
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    override fun getCommentsFlow(reviewId: Int): Flow<List<CommentEntity>> {
+    override fun getCommentsFlow(reviewId: Int): Flow<List<Comment>> {
         return commentDao.getComments(reviewId).flatMapMerge {
-            requestFlow(it)
+            requestFlow(it).map {
+                it.map {
+                    Comment.from(it)
+                }
+            }
         }
     }
 
