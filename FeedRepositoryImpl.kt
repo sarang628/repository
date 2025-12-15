@@ -23,6 +23,10 @@ import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
 import com.sarang.torang.core.database.model.like.LikeAndImageEntity
 import com.sarang.torang.core.database.model.like.LikeEntity
+import com.sarang.torang.data.FavoriteAndImage
+import com.sarang.torang.data.LikeAndImage
+import com.sarang.torang.data.ReviewAndImage
+import com.sarang.torang.data.ReviewImage
 import com.sarang.torang.data.remote.response.FavoriteFeedApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.di.torang_database_di.toFavoriteEntity
@@ -37,6 +41,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
@@ -61,16 +66,16 @@ class FeedRepositoryImpl @Inject constructor(
     private val tag: String = "__FeedRepositoryImpl"
     private val loadTrigger = MutableStateFlow(false)
     @OptIn(ExperimentalCoroutinesApi::class)
-    override val feeds: Flow<List<ReviewAndImageEntity>?> = loadTrigger.flatMapLatest { shouldLoad ->
+    override val feeds: Flow<List<ReviewAndImage>?> = loadTrigger.flatMapLatest { shouldLoad ->
             if (shouldLoad) {
-                mainFeedDao.findAllFlow()
+                mainFeedDao.findAllFlow().map { it.map { ReviewAndImage.from(it) } }
                 //feedDao.findAllFlow()
             } else {
                 flowOf(null)
             }
         }
-    override            fun findRestaurantFeedsFlow(restaurantId: Int): Flow<List<ReviewAndImageEntity>> {
-        return feedDao.findAllByRestaurantIdFlow(restaurantId)
+    override            fun findRestaurantFeedsFlow(restaurantId: Int): Flow<List<ReviewAndImage>> {
+        return feedDao.findAllByRestaurantIdFlow(restaurantId).map { it.map { ReviewAndImage.from(it) } }
     }
              suspend    fun initLoaded(){
         if (!loadTrigger.value)
