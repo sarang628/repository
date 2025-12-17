@@ -224,6 +224,10 @@ class FeedRepositoryImpl @Inject constructor(
 
         return ReviewAndImage.from(reviewAndImageEntity)
     }
+
+    override            fun findByIdFlow(reviewId: Int): Flow<ReviewAndImage> {
+        return feedDao.findByReviewIdFlow(reviewId = reviewId).map { ReviewAndImage.from(it) }
+    }
     override            fun findMyFeedById(reviewId: Int): Flow<List<ReviewAndImage>> {
         return myFeedDao.findUserFeedsByReviewId(reviewId)
                         .map { it.map { ReviewAndImage.from(it) } }
