@@ -97,6 +97,19 @@ class FeedRepositoryImpl @Inject constructor(
             throw Exception("피드를 가져오는데 실패하였습니다.")
         }
     }
+    override suspend    fun loadById(reviewId: Int) {
+        try {
+            val result: FeedApiModel =
+                apiFeed.getFeedByReviewId(sessionClientService.getToken(), reviewId)
+            insertFeed(listOf(result))
+            initLoaded()
+        } catch (e: UnknownHostException) {
+            Log.e(tag, e.message.toString())
+            throw Exception("서버에 접속할 수 없습니다.")
+        } catch (e: Exception) {
+            throw Exception(e.handle())
+        }
+    }
     override suspend    fun loadByPage(page: Int) {
         try {
             val feedList = apiFeed.getFeedsWithPage(sessionClientService.getToken(), page)
