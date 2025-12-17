@@ -53,6 +53,7 @@ class LikeRepositoryImpl @Inject constructor(
             feedDao.subTractLikeCount(reviewId)
         } ?: run {
             Log.e(tag, "nothing like reviewId : ${reviewId}")
+            throw Exception("좋아요 삭제가 불가합니다.")
         }
     }
 }
