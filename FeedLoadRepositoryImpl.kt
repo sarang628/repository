@@ -244,6 +244,18 @@ class FeedLoadRepositoryImpl @Inject constructor(
 
         val count  = feedGridDao.findAll().size
 
+        pictureDao.addAll(
+            result.map {
+                ReviewImageEntity(
+                    pictureId = it.picture.pictureId,
+                    pictureUrl = it.picture.pictureUrl,
+                    width = it.picture.width,
+                    height = it.picture.height,
+                    reviewId = it.reviewId
+                )
+            }
+        )
+
         feedGridDao.addAll(
             result.mapIndexed { index, model ->
                 FeedGridEntity(reviewId = model.reviewId,
