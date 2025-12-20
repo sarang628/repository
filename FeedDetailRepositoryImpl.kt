@@ -12,7 +12,7 @@ import com.sarang.torang.data.Feed
 import com.sarang.torang.data.Restaurant
 import com.sarang.torang.data.remote.response.RemoteComment
 import com.sarang.torang.preference.TorangPreference
-import com.sarang.torang.repository.FeedDetailRepository
+import com.sarang.torang.repository.feed.FeedDetailRepository
 import com.sarang.torang.session.SessionService
 import dagger.Binds
 import dagger.Module

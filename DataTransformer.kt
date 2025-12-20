@@ -10,6 +10,7 @@ import com.sarang.torang.core.database.model.comment.CommentEntity
 import com.sarang.torang.core.database.model.favorite.FavoriteAndImageEntity
 import com.sarang.torang.core.database.model.favorite.FavoriteEntity
 import com.sarang.torang.core.database.model.feed.FeedEntity
+import com.sarang.torang.core.database.model.feed.FeedGridEntity
 import com.sarang.torang.core.database.model.feed.MyFeedEntity
 import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
@@ -37,6 +38,7 @@ import com.sarang.torang.data.remote.response.ChatRoomApiModel
 import com.sarang.torang.data.remote.response.ChatUserApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.data.remote.response.UserApiModel
+import com.sarang.torang.data.repository.FeedGrid
 
 
 fun Restaurant.Companion.from(entity : RestaurantEntity) : Restaurant{
@@ -253,3 +255,7 @@ fun Search.Companion.from(entity : SearchEntity) : Search{
 val Search.entity : SearchEntity get() = SearchEntity(key           = this.key,
                                                       keyword       = this.keyword,
                                                       createDate    = this.createDate)
+
+fun FeedGrid.Companion.from(entity : FeedGridEntity) : FeedGrid{
+    return FeedGrid(reviewId = entity.reviewId)
+}
