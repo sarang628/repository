@@ -18,6 +18,7 @@ import com.sarang.torang.core.database.dao.ReviewImageDao
 import com.sarang.torang.core.database.dao.UserDao
 import com.sarang.torang.core.database.model.favorite.FavoriteAndImageEntity
 import com.sarang.torang.core.database.model.favorite.FavoriteEntity
+import com.sarang.torang.core.database.model.feed.FeedGridEntity
 import com.sarang.torang.core.database.model.feed.MainFeedEntity
 import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
@@ -108,4 +109,11 @@ class FeedRepositoryImpl @Inject constructor(
                               favorites       = feedList.filter { it.favorite != null }.map { it.favorite!!.toFavoriteEntity() })
     }
 
+    @Transaction
+    override suspend fun deleteAll() {
+        feedDao.deleteAll()
+        likeDao.deleteAll()
+        favoriteDao.deleteAll()
+        pictureDao.deleteAll()
+    }
 }
