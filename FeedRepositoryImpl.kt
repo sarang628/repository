@@ -9,6 +9,7 @@ import com.sarang.torang.api.feed.ApiFeedV1
 import com.sarang.torang.api.handle
 import com.sarang.torang.core.database.dao.FavoriteDao
 import com.sarang.torang.core.database.dao.FeedDao
+import com.sarang.torang.core.database.dao.FeedGridDao
 import com.sarang.torang.core.database.dao.LikeDao
 import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.MainFeedDao
@@ -56,7 +57,8 @@ class FeedRepositoryImpl @Inject constructor(
     private val likeDao                 : LikeDao,
     private val pictureDao              : PictureDao,
     private val favoriteDao             : FavoriteDao,
-    private val sessionClientService    : SessionClientService
+    private val sessionClientService    : SessionClientService,
+    private val feedGridDao             : FeedGridDao
 ) : FeedRepository {
     private val tag: String = "__FeedRepositoryImpl"
     override suspend    fun findById(reviewId: Int): ReviewAndImage {
@@ -115,5 +117,6 @@ class FeedRepositoryImpl @Inject constructor(
         likeDao.deleteAll()
         favoriteDao.deleteAll()
         pictureDao.deleteAll()
+        feedGridDao.deleteAll()
     }
 }

@@ -237,6 +237,7 @@ class FeedLoadRepositoryImpl @Inject constructor(
         likeDao.deleteAll()
         favoriteDao.deleteAll()
         pictureDao.deleteAll()
+        feedGridDao.deleteAll()
     }
     override suspend    fun loadFeedGird(reviewId: Int) {
         val result = apiFeedV1.findByFeedGrid(reviewId = reviewId,
