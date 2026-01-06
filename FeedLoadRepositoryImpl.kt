@@ -264,4 +264,8 @@ class FeedLoadRepositoryImpl @Inject constructor(
             }
         )
     }
+
+    override suspend fun setLoadTrigger(boolean: Boolean) {
+        loadTrigger.emit(boolean)
+    }
 }
