@@ -20,14 +20,22 @@ import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
 
-enum class Distances {
-    NONE,
-    _100M,
-    _300M,
-    _500M,
-    _1KM,
-    _3KM;
+enum class Distances(val value : String) {
+    NONE(""),
+    _100M("100m"),
+    _300M("300m"),
+    _500M("500m"),
+    _1KM("1km"),
+    _3KM("3km");
+
+    companion object{
+        fun findByString(value : String) : Distances{
+            return Distances.entries.find { it.value == value } ?: return NONE
+        }
+    }
 }
+
+
 
 @Singleton
 class FindRepositoryImpl @Inject constructor(
@@ -51,7 +59,12 @@ class FindRepositoryImpl @Inject constructor(
     private val distance            : StateFlow<Distances> = _distance
     private val keyword             : StateFlow<String> = _keyword
 
-    suspend fun setDistance(distance : String){ _distance.emit(Distances.NONE) }
+    suspend fun setDistance(distance : String) {
+        if(_distance.value.value == distance){
+            _distance.emit(Distances.NONE)
+        }
+        else _distance.emit(value = Distances.findByString(distance))
+    }
     suspend fun setKeyword(keyword : String){ this._keyword.emit(keyword) }
     fun getFoodType(): StateFlow<List<String>> { return foodType }
     fun getPrices(): StateFlow<List<String>> { return price }
