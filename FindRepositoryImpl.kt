@@ -123,10 +123,11 @@ class FindRepositoryImpl @Inject constructor(
     override suspend fun search(filter: FilterApiModel) {
         try {
             Log.d(tag, "restaurant filter search: $filter")
-            //_restaurants.emit(apiRestaurant.getFilterRestaurant(filter).map { it.toEntity() })
-            val result = if(filter.searchType == "BOUND") apiFilter.boundRestaurant(filter) else apiFilter.aroundRestaurant(filter)
+            val result = if(filter.searchType == "BOUND") apiFilter.boundRestaurant(filter)
+                         else apiFilter.aroundRestaurant(filter)
             _restaurants.emit(result.restaurants.map {
-                if(it != null) RestaurantWithFiveImages.Companion.from(it) else RestaurantWithFiveImages()
+                if(it != null) RestaurantWithFiveImages.from(it)
+                else RestaurantWithFiveImages()
             })
         }
         catch (e : HttpException)   { Log.e(tag, e.response()?.errorBody()?.string().toString()) }
