@@ -9,6 +9,7 @@ import com.sarang.torang.data.Restaurant
 import com.sarang.torang.data.RestaurantWithFiveImages
 import com.sarang.torang.data.SearchType
 import com.sarang.torang.data.remote.response.FilterApiModel
+import com.sarang.torang.data.remote.response.RatingApiModel
 import com.sarang.torang.data.remote.response.RestaurantResponseDto
 import com.sarang.torang.repository.FindRepository
 import com.sarang.torang.repository.MapRepository
@@ -140,7 +141,7 @@ class FindRepositoryImpl @Inject constructor(
             distances = this.distances,
             prices = this.prices,
             restaurantTypes = this.restaurantTypes,
-            ratings = this.ratings,
+            ratings = this.ratings?.map { it.toRatingApiModel() },
             latitude = this.lat,
             longitude = this.lon,
             northEastLat = this.northEastLat,
@@ -148,6 +149,19 @@ class FindRepositoryImpl @Inject constructor(
             southWestLat = this.southWestLat,
             southWestLon = this.southWestLon,
         )
+    }
+
+    fun String.toRatingApiModel() : RatingApiModel{
+        return when(this){
+            "*" -> RatingApiModel.ONE
+            "**" -> RatingApiModel.TWO
+            "***" -> RatingApiModel.THREE
+            "****" -> RatingApiModel.FOUR
+            "*****" -> RatingApiModel.FIVE
+            else -> {
+                RatingApiModel.ONE
+            }
+        }
     }
 
     suspend fun selectRestaurantFromMarker(restaurantId: Int) {
