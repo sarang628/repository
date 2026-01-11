@@ -1,6 +1,7 @@
 package com.sarang.torang.di.repository
 
 import com.sarang.torang.BuildConfig
+import com.sarang.torang.Follower
 import com.sarang.torang.core.database.model.chat.ChatMessageEntity
 import com.sarang.torang.core.database.model.chat.ChatParticipantsEntity
 import com.sarang.torang.core.database.model.chat.ChatRoomEntity
@@ -20,23 +21,32 @@ import com.sarang.torang.core.database.model.restaurant.RestaurantEntity
 import com.sarang.torang.core.database.model.search.SearchEntity
 import com.sarang.torang.core.database.model.user.LoggedInUserEntity
 import com.sarang.torang.core.database.model.user.UserEntity
+import com.sarang.torang.data.Alarm
 import com.sarang.torang.data.ChatImage
 import com.sarang.torang.data.ChatMessage
 import com.sarang.torang.data.Comment
+import com.sarang.torang.data.CommentList
 import com.sarang.torang.data.Favorite
 import com.sarang.torang.data.FavoriteAndImage
 import com.sarang.torang.data.Feed
 import com.sarang.torang.data.Like
 import com.sarang.torang.data.LikeAndImage
 import com.sarang.torang.data.Restaurant
+import com.sarang.torang.data.RestaurantWithFiveImages
 import com.sarang.torang.data.ReviewAndImage
 import com.sarang.torang.data.ReviewImage
 import com.sarang.torang.data.Search
 import com.sarang.torang.data.User
+import com.sarang.torang.data.remote.response.AlarmAlarmModel
 import com.sarang.torang.data.remote.response.ChatApiModel
 import com.sarang.torang.data.remote.response.ChatRoomApiModel
 import com.sarang.torang.data.remote.response.ChatUserApiModel
+import com.sarang.torang.data.remote.response.CommentListApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
+import com.sarang.torang.data.remote.response.FollowerApiModel
+import com.sarang.torang.data.remote.response.RemoteComment
+import com.sarang.torang.data.remote.response.RestaurantResponseDto
+import com.sarang.torang.data.remote.response.RestaurantV1WithFiveImagesResponseModel
 import com.sarang.torang.data.remote.response.UserApiModel
 import com.sarang.torang.data.repository.FeedGrid
 
@@ -258,4 +268,115 @@ val Search.entity : SearchEntity get() = SearchEntity(key           = this.key,
 
 fun FeedGrid.Companion.from(entity : FeedGridEntity) : FeedGrid{
     return FeedGrid(reviewId = entity.reviewId)
+}
+
+fun CommentList.Companion.fromApiModel(apiModel: CommentListApiModel) : CommentList{
+    return CommentList(
+        profilePicUrl = apiModel.profilePicUrl,
+        list = apiModel.list.map { Comment.fromApiModel(it) }
+    )
+}
+
+fun Comment.Companion.fromApiModel(apiModel : RemoteComment): Comment{
+    return Comment(
+        commentId = apiModel.comment_id,
+        userId = apiModel.user.userId,
+        profilePicUrl = apiModel.user.profilePicUrl,
+        userName = apiModel.user.userName,
+        comment = apiModel.comment,
+        reviewId = apiModel.review_id
+    )
+}
+
+fun Feed.Companion.fromApiModel(apiModel: FeedApiModel) : Feed{
+    return Feed(
+        reviewId = apiModel.reviewId,
+        userId = apiModel.user.userId,
+        restaurantId = apiModel.restaurant.restaurantId,
+        userName = apiModel.user.userName,
+        restaurantName = apiModel.restaurant.restaurantName,
+        profilePicUrl = apiModel.user.profilePicUrl,
+        contents = apiModel.contents,
+        rating = apiModel.rating,
+        likeAmount = apiModel.like_amount,
+        commentAmount = apiModel.comment_amount,
+        createDate = apiModel.create_date
+    )
+}
+
+fun Alarm.Companion.fromApiModel(apiModel : AlarmAlarmModel) : Alarm{
+    return Alarm(
+        alarmId = apiModel.alarmId,
+        userId = apiModel.user.userId,
+        otherUserId = apiModel.otherUserId,
+        contents = apiModel.contents,
+        alarmType = apiModel.alarmType,
+        reviewId = apiModel.reviewId,
+        createDate = apiModel.createDate,
+        user = User.fromApiModel(apiModel.user),
+        otherUser = User.fromApiModel(apiModel.otherUser),
+        pictureUrl = apiModel.pictureUrl
+    )
+}
+
+fun User.Companion.fromApiModel(apiModel : UserApiModel) : User{
+    return User(
+        userId = apiModel.userId,
+        userName = apiModel.userName,
+        email = apiModel.email,
+        loginPlatform = apiModel.loginPlatform,
+        createDate = apiModel.createDate,
+        profilePicUrl = apiModel.profilePicUrl
+    )
+}
+
+fun RestaurantWithFiveImages.Companion.from(restaurant: RestaurantV1WithFiveImagesResponseModel) : RestaurantWithFiveImages {
+    return RestaurantWithFiveImages(
+        restaurant = Restaurant(
+            restaurantId = restaurant.restaurant?.restaurantId ?: 0,
+            restaurantName = restaurant.restaurant?.restaurantName ?: "",
+            address = restaurant.restaurant?.address ?: "",
+            lat = restaurant.restaurant?.latitude ?: 0.0,
+            lon = restaurant.restaurant?.longitude ?: 0.0,
+            rating = restaurant.restaurant?.rating ?: 0f,
+            tel = restaurant.restaurant?.tel ?: "",
+            prices = restaurant.restaurant?.prices ?: "",
+            restaurantType = restaurant.restaurant?.restaurantType ?: "",
+            regionCode = restaurant.restaurant?.regionCode ?: 0,
+            reviewCount = restaurant.restaurant?.reviewCount ?: 0,
+            site = restaurant.restaurant?.website ?: "",
+            imgUrl1 = restaurant.restaurant?.image ?: "",
+            restaurantTypeCd = restaurant.restaurant?.restaurantTypeCd ?: "",
+        ),
+        images = restaurant.images ?: listOf()
+    )
+}
+
+fun Follower.Companion.fromApiModel(apiModel : FollowerApiModel) : Follower{
+    return Follower(
+        followerId = apiModel.followerId,
+        userName = apiModel.userName,
+        profilePicUrl = apiModel.profilePicUrl,
+        isFollow = apiModel.isFollow
+    )
+}
+
+fun Restaurant.Companion.fromApiModel(restaurant: RestaurantResponseDto) : Restaurant{
+    return Restaurant(
+        restaurantId = restaurant.restaurantId ?: -1,
+        restaurantName = restaurant.restaurantName ?: "",
+        address = restaurant.address ?: "",
+        lat = restaurant.lat ?: 0.0,
+        lon = restaurant.lon ?: 0.0,
+        rating = restaurant.rating ?: 0f,
+        tel = restaurant.tel ?: "",
+        prices = restaurant.prices ?: "",
+        restaurantType = restaurant.restaurantType ?: "",
+        regionCode = restaurant.regionCode ?: 0,
+        reviewCount = restaurant.reviewCount ?: 0,
+        site = restaurant.site ?: "",
+        website = restaurant.website ?: "",
+        imgUrl1 = restaurant.imgUrl1 ?: "",
+        restaurantTypeCd = restaurant.restaurantTypeCd ?: ""
+    )
 }

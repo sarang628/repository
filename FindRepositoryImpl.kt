@@ -2,15 +2,14 @@ package com.sarang.torang.di.repository
 
 import android.text.TextUtils
 import android.util.Log
-import androidx.compose.material3.Divider
-import androidx.compose.ui.unit.TextUnit
 import com.sarang.torang.api.ApiFilter
 import com.sarang.torang.api.ApiRestaurant
+import com.sarang.torang.data.Filter
 import com.sarang.torang.data.Restaurant
 import com.sarang.torang.data.RestaurantWithFiveImages
+import com.sarang.torang.data.SearchType
 import com.sarang.torang.data.remote.response.FilterApiModel
 import com.sarang.torang.data.remote.response.RestaurantResponseDto
-import com.sarang.torang.data.remote.response.RestaurantV1WithFiveImagesResponseModel
 import com.sarang.torang.repository.FindRepository
 import com.sarang.torang.repository.MapRepository
 import kotlinx.coroutines.delay
@@ -94,8 +93,8 @@ class FindRepositoryImpl @Inject constructor(
 
 
     override suspend fun findThisArea() {
-        val filter = FilterApiModel(
-            searchType = "BOUND",
+        val filter = Filter(
+            searchType = SearchType.BOUND,
             prices = price.value,
             ratings = rating.value,
             distances = TextUtils.join(",", listOf(Distances.NONE)),
@@ -110,7 +109,7 @@ class FindRepositoryImpl @Inject constructor(
     }
 
     override suspend fun findFilter() {
-        val filter = FilterApiModel(
+        val filter = Filter(
             prices = price.value,
             ratings = rating.value,
             distances = distance.value.name,
@@ -120,11 +119,11 @@ class FindRepositoryImpl @Inject constructor(
         search(filter)
     }
 
-    override suspend fun search(filter: FilterApiModel) {
+    override suspend fun search(filter: Filter) {
         try {
             Log.d(tag, "restaurant filter search: $filter")
-            val result = if(filter.searchType == "BOUND") apiFilter.boundRestaurant(filter)
-                         else apiFilter.aroundRestaurant(filter)
+            val result = if(filter.searchType == SearchType.BOUND) apiFilter.boundRestaurant(filter.toApiModel())
+                         else apiFilter.aroundRestaurant(filter.toApiModel())
             _restaurants.emit(result.restaurants.map {
                 if(it != null) RestaurantWithFiveImages.from(it)
                 else RestaurantWithFiveImages()
@@ -134,25 +133,20 @@ class FindRepositoryImpl @Inject constructor(
         catch (e : Exception)       { Log.e(tag, e.toString()) }
     }
 
-    fun RestaurantWithFiveImages.Companion.from(restaurant: RestaurantV1WithFiveImagesResponseModel) : RestaurantWithFiveImages {
-        return RestaurantWithFiveImages(
-            restaurant = Restaurant(
-                restaurantId = restaurant.restaurant?.restaurantId ?: 0,
-                restaurantName = restaurant.restaurant?.restaurantName ?: "",
-                address = restaurant.restaurant?.address ?: "",
-                lat = restaurant.restaurant?.latitude ?: 0.0,
-                lon = restaurant.restaurant?.longitude ?: 0.0,
-                rating = restaurant.restaurant?.rating ?: 0f,
-                tel = restaurant.restaurant?.tel ?: "",
-                prices = restaurant.restaurant?.prices ?: "",
-                restaurantType = restaurant.restaurant?.restaurantType ?: "",
-                regionCode = restaurant.restaurant?.regionCode ?: 0,
-                reviewCount = restaurant.restaurant?.reviewCount ?: 0,
-                site = restaurant.restaurant?.website ?: "",
-                imgUrl1 = restaurant.restaurant?.image ?: "",
-                restaurantTypeCd = restaurant.restaurant?.restaurantTypeCd ?: "",
-            ),
-            images = restaurant.images ?: listOf()
+    fun Filter.toApiModel() : FilterApiModel{
+        return FilterApiModel(
+            searchType = this.searchType.name,
+            keyword = this.keyword,
+            distances = this.distances,
+            prices = this.prices,
+            restaurantTypes = this.restaurantTypes,
+            ratings = this.ratings,
+            latitude = this.lat,
+            longitude = this.lon,
+            northEastLat = this.northEastLat,
+            northEastLon = this.northEastLon,
+            southWestLat = this.southWestLat,
+            southWestLon = this.southWestLon,
         )
     }
 

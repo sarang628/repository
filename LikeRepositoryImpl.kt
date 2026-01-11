@@ -1,6 +1,7 @@
 package com.sarang.torang.di.repository
 
 import android.util.Log
+import com.sarang.torang.Follower
 import com.sarang.torang.api.ApiLike
 import com.sarang.torang.api.feed.ApiFeed
 import com.sarang.torang.core.database.dao.FeedDao
@@ -25,10 +26,10 @@ class LikeRepositoryImpl @Inject constructor(
     val sessionClientService: SessionClientService
 ) : LikeRepository {
     val tag = "__LikeRepositoryImpl"
-    override suspend fun getLikeUserFromReview(reviewId: Int): List<FollowerApiModel> {
+    override suspend fun getLikeUserFromReview(reviewId: Int): List<Follower> {
         val token = session.getToken()
         if (token != null) {
-            return apiLike.getLikeUserByReviewId(token, reviewId.toString())
+            return apiLike.getLikeUserByReviewId(token, reviewId.toString()).map { Follower.fromApiModel(it) }
         } else {
             // 예외 처리 또는 fallback
             throw NotLoggedInException("로그인 정보가 없습니다.")

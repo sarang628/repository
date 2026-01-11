@@ -37,13 +37,15 @@ class FeedDetailRepositoryImpl @Inject constructor(
 ) :
     FeedDetailRepository {
 
-    override suspend fun getComments(reviewId: Int): List<RemoteComment> {
+    override suspend fun getComments(reviewId: Int): List<Comment> {
         var list: List<RemoteComment> = ArrayList();
         sessionService.getToken()?.let {
             list = apiComment.getComments(it, reviewId).list
         }
         //commentDao.insertComments(CommentEntity.parse(list))
-        return list
+        return list.map {
+            Comment.fromApiModel(it)
+        }
     }
 
     override fun getCommentsFlow(reviewId: Int): Flow<List<Comment>> {
@@ -63,7 +65,7 @@ class FeedDetailRepositoryImpl @Inject constructor(
         throw Exception("")
     }
 
-    override suspend fun addComment(reviewId: Int, value: String): RemoteComment {
+    override suspend fun addComment(reviewId: Int, value: String): Comment {
         throw Exception("")
     }
 }
@@ -81,7 +83,7 @@ class TimeLineDetailRepositoryTestImpl @Inject constructor(
 ) :
     FeedDetailRepository {
 
-    override suspend fun getComments(reviewId: Int): List<RemoteComment> {
+    override suspend fun getComments(reviewId: Int): List<Comment> {
         return ArrayList()
     }
 
@@ -105,7 +107,7 @@ class TimeLineDetailRepositoryTestImpl @Inject constructor(
         return torangPreference.getUserId()
     }
 
-    override suspend fun addComment(reviewId: Int, value: String): RemoteComment {
+    override suspend fun addComment(reviewId: Int, value: String): Comment {
         throw Exception("")
     }
 }

@@ -2,6 +2,7 @@ package com.sarang.torang.di.repository
 
 import com.sarang.torang.api.ApiProfile
 import com.sarang.torang.api.handle
+import com.sarang.torang.data.User
 import com.sarang.torang.data.remote.response.UserApiModel
 import com.sarang.torang.repository.UserRepository
 import com.sarang.torang.session.SessionClientService
@@ -16,14 +17,14 @@ class UserRepositoryImpl @Inject constructor(
     private val sessionClientService: SessionClientService,
 ) : UserRepository {
 
-    override suspend fun findById(userId: Int): UserApiModel {
-        return apiProfile.getProfile("$userId")
+    override suspend fun findById(userId: Int): User {
+        return User.fromApiModel(apiProfile.getProfile("$userId"))
     }
 
-    override suspend fun findByToken(): UserApiModel {
+    override suspend fun findByToken(): User {
         sessionClientService.getToken()?.let {
             try {
-                return apiProfile.getProfileByToken(it)
+                return User.fromApiModel(apiProfile.getProfileByToken(it))
             } catch (e: HttpException) {
                 throw Exception(e.handle())
             }

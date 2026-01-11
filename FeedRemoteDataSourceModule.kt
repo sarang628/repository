@@ -1,7 +1,7 @@
 package com.sarang.torang.di.repository
 
+import com.sarang.torang.data.Feed
 import com.sarang.torang.datasource.FeedRemoteDataSource
-import com.sarang.torang.datasource.impl.FeedRemoteDataSourceImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -13,7 +13,15 @@ import javax.inject.Singleton
 class FeedRemoteDataSourceModule {
     @Singleton
     @Provides
-    fun provideFeedRemoteDataSource(feedRemoteDataSourceImpl: FeedRemoteDataSourceImpl): FeedRemoteDataSource {
-        return feedRemoteDataSourceImpl
+    fun provideFeedRemoteDataSource(): FeedRemoteDataSource {
+        return object : FeedRemoteDataSource{
+            override suspend fun getFeeds(userId: Int): List<Feed> {
+                TODO("Not yet implemented")
+            }
+
+            override suspend fun deleteFeed(reviewId: Int) {
+                TODO("Not yet implemented")
+            }
+        }
     }
 }

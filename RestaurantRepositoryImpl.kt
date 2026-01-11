@@ -9,6 +9,7 @@ import com.sarang.torang.data.RestaurantDetail
 import com.sarang.torang.core.database.dao.PictureDao
 import com.sarang.torang.core.database.dao.RestaurantDao
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
+import com.sarang.torang.data.Restaurant
 import com.sarang.torang.data.remote.response.PictureApiModel
 import com.sarang.torang.data.remote.response.RestaurantDetailApiModel
 import com.sarang.torang.data.remote.response.RestaurantResponseDto
@@ -29,9 +30,10 @@ class RestaurantRepositoryImpl @Inject constructor(
 
     private val mapClick = MutableStateFlow<Boolean>(false)
 
-    override suspend fun loadRestaurant(restaurantId: Int): RestaurantResponseDto {
-        return apiRestaurant.getRestaurantById(restaurantId)
+    override suspend fun loadRestaurant(restaurantId: Int): Restaurant {
+        return Restaurant.fromApiModel(apiRestaurant.getRestaurantById(restaurantId))
     }
+
 
     override suspend fun loadMenus(restaurantId: Int): List<Menu> {
         return apiRestaurant.getMenus(HashMap<String, String>().apply {

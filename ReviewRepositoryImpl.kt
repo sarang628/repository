@@ -9,8 +9,8 @@ import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.PictureDao
 import com.sarang.torang.core.database.dao.RestaurantDao
 import com.sarang.torang.core.database.dao.ReviewDao
+import com.sarang.torang.data.Feed
 import com.sarang.torang.data.ReviewAndImage
-import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.di.torang_database_di.toFeedEntity
 import com.sarang.torang.di.torang_database_di.toReviewImage
 import com.sarang.torang.repository.review.ReviewRepository
@@ -36,12 +36,14 @@ class ReviewRepositoryImpl @Inject constructor(
     private val feedDao: FeedDao,
     private val sessionService: SessionService,
 ) : ReviewRepository {
-    override suspend fun getReviews(restaurantId: Int): List<FeedApiModel> {
+    override suspend fun getReviews(restaurantId: Int): List<Feed> {
 
         return apiReviewV1.getReviewsByRestaurantId(
             auth = sessionService.getToken() ?: "",
             restaurantId = restaurantId
-        )
+        ).map {
+            Feed.fromApiModel(it)
+        }
     }
 
     override suspend fun addReview(
@@ -49,7 +51,7 @@ class ReviewRepositoryImpl @Inject constructor(
         restaurantId: Int?,
         rating: Float,
         files: List<String>,
-    ): FeedApiModel {
+    ): Feed {
         val user = loggedInUserDao.getLoggedInUser() ?: throw Exception("로그인을 해주세요.")
         try {
             val review = apiReview.addReview(
@@ -67,7 +69,7 @@ class ReviewRepositoryImpl @Inject constructor(
             )
             reviewDao.insert(review.toFeedEntity())
 
-            return review
+            return Feed.fromApiModel(review)
         } catch (e: HttpException) {
             throw Exception(e.handle())
         }

@@ -6,7 +6,7 @@ import com.sarang.torang.core.database.dao.CommentDao
 import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.model.comment.CommentEntity
 import com.sarang.torang.data.Comment
-import com.sarang.torang.data.remote.response.CommentListApiModel
+import com.sarang.torang.data.CommentList
 import com.sarang.torang.data.remote.response.RemoteComment
 import com.sarang.torang.repository.comment.CommentRepository
 import com.sarang.torang.session.SessionClientService
@@ -62,22 +62,24 @@ class CommentRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getComment(reviewId: Int): CommentListApiModel {
+    override suspend fun getComment(reviewId: Int): CommentList {
         val token = sessionClientService.getToken()
         if (token != null) {
             commentDao.clear()
             val result = apiComment.getComments(token, reviewId)
             commentDao.insertComments(result.list.toCommentEntityList())
-            return result
+            return CommentList.fromApiModel(result)
         } else {
             throw Exception("로그인을 해주세요")
         }
     }
 
-    override suspend fun getSubComment(parentCommentId: Int): List<RemoteComment> {
+    override suspend fun getSubComment(parentCommentId: Int): List<Comment> {
         val token = sessionClientService.getToken()
         if (token != null) {
-            return apiComment.getSubComments(token, parentCommentId)
+            return apiComment.getSubComments(token, parentCommentId).map {
+                Comment.fromApiModel(it)
+            }
         } else {
             throw Exception("로그인을 해주세요")
         }
@@ -148,7 +150,7 @@ class CommentRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getCommentsWithOneReply(reviewId: Int): CommentListApiModel {
+    override suspend fun getCommentsWithOneReply(reviewId: Int): CommentList {
         val result =
             apiComment.getCommentsWithOneReply(sessionClientService.getToken() ?: "", reviewId)
 
@@ -158,13 +160,15 @@ class CommentRepositoryImpl @Inject constructor(
         )
 
         commentDao.insertComments(result.list.toCommentEntityList())
-        return result
+        return CommentList.fromApiModel(result)
     }
 
-    override suspend fun getSubComments(commentId: Int): List<RemoteComment> {
+    override suspend fun getSubComments(commentId: Int): List<Comment> {
         val token = sessionClientService.getToken()
         if (token != null) {
-            return apiComment.getSubComments(token, commentId)
+            return apiComment.getSubComments(token, commentId).map {
+                Comment.fromApiModel(it)
+            }
         } else {
             throw Exception("로그인을 해주세요")
         }
