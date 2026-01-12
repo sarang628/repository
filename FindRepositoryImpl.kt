@@ -11,6 +11,7 @@ import com.sarang.torang.data.SearchType
 import com.sarang.torang.data.remote.response.FilterApiModel
 import com.sarang.torang.data.remote.response.RatingApiModel
 import com.sarang.torang.data.remote.response.RestaurantResponseDto
+import com.sarang.torang.di.repository.data.Distances
 import com.sarang.torang.repository.FindRepository
 import com.sarang.torang.repository.MapRepository
 import kotlinx.coroutines.delay
@@ -19,23 +20,6 @@ import kotlinx.coroutines.flow.StateFlow
 import retrofit2.HttpException
 import javax.inject.Inject
 import javax.inject.Singleton
-
-enum class Distances(val value : String) {
-    NONE(""),
-    _100M("100m"),
-    _300M("300m"),
-    _500M("500m"),
-    _1KM("1km"),
-    _3KM("3km");
-
-    companion object{
-        fun findByString(value : String) : Distances{
-            return Distances.entries.find { it.value == value } ?: return NONE
-        }
-    }
-}
-
-
 
 @Singleton
 class FindRepositoryImpl @Inject constructor(
@@ -80,16 +64,28 @@ class FindRepositoryImpl @Inject constructor(
     var blockCardSwipeEvent = false
 
     suspend fun setFoodType(foodType : String){
-        if(this.foodType.value.contains(foodType)) { this._foodType.emit(this.foodType.value.filter { it != foodType }.toList()) }
-        else { this._foodType.emit(ArrayList(this.foodType.value).apply { add(foodType) }) }
+        if(this.foodType.value.contains(foodType)) {
+            this._foodType.emit(this.foodType.value.filter { it != foodType })
+        }
+        else {
+            this._foodType.emit(this.foodType.value + foodType )
+        }
     }
     suspend fun setPrice(price : String){
-        if(this.price.value.contains(price)) { this._price.emit(this.price.value.filter { it != price }.toList()) }
-        else { this._price.emit(ArrayList(this.price.value).apply { add(price) }) }
+        if(this.price.value.contains(price)) {
+            this._price.emit(this.price.value.filter { it != price })
+        }
+        else {
+            this._price.emit(this.price.value + price )
+        }
     }
     suspend fun setRating(rating : String){
-        if(this.rating.value.contains(rating)) { this._rating.emit(this.rating.value.filter { it != rating }.toList()) }
-        else { this._rating.emit(ArrayList(this.rating.value).apply { add(rating) }) }
+        if(this.rating.value.contains(rating)) {
+            this._rating.emit(this.rating.value.filter { it != rating })
+        }
+        else {
+            this._rating.emit(this.rating.value + rating )
+        }
     }
 
 
