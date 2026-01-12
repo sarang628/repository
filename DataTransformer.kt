@@ -380,3 +380,23 @@ fun Restaurant.Companion.fromApiModel(restaurant: RestaurantResponseDto) : Resta
         restaurantTypeCd = restaurant.restaurantTypeCd ?: ""
     )
 }
+
+fun RestaurantResponseDto.toEntity() : Restaurant {
+    return Restaurant(
+        restaurantId = restaurantId ?: -1,
+        restaurantName = restaurantName ?: "null",
+        address = address ?: "null",
+        lat = lat ?: 0.0,
+        lon = lon ?: 0.0,
+        rating = rating ?: 0f,
+        tel = tel ?: "null",
+        prices = prices ?: "null",
+        restaurantType = restaurantType ?: "null",
+        regionCode = regionCode ?: 0,
+        reviewCount = reviewCount ?: 0,
+        site = site ?: "null",
+        website = website ?: "null",
+        imgUrl1 = imgUrl1 ?: "null",
+        restaurantTypeCd = restaurantTypeCd ?: "null"
+    )
+}
