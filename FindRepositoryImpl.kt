@@ -53,7 +53,8 @@ class FindRepositoryImpl @Inject constructor(
         var restaurantList = restaurants
         if(foodType.isNotEmpty()) {
             restaurantList = restaurants.filter {
-                foodType.contains(it.restaurant.restaurantType)
+                foodType.map { it.lowercase() }
+                        .contains(it.restaurant.restaurantType.lowercase())
             }
         }
 
@@ -65,8 +66,8 @@ class FindRepositoryImpl @Inject constructor(
 
         if(rating.isNotEmpty()){
             restaurantList = restaurants.filter { restaurant->
-                rating.any { restaurant.restaurant.rating > it.toFloat()
-                             && restaurant.restaurant.rating < (it.toFloat() + 0.9) }
+                rating.any { restaurant.restaurant.rating > it.length.toFloat()
+                             && restaurant.restaurant.rating < (it.length.toFloat() + 0.9) }
             }
         }
 
@@ -151,10 +152,12 @@ class FindRepositoryImpl @Inject constructor(
             Log.d(tag, "restaurant filter search: $filter")
             val result = if(filter.searchType == SearchType.BOUND) apiFilter.boundRestaurant(filter.toApiModel())
                          else apiFilter.aroundRestaurant(filter.toApiModel())
-            _restaurants.emit(result.restaurants.map {
-                if(it != null) RestaurantWithFiveImages.from(it)
+
+            val list = result.restaurants.map {
+                if (it != null) RestaurantWithFiveImages.from(it)
                 else RestaurantWithFiveImages()
-            })
+            }
+            _restaurants.emit(list)
         }
         catch (e : HttpException)   { Log.e(tag, e.response()?.errorBody()?.string().toString()) }
         catch (e : Exception)       { Log.e(tag, e.toString()) }
