@@ -334,7 +334,8 @@ fun User.Companion.fromApiModel(apiModel : UserApiModel) : User{
         profilePicUrl   = apiModel.profilePicUrl,
         post            = apiModel.post,
         follower        = apiModel.follower,
-        following       = apiModel.following
+        following       = apiModel.following,
+        follow          = apiModel.follow
     )
 }
 
