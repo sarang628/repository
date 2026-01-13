@@ -95,9 +95,17 @@ val UserEntity.user : User get() =
         loginPlatform   = this.loginPlatform,
         createDate      = this.createDate,
         profilePicUrl   = this.profilePicUrl,
-        following       = this.following.toInt(),
-        follower        = this.followers.toInt()
+        following       = this.following.toSafeInt(),
+        follower        = this.followers.toSafeInt()
     )
+
+fun String.toSafeInt() : Int{
+    try {
+        return this.toInt()
+    }catch (e : Exception){
+        return 0
+    }
+}
 
 val ChatParticipantUser.user get() = User(
     userId = this.userEntity.userId,
