@@ -29,6 +29,7 @@ import com.sarang.torang.data.CommentList
 import com.sarang.torang.data.Favorite
 import com.sarang.torang.data.FavoriteAndImage
 import com.sarang.torang.data.Feed
+import com.sarang.torang.data.Filter
 import com.sarang.torang.data.Like
 import com.sarang.torang.data.LikeAndImage
 import com.sarang.torang.data.Restaurant
@@ -43,7 +44,9 @@ import com.sarang.torang.data.remote.response.ChatRoomApiModel
 import com.sarang.torang.data.remote.response.ChatUserApiModel
 import com.sarang.torang.data.remote.response.CommentListApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
+import com.sarang.torang.data.remote.response.FilterApiModel
 import com.sarang.torang.data.remote.response.FollowerApiModel
+import com.sarang.torang.data.remote.response.RatingApiModel
 import com.sarang.torang.data.remote.response.RemoteComment
 import com.sarang.torang.data.remote.response.RestaurantResponseDto
 import com.sarang.torang.data.remote.response.RestaurantV1WithFiveImagesResponseModel
@@ -399,4 +402,34 @@ fun RestaurantResponseDto.toEntity() : Restaurant {
         imgUrl1 = imgUrl1 ?: "null",
         restaurantTypeCd = restaurantTypeCd ?: "null"
     )
+}
+
+fun Filter.toApiModel() : FilterApiModel{
+    return FilterApiModel(
+        searchType = this.searchType.name,
+        keyword = this.keyword,
+        distances = this.distances,
+        prices = this.prices,
+        restaurantTypes = this.restaurantTypes,
+        ratings = this.ratings?.map { it.toRatingApiModel() },
+        latitude = this.lat,
+        longitude = this.lon,
+        northEastLat = this.northEastLat,
+        northEastLon = this.northEastLon,
+        southWestLat = this.southWestLat,
+        southWestLon = this.southWestLon,
+    )
+}
+
+fun String.toRatingApiModel() : RatingApiModel{
+    return when(this){
+        "*" -> RatingApiModel.ONE
+        "**" -> RatingApiModel.TWO
+        "***" -> RatingApiModel.THREE
+        "****" -> RatingApiModel.FOUR
+        "*****" -> RatingApiModel.FIVE
+        else -> {
+            RatingApiModel.ONE
+        }
+    }
 }

@@ -59,13 +59,13 @@ class FindRepositoryImpl @Inject constructor(
         }
 
         if(price.isNotEmpty()){
-            restaurantList = restaurants.filter {
+            restaurantList = restaurantList.filter {
                 price.contains(it.restaurant.prices)
             }
         }
 
         if(rating.isNotEmpty()){
-            restaurantList = restaurants.filter { restaurant->
+            restaurantList = restaurantList.filter { restaurant->
                 rating.any { restaurant.restaurant.rating > it.length.toFloat()
                              && restaurant.restaurant.rating < (it.length.toFloat() + 0.9) }
             }
@@ -161,36 +161,6 @@ class FindRepositoryImpl @Inject constructor(
         }
         catch (e : HttpException)   { Log.e(tag, e.response()?.errorBody()?.string().toString()) }
         catch (e : Exception)       { Log.e(tag, e.toString()) }
-    }
-
-    fun Filter.toApiModel() : FilterApiModel{
-        return FilterApiModel(
-            searchType = this.searchType.name,
-            keyword = this.keyword,
-            distances = this.distances,
-            prices = this.prices,
-            restaurantTypes = this.restaurantTypes,
-            ratings = this.ratings?.map { it.toRatingApiModel() },
-            latitude = this.lat,
-            longitude = this.lon,
-            northEastLat = this.northEastLat,
-            northEastLon = this.northEastLon,
-            southWestLat = this.southWestLat,
-            southWestLon = this.southWestLon,
-        )
-    }
-
-    fun String.toRatingApiModel() : RatingApiModel{
-        return when(this){
-            "*" -> RatingApiModel.ONE
-            "**" -> RatingApiModel.TWO
-            "***" -> RatingApiModel.THREE
-            "****" -> RatingApiModel.FOUR
-            "*****" -> RatingApiModel.FIVE
-            else -> {
-                RatingApiModel.ONE
-            }
-        }
     }
 
     override suspend fun selectRestaurantFromMarker(restaurantId: Int) {
