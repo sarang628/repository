@@ -89,12 +89,14 @@ fun UserApiModel.toLoggedInUserEntity(): LoggedInUserEntity {
 
 val UserEntity.user : User get() =
     User(
-        userId = this.userId,
-        userName = this.userName,
-        email = this.email,
-        loginPlatform = this.loginPlatform,
-        createDate = this.createDate,
-        profilePicUrl = this.profilePicUrl
+        userId          = this.userId,
+        userName        = this.userName,
+        email           = this.email,
+        loginPlatform   = this.loginPlatform,
+        createDate      = this.createDate,
+        profilePicUrl   = this.profilePicUrl,
+        following       = this.following.toInt(),
+        follower        = this.followers.toInt()
     )
 
 val ChatParticipantUser.user get() = User(
@@ -324,12 +326,15 @@ fun Alarm.Companion.fromApiModel(apiModel : AlarmAlarmModel) : Alarm{
 
 fun User.Companion.fromApiModel(apiModel : UserApiModel) : User{
     return User(
-        userId = apiModel.userId,
-        userName = apiModel.userName,
-        email = apiModel.email,
-        loginPlatform = apiModel.loginPlatform,
-        createDate = apiModel.createDate,
-        profilePicUrl = apiModel.profilePicUrl
+        userId          = apiModel.userId,
+        userName        = apiModel.userName,
+        email           = apiModel.email,
+        loginPlatform   = apiModel.loginPlatform,
+        createDate      = apiModel.createDate,
+        profilePicUrl   = apiModel.profilePicUrl,
+        post            = apiModel.post,
+        follower        = apiModel.follower,
+        following       = apiModel.following
     )
 }
 
