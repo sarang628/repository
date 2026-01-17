@@ -447,3 +447,15 @@ fun String.toRatingApiModel() : RatingApiModel{
         }
     }
 }
+
+val UserApiModel.userEntity : UserEntity get() = UserEntity(
+    userId = this.userId,
+    userName = this.userName,
+    email = this.email ?: "",
+    loginPlatform = this.loginPlatform ?: "",
+    createDate = this.createDate ?: "",
+    profilePicUrl = this.profilePicUrl,
+    reviewCount = this.post.toString(),
+    following = this.following.toString(),
+    followers = this.follower.toString()
+)

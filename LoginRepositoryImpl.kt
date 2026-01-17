@@ -25,6 +25,8 @@ import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
 
+private const val tag = "__LoginRepositoryImpl"
+
 /**
  * 로그인 관련 Repository
  */
@@ -52,18 +54,6 @@ class LoginRepositoryImpl @Inject constructor(
                            createDate = it.createDate) }
         }
 
-    val UserApiModel.userEntity : UserEntity get() = UserEntity(
-        userId = this.userId,
-        userName = this.userName,
-        email = this.email ?: "",
-        loginPlatform = this.loginPlatform ?: "",
-        createDate = this.createDate ?: "",
-        profilePicUrl = BuildConfig.REVIEW_IMAGE_SERVER_URL + this.profilePicUrl,
-        reviewCount = this.post.toString(),
-        following = this.following.toString(),
-        followers = this.follower.toString()
-    )
-
     override suspend fun emailLogin(email: String, password: String) {
         try {
             val result = apiLogin.emailLogin(email = email,
@@ -74,24 +64,24 @@ class LoginRepositoryImpl @Inject constructor(
             userDao.addUser(result.profile.userEntity)
             sessionService.saveToken(result.token)
         } catch (e: HttpException) {
-            Log.e("__LoginRepositoryImpl", "emailLogin: ${e.message()}")
+            Log.e(tag, "emailLogin: ${e.message()}")
             if (e.code() == 500) {
                 throw Exception(e.handle())
             } else {
                 throw Exception("알 수 없는 응답이 발생했습니다.(${e.code()})")
             }
         } catch (e: ConnectException) {
-            Log.e("__LoginRepositoryImpl", "emailLogin: ConnectException: ${e.message}")
+            Log.e(tag, "emailLogin: ConnectException: ${e.message}")
             throw Exception("네트워크를 확인해 주세요")
         } catch (e: UnknownHostException) {
-            Log.e("__LoginRepositoryImpl", "emailLogin: UnknownHostException: ${e.message}")
+            Log.e(tag, "emailLogin: UnknownHostException: ${e.message}")
             throw Exception("서버 접속할 수 없습니다.")
         } catch (e : SocketException){
-            Log.e("__LoginRepositoryImpl", "emailLogin: SocketException: ${e.message}")
+            Log.e(tag, "emailLogin: SocketException: ${e.message}")
             throw Exception("서버 접속할 수 없습니다.")
         }
         catch (e: Exception) {
-            Log.e("__LoginRepositoryImpl", "emailLogin: Exception: ${e.message}")
+            Log.e(tag, "emailLogin: Exception: ${e.message}")
             throw Exception("알 수 없는 오류가 발생했습니다.")
         }
     }

@@ -49,7 +49,7 @@ import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
-
+private const val tag = "__FeedLoadRepositoryImpl"
 @Singleton
 class FeedLoadRepositoryImpl @Inject constructor(
     private val apiFeed                 : ApiFeed,
@@ -209,14 +209,13 @@ class FeedLoadRepositoryImpl @Inject constructor(
                 reviewImages = list,
                 userList     = feedList.map { it.toUserEntity() },
                 likeList     = feedList.filter { it.like != null }
-                    .map { it.like!!.toLikeEntity() },
+                                       .map { it.like!!.toLikeEntity() },
                 favorites    = feedList.filter { it.favorite != null }
-                    .map { it.favorite!!.toFavoriteEntity() }
+                                       .map { it.favorite!!.toFavoriteEntity() }
             )
         } catch (e: Exception) {
-            Log.e("FeedRepositoryImpl", e.toString())
-            Log.e("FeedRepositoryImpl",
-                Gson().newBuilder().setPrettyPrinting().create().toJson(feedList))
+            Log.e(tag, e.toString())
+            Log.e(tag, Gson().newBuilder().setPrettyPrinting().create().toJson(feedList))
             throw Exception("피드를 가져오는데 실패하였습니다.")
         }
     }
