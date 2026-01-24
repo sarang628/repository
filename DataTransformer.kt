@@ -238,7 +238,8 @@ fun ReviewImage.Companion.from(entity : ReviewImageEntity) : ReviewImage{
                        menuId = entity.menuId,
                        menu = entity.menu,
                        width = entity.width,
-                       height = entity.height)
+                       height = entity.height,
+                       order = entity.order)
 }
 
 fun Like.Companion.from(entity : LikeEntity?) : Like? {
