@@ -208,7 +208,7 @@ fun Favorite.Companion.from(entity : FavoriteEntity?) : Favorite?{
 fun ReviewAndImage.Companion.from(entity : ReviewAndImageEntity) : ReviewAndImage {
     return ReviewAndImage(
         review = Feed.from(entity.review),
-        images = entity.images.map { ReviewImage.from(it) },
+        images = entity.images.map { ReviewImage.from(it) }.sortedBy { it.order },
         like = Like.from(entity.like),
         favorite = Favorite.from(entity.favorite)
     )
