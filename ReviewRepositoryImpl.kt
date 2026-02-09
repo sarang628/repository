@@ -51,6 +51,7 @@ class ReviewRepositoryImpl @Inject constructor(
         restaurantId: Int?,
         rating: Float,
         files: List<String>,
+        context : Context
     ): Feed {
         val user = loggedInUserDao.getLoggedInUser() ?: throw Exception("로그인을 해주세요.")
         try {
@@ -82,6 +83,7 @@ class ReviewRepositoryImpl @Inject constructor(
         rating: Float,
         files: List<String>,
         uploadedImage: List<Int>,
+        context : Context
     ) {
         val userId = loggedInUserDao.getLoggedInUser()?.userId
         userId ?: throw java.lang.Exception("로그인을 해주세요.")
