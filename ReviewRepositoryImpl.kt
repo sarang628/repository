@@ -1,6 +1,7 @@
 package com.sarang.torang.di.repository
 
 import android.content.Context
+import android.net.Uri
 import com.sarang.torang.api.ApiReview
 import com.sarang.torang.api.ApiReviewV1
 import com.sarang.torang.api.handle
@@ -23,6 +24,9 @@ import retrofit2.HttpException
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import android.content.ContentResolver
+import android.provider.OpenableColumns
 
 @Singleton
 class ReviewRepositoryImpl @Inject constructor(
@@ -60,7 +64,7 @@ class ReviewRepositoryImpl @Inject constructor(
                 contents = content.toRequestBody(),
                 torang_id = restaurantId,
                 rating = rating,
-                file = filesToMultipart(files)
+                file = filesToMultipart(context,files)
             )
 
             pictureDao.addAll(
@@ -93,7 +97,7 @@ class ReviewRepositoryImpl @Inject constructor(
             contents = contents.toRequestBody(),
             torang_id = restaurantId,
             rating = rating,
-            file = filesToMultipart(files),
+            file = filesToMultipart(context, files),
             uploadedImage = uploadedImage
         )
 
@@ -112,19 +116,55 @@ class ReviewRepositoryImpl @Inject constructor(
     }
 }
 
-fun filesToMultipart(file: List<String>): ArrayList<MultipartBody.Part> {
+fun filesToMultipart(context: Context, file: List<String>): ArrayList<MultipartBody.Part> {
     val list = ArrayList<MultipartBody.Part>()
         .apply {
             addAll(
                 file.map {
-                    val file = File(it)
-                    MultipartBody.Part.createFormData(
-                        name = "file",
-                        filename = file.name,
-                        body = file.asRequestBody()
-                    )
+                    if (Uri.parse(it).scheme == "content") { //비디오 일 경우
+                        uriToMultipart(context, Uri.parse(it))
+                    } else {
+                        val file = File(it)
+                        MultipartBody.Part.createFormData(
+                            name = "file",
+                            filename = file.name,
+                            body = file.asRequestBody()
+                        )
+                    }
                 }
             )
         }
     return list
+}
+
+fun uriToMultipart(
+    context: Context,
+    uri: Uri,
+    partName: String = "file"
+): MultipartBody.Part {
+
+    val contentResolver = context.contentResolver
+    val mimeType = contentResolver.getType(uri) ?: "video/*"
+
+    val inputStream = contentResolver.openInputStream(uri)!!
+    val requestBody = inputStream.readBytes().toRequestBody(mimeType.toMediaTypeOrNull())
+
+    val fileName = queryFileName(contentResolver, uri)
+
+    return MultipartBody.Part.createFormData(
+        name = partName,
+        filename = fileName,
+        body = requestBody
+    )
+}
+
+fun queryFileName(resolver: ContentResolver, uri: Uri): String {
+    val cursor = resolver.query(uri, null, null, null, null)
+    cursor?.use {
+        val nameIndex = it.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+        if (it.moveToFirst() && nameIndex != -1) {
+            return it.getString(nameIndex)
+        }
+    }
+    return "video.mp4"
 }
