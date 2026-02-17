@@ -1,14 +1,15 @@
 package com.sarang.torang.di.repository
 
+import android.content.ContentResolver
 import android.content.Context
 import android.net.Uri
+import android.provider.OpenableColumns
 import com.sarang.torang.api.ApiReview
 import com.sarang.torang.api.ApiReviewV1
 import com.sarang.torang.api.handle
-import com.sarang.torang.core.database.dao.FeedDao
 import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.PictureDao
-import com.sarang.torang.core.database.dao.RestaurantDao
+import com.sarang.torang.core.database.dao.ReviewAndImageDao
 import com.sarang.torang.core.database.dao.ReviewDao
 import com.sarang.torang.data.Feed
 import com.sarang.torang.data.ReviewAndImage
@@ -16,7 +17,7 @@ import com.sarang.torang.di.torang_database_di.toFeedEntity
 import com.sarang.torang.di.torang_database_di.toReviewImage
 import com.sarang.torang.repository.review.ReviewRepository
 import com.sarang.torang.session.SessionService
-import dagger.hilt.android.qualifiers.ApplicationContext
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -24,21 +25,16 @@ import retrofit2.HttpException
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import android.content.ContentResolver
-import android.provider.OpenableColumns
 
 @Singleton
 class ReviewRepositoryImpl @Inject constructor(
-    @ApplicationContext context: Context,
-    private val apiReview: ApiReview,
-    private val apiReviewV1: ApiReviewV1,
-    private val restaurantDao: RestaurantDao,
-    private val loggedInUserDao: LoggedInUserDao,
-    private val reviewDao: ReviewDao,
-    private val pictureDao: PictureDao,
-    private val feedDao: FeedDao,
-    private val sessionService: SessionService,
+    private val apiReview           : ApiReview,
+    private val apiReviewV1         : ApiReviewV1,
+    private val loggedInUserDao     : LoggedInUserDao,
+    private val reviewDao           : ReviewDao,
+    private val pictureDao          : PictureDao,
+    private val reviewAndImageDao   : ReviewAndImageDao,
+    private val sessionService      : SessionService,
 ) : ReviewRepository {
     override suspend fun getReviews(restaurantId: Int): List<Feed> {
 
@@ -111,7 +107,7 @@ class ReviewRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getReview(reviewId: Int): ReviewAndImage {
-        val reviewImageEntity = feedDao.find(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
+        val reviewImageEntity = reviewAndImageDao.find(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
         return ReviewAndImage.from(reviewImageEntity)
     }
 }

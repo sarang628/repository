@@ -10,11 +10,13 @@ import com.sarang.torang.api.handle
 import com.sarang.torang.core.database.dao.FavoriteDao
 import com.sarang.torang.core.database.dao.FeedDao
 import com.sarang.torang.core.database.dao.FeedGridDao
+import com.sarang.torang.core.database.dao.FeedInsertDao
 import com.sarang.torang.core.database.dao.LikeDao
 import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.MainFeedDao
 import com.sarang.torang.core.database.dao.MyFeedDao
 import com.sarang.torang.core.database.dao.PictureDao
+import com.sarang.torang.core.database.dao.ReviewAndImageDao
 import com.sarang.torang.core.database.dao.ReviewImageDao
 import com.sarang.torang.core.database.dao.UserDao
 import com.sarang.torang.core.database.model.favorite.FavoriteAndImageEntity
@@ -53,6 +55,8 @@ import javax.inject.Singleton
 class FeedRepositoryImpl @Inject constructor(
     private val apiFeed                 : ApiFeed,
     private val feedDao                 : FeedDao,
+    private val feedInsertDao           : FeedInsertDao,
+    private val reviewAndImageDao       : ReviewAndImageDao,
     private val userDao                 : UserDao,
     private val likeDao                 : LikeDao,
     private val pictureDao              : PictureDao,
@@ -73,7 +77,7 @@ class FeedRepositoryImpl @Inject constructor(
             throw Exception(e.handle())
         }
 
-        val reviewAndImageEntity = feedDao.find(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
+        val reviewAndImageEntity = reviewAndImageDao.find(reviewId) ?: throw Exception("리뷰를 찾을 수 없습니다.")
 
         return ReviewAndImage.from(reviewAndImageEntity)
     }
@@ -100,15 +104,16 @@ class FeedRepositoryImpl @Inject constructor(
         feedDao.deleteByReviewId(reviewId)
     }
     private  suspend    fun insertFeed(feedList: List<FeedApiModel>) {
-        feedDao.insertAllFeed(userDao         = userDao,
-                              likeDao         = likeDao,
-                              pictureDao      = pictureDao,
-                              favoriteDao     = favoriteDao,
-                              feedList        = feedList.map { it.toFeedEntity() },
-                              reviewImages    = feedList.map { it.pictures }.flatMap { it }.map { it.toReviewImage() },
-                              userList        = feedList.map { it.toUserEntity() },
-                              likeList        = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
-                              favorites       = feedList.filter { it.favorite != null }.map { it.favorite!!.toFavoriteEntity() })
+        feedInsertDao.insertAllFeed(userDao         = userDao,
+                                    likeDao         = likeDao,
+                                    pictureDao      = pictureDao,
+                                    favoriteDao     = favoriteDao,
+                                    feedList        = feedList.map { it.toFeedEntity() },
+                                    reviewImages    = feedList.map { it.pictures }.flatMap { it }.map { it.toReviewImage() },
+                                    userList        = feedList.map { it.toUserEntity() },
+                                    likeList        = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
+                                    favorites       = feedList.filter { it.favorite != null }.map { it.favorite!!.toFavoriteEntity() },
+                                    feedDao         = feedDao)
     }
 
     @Transaction

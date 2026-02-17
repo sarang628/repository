@@ -10,11 +10,13 @@ import com.sarang.torang.api.handle
 import com.sarang.torang.core.database.dao.FavoriteDao
 import com.sarang.torang.core.database.dao.FeedDao
 import com.sarang.torang.core.database.dao.FeedGridDao
+import com.sarang.torang.core.database.dao.FeedInsertDao
 import com.sarang.torang.core.database.dao.LikeDao
 import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.MainFeedDao
 import com.sarang.torang.core.database.dao.MyFeedDao
 import com.sarang.torang.core.database.dao.PictureDao
+import com.sarang.torang.core.database.dao.ReviewAndImageDao
 import com.sarang.torang.core.database.dao.ReviewImageDao
 import com.sarang.torang.core.database.dao.UserDao
 import com.sarang.torang.core.database.model.favorite.FavoriteAndImageEntity
@@ -56,6 +58,7 @@ class FeedLoadRepositoryImpl @Inject constructor(
     private val apiFeedV1               : ApiFeedV1,
     private val apiReview               : ApiReview,
     private val feedDao                 : FeedDao,
+    private val feedInsertDao           : FeedInsertDao,
     private val feedGridDao             : FeedGridDao,
     private val userDao                 : UserDao,
     private val likeDao                 : LikeDao,
@@ -220,15 +223,16 @@ class FeedLoadRepositoryImpl @Inject constructor(
         }
     }
     private  suspend    fun insertFeed(feedList: List<FeedApiModel>) {
-        feedDao.insertAllFeed(userDao         = userDao,
-                              likeDao         = likeDao,
-                              pictureDao      = pictureDao,
-                              favoriteDao     = favoriteDao,
-                              feedList        = feedList.map { it.toFeedEntity() },
-                              reviewImages    = feedList.map { it.pictures }.flatMap { it }.map { it.toReviewImage() },
-                              userList        = feedList.map { it.toUserEntity() },
-                              likeList        = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
-                              favorites       = feedList.filter { it.favorite != null }.map { it.favorite!!.toFavoriteEntity() })
+        feedInsertDao.insertAllFeed(userDao         = userDao,
+                                    likeDao         = likeDao,
+                                    pictureDao      = pictureDao,
+                                    favoriteDao     = favoriteDao,
+                                    feedList        = feedList.map { it.toFeedEntity() },
+                                    reviewImages    = feedList.map { it.pictures }.flatMap { it }.map { it.toReviewImage() },
+                                    userList        = feedList.map { it.toUserEntity() },
+                                    likeList        = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
+                                    favorites       = feedList.filter { it.favorite != null }.map { it.favorite!!.toFavoriteEntity() },
+                                    feedDao         = feedDao)
     }
     @Transaction
              suspend    fun deleteAll() {
