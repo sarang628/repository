@@ -2,6 +2,7 @@ package com.sarang.torang.di.repository
 
 import android.content.Context
 import com.google.gson.Gson
+import com.sarang.torang.api.ApiMenu
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.HoursOfOperation
 import com.sarang.torang.data.Menu
@@ -23,6 +24,7 @@ import javax.inject.Singleton
 class RestaurantRepositoryImpl @Inject constructor(
     @ApplicationContext context: Context,
     private val apiRestaurant: ApiRestaurant,
+    private val apiMenu: ApiMenu,
     private val restaurantDao: RestaurantDao,
     private val pictureDao: PictureDao,
 ) :
@@ -36,10 +38,8 @@ class RestaurantRepositoryImpl @Inject constructor(
 
 
     override suspend fun loadMenus(restaurantId: Int): List<Menu> {
-        return apiRestaurant.getMenus(HashMap<String, String>().apply {
-            put("restaurant_id", restaurantId.toString())
-        }).map {
-            Gson().fromJson<Menu>(Gson().toJson(it), Menu::class.java)
+        return apiMenu.findByRestaurantId(restaurantId).map {
+            Gson().fromJson(Gson().toJson(it), Menu::class.java)
         }
     }
 
