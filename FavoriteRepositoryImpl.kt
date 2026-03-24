@@ -1,9 +1,8 @@
 package com.sarang.torang.di.repository
 
-import com.sarang.torang.api.feed.ApiFeed
+import com.sarang.torang.api.ApiFeed
 import com.sarang.torang.core.database.dao.FavoriteDao
 import com.sarang.torang.core.database.dao.FeedDao
-import com.sarang.torang.core.database.model.favorite.FavoriteEntity
 import com.sarang.torang.data.Favorite
 import com.sarang.torang.di.torang_database_di.toFavoriteEntity
 import com.sarang.torang.repository.FavoriteRepository

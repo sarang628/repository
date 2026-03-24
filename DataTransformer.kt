@@ -38,7 +38,7 @@ import com.sarang.torang.data.ReviewAndImage
 import com.sarang.torang.data.ReviewImage
 import com.sarang.torang.data.Search
 import com.sarang.torang.data.User
-import com.sarang.torang.data.remote.response.AlarmAlarmModel
+import com.sarang.torang.data.remote.response.AlarmApiModel
 import com.sarang.torang.data.remote.response.ChatApiModel
 import com.sarang.torang.data.remote.response.ChatRoomApiModel
 import com.sarang.torang.data.remote.response.ChatUserApiModel
@@ -318,7 +318,7 @@ fun Feed.Companion.fromApiModel(apiModel: FeedApiModel) : Feed{
     )
 }
 
-fun Alarm.Companion.fromApiModel(apiModel : AlarmAlarmModel) : Alarm{
+fun Alarm.Companion.fromApiModel(apiModel : AlarmApiModel) : Alarm{
     return Alarm(
         alarmId = apiModel.alarmId,
         userId = apiModel.user.userId,

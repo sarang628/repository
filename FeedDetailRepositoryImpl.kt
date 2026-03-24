@@ -40,7 +40,7 @@ class FeedDetailRepositoryImpl @Inject constructor(
     override suspend fun getComments(reviewId: Int): List<Comment> {
         var list: List<RemoteComment> = ArrayList();
         sessionService.getToken()?.let {
-            list = apiComment.getComments(it, reviewId).list
+            list = apiComment.findByReviewId(it, reviewId).list
         }
         //commentDao.insertComments(CommentEntity.parse(list))
         return list.map {

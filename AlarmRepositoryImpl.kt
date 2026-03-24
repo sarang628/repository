@@ -3,7 +3,7 @@ package com.sarang.torang.di.repository
 import com.sarang.torang.api.ApiAlarm
 import com.sarang.torang.data.Alarm
 import com.sarang.torang.data.User
-import com.sarang.torang.data.remote.response.AlarmAlarmModel
+import com.sarang.torang.data.remote.response.AlarmApiModel
 import com.sarang.torang.repository.AlarmRepository
 import com.sarang.torang.session.SessionService
 import kotlinx.coroutines.flow.Flow
@@ -19,9 +19,11 @@ class AlarmRepositoryImpl @Inject constructor(
 
 
     override suspend fun loadAlarm(): List<Alarm> {
-        var list = ArrayList<AlarmAlarmModel>()
+        var list : List<AlarmApiModel> = emptyList()
         sessionService.getToken()?.let {
-            list = apiAlarm.getAlarms(it)
+            apiAlarm.findAll(it).body()?.let {
+                list = it
+            }
         }
         return list.map { Alarm.fromApiModel(it) }
     }

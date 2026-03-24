@@ -2,17 +2,15 @@ package com.sarang.torang.di.repository
 
 import android.util.Log
 import com.sarang.torang.Follower
+import com.sarang.torang.api.ApiFeed
 import com.sarang.torang.api.ApiLike
-import com.sarang.torang.api.feed.ApiFeed
 import com.sarang.torang.core.database.dao.FeedDao
 import com.sarang.torang.core.database.dao.LikeDao
-import com.sarang.torang.data.remote.response.FollowerApiModel
 import com.sarang.torang.di.torang_database_di.toLikeEntity
 import com.sarang.torang.exception.NotLoggedInException
 import com.sarang.torang.repository.LikeRepository
 import com.sarang.torang.session.SessionClientService
 import com.sarang.torang.session.SessionService
-import java.lang.Exception
 import javax.inject.Inject
 import javax.inject.Singleton
 

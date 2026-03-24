@@ -66,7 +66,7 @@ class ChatRepositoryImpl @Inject constructor(
         val token = sessionService.getToken() ?: return Result.failure(Exception("채팅방 로딩에 실패하였습니다. 로그인을 해주세요."))
         val user = loggedInUserDao.getLoggedInUser() ?: return Result.failure(Exception("채팅방 로딩에 실패하였습니다. 로그인 사용자 정보가 없습니다."))
         val chatRooms = try {
-            apiChat.getChatRoom(token)
+            apiChat.findAll(token)
         }catch (e : Exception){
             return Result.failure(Exception("채팅방 정보를 가져오는데 실패하였습니다."))
         }

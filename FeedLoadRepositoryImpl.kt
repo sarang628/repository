@@ -3,9 +3,9 @@ package com.sarang.torang.di.repository
 import android.util.Log
 import androidx.room.Transaction
 import com.google.gson.Gson
+import com.sarang.torang.api.ApiFeed
+import com.sarang.torang.api.ApiFeedV1
 import com.sarang.torang.api.ApiReview
-import com.sarang.torang.api.feed.ApiFeed
-import com.sarang.torang.api.feed.ApiFeedV1
 import com.sarang.torang.api.handle
 import com.sarang.torang.core.database.dao.FavoriteDao
 import com.sarang.torang.core.database.dao.FeedDao
@@ -16,21 +16,13 @@ import com.sarang.torang.core.database.dao.LoggedInUserDao
 import com.sarang.torang.core.database.dao.MainFeedDao
 import com.sarang.torang.core.database.dao.MyFeedDao
 import com.sarang.torang.core.database.dao.PictureDao
-import com.sarang.torang.core.database.dao.ReviewAndImageDao
-import com.sarang.torang.core.database.dao.ReviewImageDao
 import com.sarang.torang.core.database.dao.UserDao
-import com.sarang.torang.core.database.model.favorite.FavoriteAndImageEntity
 import com.sarang.torang.core.database.model.favorite.FavoriteEntity
 import com.sarang.torang.core.database.model.feed.FeedGridEntity
 import com.sarang.torang.core.database.model.feed.MainFeedEntity
-import com.sarang.torang.core.database.model.feed.ReviewAndImageEntity
 import com.sarang.torang.core.database.model.image.ReviewImageEntity
-import com.sarang.torang.core.database.model.like.LikeAndImageEntity
 import com.sarang.torang.core.database.model.like.LikeEntity
-import com.sarang.torang.data.FavoriteAndImage
-import com.sarang.torang.data.LikeAndImage
 import com.sarang.torang.data.ReviewAndImage
-import com.sarang.torang.data.ReviewImage
 import com.sarang.torang.data.remote.response.FavoriteFeedApiModel
 import com.sarang.torang.data.remote.response.FeedApiModel
 import com.sarang.torang.di.torang_database_di.toFavoriteEntity
@@ -39,7 +31,6 @@ import com.sarang.torang.di.torang_database_di.toLikeEntity
 import com.sarang.torang.di.torang_database_di.toReviewImage
 import com.sarang.torang.di.torang_database_di.toUserEntity
 import com.sarang.torang.repository.feed.FeedLoadRepository
-import com.sarang.torang.repository.feed.FeedRepository
 import com.sarang.torang.session.SessionClientService
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -51,6 +42,7 @@ import java.net.ConnectException
 import java.net.UnknownHostException
 import javax.inject.Inject
 import javax.inject.Singleton
+
 private const val tag = "__FeedLoadRepositoryImpl"
 @Singleton
 class FeedLoadRepositoryImpl @Inject constructor(

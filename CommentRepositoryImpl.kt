@@ -55,7 +55,7 @@ class CommentRepositoryImpl @Inject constructor(
     override suspend fun loadMoreReply(commentId: Int) {
         val token = sessionClientService.getToken()
         if (token != null) {
-            val result = apiComment.getSubComments(token, commentId)
+            val result = apiComment.nextComments(token, commentId)
             commentDao.insertComments(result.toCommentEntityList())
         } else {
             throw Exception("로그인을 해주세요")
@@ -66,7 +66,7 @@ class CommentRepositoryImpl @Inject constructor(
         val token = sessionClientService.getToken()
         if (token != null) {
             commentDao.clear()
-            val result = apiComment.getComments(token, reviewId)
+            val result = apiComment.findByReviewId(token, reviewId)
             commentDao.insertComments(result.list.toCommentEntityList())
             return CommentList.fromApiModel(result)
         } else {
@@ -77,7 +77,7 @@ class CommentRepositoryImpl @Inject constructor(
     override suspend fun getSubComment(parentCommentId: Int): List<Comment> {
         val token = sessionClientService.getToken()
         if (token != null) {
-            return apiComment.getSubComments(token, parentCommentId).map {
+            return apiComment.nextComments(token, parentCommentId).map {
                 Comment.fromApiModel(it)
             }
         } else {
@@ -139,7 +139,7 @@ class CommentRepositoryImpl @Inject constructor(
             //API
             val result = apiComment.addComment(
                 auth = it,
-                review_id = reviewId,
+                reviewId = reviewId,
                 comment = comment,
                 parentCommentId = parentCommentId
             )
@@ -166,7 +166,7 @@ class CommentRepositoryImpl @Inject constructor(
     override suspend fun getSubComments(commentId: Int): List<Comment> {
         val token = sessionClientService.getToken()
         if (token != null) {
-            return apiComment.getSubComments(token, commentId).map {
+            return apiComment.nextComments(token, commentId).map {
                 Comment.fromApiModel(it)
             }
         } else {
