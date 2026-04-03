@@ -2,13 +2,12 @@ package com.sarang.torang.di.repository
 
 import android.text.TextUtils
 import android.util.Log
+import com.google.android.gms.maps.model.LatLng
 import com.sarang.torang.api.ApiFilter
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.Filter
 import com.sarang.torang.data.RestaurantWithFiveImages
 import com.sarang.torang.data.SearchType
-import com.sarang.torang.data.remote.response.FilterApiModel
-import com.sarang.torang.data.remote.response.RatingApiModel
 import com.sarang.torang.di.repository.data.Distances
 import com.sarang.torang.repository.FindRepository
 import com.sarang.torang.repository.MapRepository
@@ -28,20 +27,21 @@ class FindRepositoryImpl @Inject constructor(
     val apiFilter: ApiFilter
 ) : FindRepository {
     val tag = "__FindRepositoryImpl"
-    private var _restaurants        : MutableStateFlow<List<RestaurantWithFiveImages>> = MutableStateFlow(listOf())
-    private var _foodType           : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
-    private var _price              : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
-    private var _rating             : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
-    private var _distance           : MutableStateFlow<Distances> = MutableStateFlow(Distances.NONE)
-    private var _keyword            : MutableStateFlow<String> = MutableStateFlow("")
-    private var _selectedRestaurant : MutableStateFlow<RestaurantWithFiveImages> = MutableStateFlow(RestaurantWithFiveImages())
-
-    var selectedRestaurant          : StateFlow<RestaurantWithFiveImages> = _selectedRestaurant
+    private val _restaurants        : MutableStateFlow<List<RestaurantWithFiveImages>> = MutableStateFlow(listOf())
+    private val _foodType           : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
+    private val _price              : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
+    private val _rating             : MutableStateFlow<List<String>> = MutableStateFlow(listOf())
+    private val _distance           : MutableStateFlow<Distances> = MutableStateFlow(Distances.NONE)
+    private val _keyword            : MutableStateFlow<String> = MutableStateFlow("")
+    private val _selectedRestaurant : MutableStateFlow<RestaurantWithFiveImages> = MutableStateFlow(RestaurantWithFiveImages())
+    private val _cameraPosition      : MutableStateFlow<Pair<LatLng, Float>?> = MutableStateFlow(null)
+    val selectedRestaurant          : StateFlow<RestaurantWithFiveImages> = _selectedRestaurant
     private val foodType            : StateFlow<List<String>> = _foodType
-    private val price               : StateFlow<List<String>> = _price
-    private val rating              : StateFlow<List<String>> = _rating
-    private val distance            : StateFlow<Distances> = _distance
-    private val keyword             : StateFlow<String> = _keyword
+    val price               : StateFlow<List<String>> = _price
+    val rating              : StateFlow<List<String>> = _rating
+    val distance            : StateFlow<Distances> = _distance
+    val keyword             : StateFlow<String> = _keyword
+    val cameraPosition      : StateFlow<Pair<LatLng, Float>?> = _cameraPosition
 
     override var restaurants        : Flow<List<RestaurantWithFiveImages>>
         = combine(_restaurants,
@@ -185,5 +185,9 @@ class FindRepositoryImpl @Inject constructor(
     override suspend fun selectRestaurant(restaurantId: Int) {
         Log.d(tag, "selectRestaurant: $restaurantId")
         _restaurants.value.firstOrNull { it.restaurant.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
+    }
+
+    fun setCameraPosition(position : Pair<LatLng, Float>) {
+        _cameraPosition.value = position
     }
 }
