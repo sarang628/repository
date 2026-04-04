@@ -178,7 +178,11 @@ class FindRepositoryImpl @Inject constructor(
     override suspend fun selectRestaurantFromSwipe(restaurantId: Int) {
         if(blockCardSwipeEvent){ Log.w(tag, "block card swipe event restaurantId : ${restaurantId}"); return }
         Log.d(tag, "selectRestaurantFromSwipe: $restaurantId")
-        _restaurants.value.firstOrNull { it.restaurant.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
+        val selectedRestaurant = _restaurants.value.firstOrNull { it.restaurant.restaurantId == restaurantId }
+        selectedRestaurant?.let { restaurant ->
+            _selectedRestaurant.value = restaurant
+            _cameraPosition.value = Pair(LatLng(restaurant.restaurant.lat, restaurant.restaurant.lon), 17f)
+        }
     }
 
 
