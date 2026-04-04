@@ -2,7 +2,6 @@ package com.sarang.torang.di.repository
 
 import android.text.TextUtils
 import android.util.Log
-import com.google.android.gms.maps.model.LatLng
 import com.sarang.torang.api.ApiFilter
 import com.sarang.torang.api.ApiRestaurant
 import com.sarang.torang.data.Filter
@@ -34,14 +33,14 @@ class FindRepositoryImpl @Inject constructor(
     private val _distance           : MutableStateFlow<Distances> = MutableStateFlow(Distances.NONE)
     private val _keyword            : MutableStateFlow<String> = MutableStateFlow("")
     private val _selectedRestaurant : MutableStateFlow<RestaurantWithFiveImages> = MutableStateFlow(RestaurantWithFiveImages())
-    private val _cameraPosition      : MutableStateFlow<Pair<LatLng, Float>?> = MutableStateFlow(null)
+    private val _cameraPosition      : MutableStateFlow<Triple<Double, Double, Float>?> = MutableStateFlow(null)
     val selectedRestaurant          : StateFlow<RestaurantWithFiveImages> = _selectedRestaurant
     private val foodType            : StateFlow<List<String>> = _foodType
     val price               : StateFlow<List<String>> = _price
     val rating              : StateFlow<List<String>> = _rating
     val distance            : StateFlow<Distances> = _distance
     val keyword             : StateFlow<String> = _keyword
-    val cameraPosition      : StateFlow<Pair<LatLng, Float>?> = _cameraPosition
+    val cameraPosition      : StateFlow<Triple<Double, Double, Float>?> = _cameraPosition
 
     override var restaurants        : Flow<List<RestaurantWithFiveImages>>
         = combine(_restaurants,
@@ -181,7 +180,7 @@ class FindRepositoryImpl @Inject constructor(
         val selectedRestaurant = _restaurants.value.firstOrNull { it.restaurant.restaurantId == restaurantId }
         selectedRestaurant?.let { restaurant ->
             _selectedRestaurant.value = restaurant
-            _cameraPosition.value = Pair(LatLng(restaurant.restaurant.lat, restaurant.restaurant.lon), 17f)
+            _cameraPosition.value = Triple(restaurant.restaurant.lat, restaurant.restaurant.lon, 17f)
         }
     }
 
@@ -191,7 +190,7 @@ class FindRepositoryImpl @Inject constructor(
         _restaurants.value.firstOrNull { it.restaurant.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
     }
 
-    fun setCameraPosition(position : Pair<LatLng, Float>) {
+    fun setCameraPosition(position : Triple<Double, Double, Float>) {
         _cameraPosition.value = position
     }
 }
