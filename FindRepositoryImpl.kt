@@ -33,14 +33,14 @@ class FindRepositoryImpl @Inject constructor(
     private val _distance           : MutableStateFlow<Distances> = MutableStateFlow(Distances.NONE)
     private val _keyword            : MutableStateFlow<String> = MutableStateFlow("")
     private val _selectedRestaurant : MutableStateFlow<RestaurantWithFiveImages> = MutableStateFlow(RestaurantWithFiveImages())
-    private val _cameraPosition      : MutableStateFlow<Triple<Double, Double, Float>?> = MutableStateFlow(null)
+    private val _cameraPosition      : MutableStateFlow<Triple<Double, Double, Float?>?> = MutableStateFlow(null)
     val selectedRestaurant          : StateFlow<RestaurantWithFiveImages> = _selectedRestaurant
     private val foodType            : StateFlow<List<String>> = _foodType
     val price               : StateFlow<List<String>> = _price
     val rating              : StateFlow<List<String>> = _rating
     val distance            : StateFlow<Distances> = _distance
     val keyword             : StateFlow<String> = _keyword
-    val cameraPosition      : StateFlow<Triple<Double, Double, Float>?> = _cameraPosition
+    val cameraPosition      : StateFlow<Triple<Double, Double, Float?>?> = _cameraPosition
 
     override var restaurants        : Flow<List<RestaurantWithFiveImages>>
         = combine(_restaurants,
@@ -180,7 +180,7 @@ class FindRepositoryImpl @Inject constructor(
         val selectedRestaurant = _restaurants.value.firstOrNull { it.restaurant.restaurantId == restaurantId }
         selectedRestaurant?.let { restaurant ->
             _selectedRestaurant.value = restaurant
-            _cameraPosition.value = Triple(restaurant.restaurant.lat, restaurant.restaurant.lon, 17f)
+            _cameraPosition.value = Triple(restaurant.restaurant.lat, restaurant.restaurant.lon, null)
         }
     }
 
@@ -192,5 +192,13 @@ class FindRepositoryImpl @Inject constructor(
 
     fun setCameraPosition(position : Triple<Double, Double, Float>) {
         _cameraPosition.value = position
+    }
+
+    fun setCameraPosition(restaurantId : Int) {
+        _restaurants.value.firstOrNull(){
+            it.restaurant.restaurantId == restaurantId
+        }?.let {
+            _cameraPosition.value = Triple(it.restaurant.lat, it.restaurant.lon, null)
+        }
     }
 }
