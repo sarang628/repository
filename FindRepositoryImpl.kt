@@ -187,7 +187,7 @@ class FindRepositoryImpl @Inject constructor(
 
     override suspend fun selectRestaurant(restaurantId: Int) {
         Log.d(tag, "selectRestaurant: $restaurantId")
-        _restaurants.value.firstOrNull { it.restaurant.restaurantId == restaurantId }?.let { _selectedRestaurant.emit(it) }
+        _restaurants.value.firstOrNull { it.restaurant.restaurantId == restaurantId }?.let { _selectedRestaurant.value = it }
     }
 
     fun setCameraPosition(position : Triple<Double, Double, Float>) {
