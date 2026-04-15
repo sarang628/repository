@@ -240,8 +240,9 @@ class FeedLoadRepositoryImpl @Inject constructor(
 
         val count  = feedGridDao.findAll().size
 
-        pictureDao.addAll(
-            result.map {
+        val reviewImages = emptyList<ReviewImageEntity>()
+        try {
+            val reviewImages = result.map {
                 ReviewImageEntity(
                     pictureId = it.picture.pictureId,
                     pictureUrl = it.picture.pictureUrl,
@@ -250,7 +251,11 @@ class FeedLoadRepositoryImpl @Inject constructor(
                     reviewId = it.reviewId
                 )
             }
-        )
+        }catch (e : Exception){
+            throw Exception("피드 그리드 API 응답 데이터 변환 실패: ${e.message}")
+        }
+
+        pictureDao.addAll(reviewImages = reviewImages)
 
         feedGridDao.addAll(
             result.mapIndexed { index, model ->
