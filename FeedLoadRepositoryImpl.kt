@@ -201,7 +201,7 @@ class FeedLoadRepositoryImpl @Inject constructor(
                 pictureDao   = pictureDao,
                 likeDao      = likeDao,
                 favoriteDao  = favoriteDao,
-                reviewImages = list,
+                reviewImages = list.mapNotNull { it },
                 userList     = feedList.map { it.toUserEntity() },
                 likeList     = feedList.filter { it.like != null }
                                        .map { it.like!!.toLikeEntity() },
@@ -220,7 +220,9 @@ class FeedLoadRepositoryImpl @Inject constructor(
                                     pictureDao      = pictureDao,
                                     favoriteDao     = favoriteDao,
                                     feedList        = feedList.map { it.toFeedEntity() },
-                                    reviewImages    = feedList.map { it.pictures }.flatMap { it }.map { it.toReviewImage() },
+                                    reviewImages    = feedList.map { it.pictures }
+                                                              .flatMap { it }
+                                                              .mapNotNull { it.toReviewImage() },
                                     userList        = feedList.map { it.toUserEntity() },
                                     likeList        = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
                                     favorites       = feedList.filter { it.favorite != null }.map { it.favorite!!.toFavoriteEntity() },
@@ -242,15 +244,60 @@ class FeedLoadRepositoryImpl @Inject constructor(
 
         val reviewImages = emptyList<ReviewImageEntity>()
         try {
-            val reviewImages = result.map {
-                ReviewImageEntity(
-                    pictureId = it.picture.pictureId,
-                    pictureUrl = it.picture.pictureUrl,
-                    width = it.picture.width,
-                    height = it.picture.height,
-                    reviewId = it.reviewId
-                )
+            val reviewImages = result.filter {
+                var result = true
+                val errorMessage = "findByFeedGrid API 응답 변환 오류"
+                if(it.reviewId == null){
+                    Log.w(tag, "$errorMessage reviewId 없음.")
+                    result = false
+                } else if(it.picture == null){
+                    Log.w(tag, "$errorMessage picture 없음.")
+                    result = false
+                } else if(it.picture?.pictureId == null){
+                    Log.w(tag, "$errorMessage pictureId 없음.")
+                    result = false
+                } else if(it.picture?.pictureUrl == null){
+                    Log.w(tag, "$errorMessage pictureUrl 없음.")
+                    result = false
+                } else if(it.picture?.width == null){
+                    Log.w(tag, "$errorMessage width 없음.")
+                    result = false
+                } else if(it.picture?.height == null){
+                    Log.w(tag, "$errorMessage height 없음.")
+                    result = false
+                }
+                result
+            }.mapNotNull { it ->
+                val pic = it.picture
+                val rid = it.reviewId
+
+                // rid와 pic이 모두 null이 아닐 때만 run 내부 실행
+                if (rid != null && pic != null) {
+                    // 1. 검사할 값들을 모두 '불변 지역 변수(val)'로 선언합니다.
+                    val pid = pic.pictureId
+                    val url = pic.pictureUrl
+                    val w = pic.width
+                    val h = pic.height
+
+                    // 2. 이 지역 변수들을 체크하면 하단에서는 자동으로 non-null로 취급됩니다.
+                    if (pid != null && url != null && w != null && h != null) {
+                        ReviewImageEntity(
+                            pictureId = pid,   // !! 필요 없음 (Smart Cast)
+                            pictureUrl = url,  // !! 필요 없음
+                            width = w,
+                            height = h,
+                            reviewId = rid
+                        )
+                    } else {
+                        Log.w(tag, "findByFeedGrid API 응답 변환 오류: 필수 데이터 누락")
+                        null
+                    }
+                } else {
+                    Log.w(tag, "API 응답 변환 오류: 필수 객체(reviewId/picture) 누락")
+                    null
+                }
             }
+            pictureDao.addAll(reviewImages)
         }catch (e : Exception){
             throw Exception("피드 그리드 API 응답 데이터 변환 실패: ${e.message}")
         }
@@ -258,9 +305,12 @@ class FeedLoadRepositoryImpl @Inject constructor(
         pictureDao.addAll(reviewImages = reviewImages)
 
         feedGridDao.addAll(
-            result.mapIndexed { index, model ->
-                FeedGridEntity(reviewId = model.reviewId,
-                               order    = count+index)
+            result.mapIndexedNotNull { index, model ->
+                val reviewId = model.reviewId
+                reviewId?.let {
+                    FeedGridEntity(reviewId = it,
+                        order    = count+index)
+                }
             }
         )
     }

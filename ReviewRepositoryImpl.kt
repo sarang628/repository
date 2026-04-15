@@ -64,7 +64,7 @@ class ReviewRepositoryImpl @Inject constructor(
             )
 
             pictureDao.addAll(
-                review.pictures.map {
+                review.pictures.mapNotNull {
                     it.toReviewImage()
                 }
             )
@@ -99,7 +99,7 @@ class ReviewRepositoryImpl @Inject constructor(
 
         pictureDao.delete(reviewId)
         pictureDao.addAll(
-            review.pictures.map {
+            review.pictures.mapNotNull {
                 it.toReviewImage()
             }
         )

@@ -84,7 +84,7 @@ class FeedRepositoryImpl @Inject constructor(
                                     pictureDao      = pictureDao,
                                     favoriteDao     = favoriteDao,
                                     feedList        = feedList.map { it.toFeedEntity() },
-                                    reviewImages    = feedList.map { it.pictures }.flatMap { it }.map { it.toReviewImage() },
+                                    reviewImages    = feedList.map { it.pictures }.flatMap { it }.mapNotNull { it.toReviewImage() },
                                     userList        = feedList.map { it.toUserEntity() },
                                     likeList        = feedList.filter { it.like != null }.map { it.like!!.toLikeEntity() },
                                     favorites       = feedList.filter { it.favorite != null }.map { it.favorite!!.toFavoriteEntity() },
